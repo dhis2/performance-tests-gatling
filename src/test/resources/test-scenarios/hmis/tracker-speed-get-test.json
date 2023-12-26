@@ -1,0 +1,103 @@
+{
+  "scenarios": [
+    {
+      "query": "/api/categoryOptions?paging=false&fields=id,name,organisationUnits[id,name,code],categoryOptionGroups[id,name,groupSets[id]],categoryOptionCombos[id,name]",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/programs?fields=id,displayFormName,version,displayEnrollmentDateLabel,enrollmentDateLabel,maxTeiCountToReturn,selectIncidentDatesInFuture,incidentDateLabel,selectEnrollmentDatesInFuture,registration,favorite,useFirstStageDuringRegistration,displayName,onlyEnrollOnce,completeEventsExpiryDays,description,displayShortName,externalAccess,withoutRegistration,minAttributesRequiredToSearch,displayFrontPageList,programType,accessLevel,displayIncidentDate,expiryDays,style[*],dataEntryForm[*],relatedProgram[id,displayName],relationshipType[id,displayName],featureType,trackedEntityType[id,displayName],categoryCombo[id,displayName,isDefault,categories[id,displayName,categoryOptions[id,displayName,organisationUnits[id]]]],userRoles[id,displayName],programSections[*],programStages[*,dataEntryForm[*],programStageSections[id,displayName,description,sortOrder,dataElements[id]],programStageDataElements[*,dataElement[*,optionSet[id]]]],programTrackedEntityAttributes[*,trackedEntityAttribute[id,unique,orgunitScope]],minAttributesRequiredToSearch,maxTeiCountToReturn&paging=false",
+      "expectations": {
+        "min": 1800,
+        "max": 4800,
+        "mean": 4500
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/tracker/trackedEntities?filter=sB1IHYu2xQT:like:Jon&fields=attributes,enrollments,trackedEntity,orgUnit&program=Xh88p1nyefp&page=1&pageSize=5&ouMode=ACCESSIBLE",
+      "expectations": {
+        "min": 160,
+        "max": 400,
+        "mean": 360
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/trackedEntityTypes?paging=false&fields=id,displayName,featureType,maxTeiCountToReturn,minAttributesRequiredToSearch,trackedEntityTypeAttributes[*,trackedEntityAttribute[id,unique,displayInListNoProgram]],style,access[data[read,write]]",
+      "expectations": {
+        "min": 90,
+        "max": 295,
+        "mean": 220
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/organisationUnitLevels?fields=id,displayName~rename(name),level&paging=false",
+      "expectations": {
+        "min": 85,
+        "max": 230,
+        "mean": 210
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/organisationUnits?fields=id,displayName,path,children::isNotEmpty,access&query=a&withinUserHierarchy=true&pageSize=10000",
+      "expectations": {
+        "min": 230,
+        "max": 720,
+        "mean": 515
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/tracker/trackedEntities.json?order=createdAt:desc&page=1&pageSize=15&orgUnit=FV43JisquSm&ouMode=SELECTED&program=Lt6P15ps7f6&fields=:all",
+      "expectations": {
+        "min": 230,
+        "max": 720,
+        "mean": 515
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/trackedEntityInstances.json?filter=sB1IHYu2xQT:like:Jon&fields=attributes,enrollments,trackedEntity,orgUnit&program=Xh88p1nyefp&page=1&pageSize=5&ouMode=ACCESSIBLE",
+      "expectations": {
+        "min": 230,
+        "max": 720,
+        "mean": 515
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/tracker/events.json?page=1&pageSize=15&fields=dataValues,occurredAt,event,status,orgUnit,program,programType,updatedAt,createdAt,assignedUser,&program=Lt6P15ps7f6&orgUnit=FV43JisquSm&programStage=RB3a5MXMe8g&ouMode=SELECTED&order=occurredAt:desc",
+      "expectations": {
+        "min": 230,
+        "max": 720,
+        "mean": 515
+      },
+      "version": {
+        "min": "38"
+      }
+    }
+  ]
+}

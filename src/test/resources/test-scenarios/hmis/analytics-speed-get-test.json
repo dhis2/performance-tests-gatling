@@ -1,0 +1,202 @@
+{
+  "scenarios": [
+    {
+      "query": "/api/analytics?dimension=dx:mSFhBWFltjO;hExroXuVSL3;PFPouoPydfU;udy6lknDEdq;rLpzqMZ0W7J;SXnsDURlJoI;DfRgB9P0TWH,pe:LAST_12_MONTHS;LAST_5_YEARS&filter=ou:USER_ORGUNIT&filter=LBwVBieQt45:VePuVPFoyJ2;gHfSdwPrC83;Ky8EJEqdpGP;ZcbWJfYaX5n;U53tdte60Ku;D3WBiIjOENI;rGonVKxJy5U;GiRpQWVJ24q;J8udQscngmZ;bFerqVXQ4Yx;eHQXg22Kk0z;LJw01cWvC6X&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:wPCJ11WI2ql;kTuZmE84bT9.ACTUAL_REPORTS;fQvyH9wHUEc;XTtXqeq6788;P0cCSjPQoq7;EZkN8vYZwjR.ZzoWAqln5xc;nmZkpHBcUd5;zjP3d0WhrLY;EZkN8vYZwjR.yqOaEgX6tOf;FLkRIMC0mq9,pe:MONTHS_THIS_YEAR;2018;2019;2020;2021;2022;2023&filter=ou:IWp9dQGM0bS;W6sNfkJcXGC;YvLOmtTQD6b;XdubcbI8tyT;vAyuVc8hfbK;LEVEL-jKnknQ9Mg6y;LEVEL-qpXLDdXT3po&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:SH0iOmEe0AR;qQlS4yw9RaV;hHniKx89xJK;QSa605mN246;cKlPzK4efeq;v4o5oChYOcF;bZYLsyngaPn&filter=ou:USER_ORGUNIT&filter=pe:TODAY&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:iKfKE7FhH9H;kqrwj0JOJon;YWOxEKIW5KB;d5VDVBgpNff&filter=ou:USER_ORGUNIT&filter=pe:TODAY&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:KV1LlPytf4f;dx8Y0ZrHji7,pe:LAST_12_MONTHS&filter=ou:USER_ORGUNIT&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=pe:LAST_12_MONTHS,dx:XvcWsuHBsGA.EXPECTED_REPORTS;XvcWsuHBsGA.ACTUAL_REPORTS;XvcWsuHBsGA.ACTUAL_REPORTS_ON_TIME;bJty1TJXcPN&filter=ou:USER_ORGUNIT&displayProperty=NAME&includeNumDen=true&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:D6Z8vC4lHkk,pe:LAST_12_MONTHS&filter=ou:USER_ORGUNIT&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:WicMjw6NoBe;xyKkpvzVXRM;wvZHYMuLtr7;o75SggesHsP&filter=ou:USER_ORGUNIT&filter=pe:THIS_YEAR&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:NAHjKMxxSVR&filter=ou:USER_ORGUNIT&filter=pe:LAST_12_MONTHS&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-01",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:vPVhCdvwbpx;OjnrRUIvYhw;pkS6e0qHVEA;e5sgpF8iidQ;xQkAtHTKfUa,pe:LAST_12_MONTHS&filter=ou:USER_ORGUNIT&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=true&includeMetadataDetails=true&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:SgyKp3Zuweo;n2TPjoeLbHl&filter=pe:LAST_5_YEARS&filter=ou:USER_ORGUNIT&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:C2bwEfFwiBX;rq7eOFDLmQK;HJ7yxI5uok5&filter=ou:USER_ORGUNIT&filter=pe: LAST_6_MONTHS&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:ur3uwmCYZhI;t3KwAaBnUVU;waXsOAL7zQC,pe:THIS_MONTH;LAST_5_YEARS&filter=ou:USER_ORGUNIT&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=pe:LAST_12_MONTHS,ou:LEVEL-vFr4zVw6Avn&filter=dx:pL17czCoSHJ&displayProperty=NAME&includeNumDen=true&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=ou:USER_ORGUNIT_GRANDCHILDREN;USER_ORGUNIT_CHILDREN;USER_ORGUNIT,pe:LAST_5_YEARS&filter=dx:MhW02ngnDET&displayProperty=NAME&includeNumDen=true&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=pe:LAST_12_MONTHS,ou:USER_ORGUNIT_GRANDCHILDREN&filter=dx:JuuFw56JNeM&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:GW4OUIj8tJZ;BGxfVk7fZu6;mV0Gr5kqgPJ;gtY3kiw1ipN,pe:LAST_12_WEEKS&filter=ou:USER_ORGUNIT&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics?dimension=dx:mA4BjsGtMkI;p03XvZduEYf;p4LDoUzcWd2,pe:LAST_5_YEARS&filter=ou:USER_ORGUNIT;USER_ORGUNIT_CHILDREN;USER_ORGUNIT_GRANDCHILDREN&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    }
+  ]
+}

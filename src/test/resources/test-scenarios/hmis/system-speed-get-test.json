@@ -1,0 +1,70 @@
+{
+  "scenarios": [
+    {
+      "query": "/api/systemSettings",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/system/info",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/userSettings",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/me?fields=authorities,avatar,email,name,settings",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/schemas/visualization?fields=apiEndpoint,name,displayName,authorities,singular,plural,shareable,metadata,klass,identifiableObject,translatable,properties[href,writable,collection,collectionName,name,propertyType,persisted,required,min,max,ordered,unique,constants,owner,itemPropertyType,translationKey,embeddedObject]",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/schemas?fields=apiEndpoint,name,displayName,authorities,singular,plural,shareable,metadata,klass,identifiableObject,translatable,properties[href,writable,collection,collectionName,name,propertyType,persisted,required,min,max,ordered,unique,constants,owner,itemPropertyType,translationKey,embeddedObject]",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "scenarios": [
+    {
+      "query": "/api/analytics/events/query/KYzHf1Ta6C4?dimension=ou:USER_ORGUNIT,CtUD7DpDhUt,hQP5qXsaTSB:EQ:1798,oindugucx72:IN:FEMALE;OTHER,ENRjVGxVL6l:ILIKE:a,ucGVfFax931.kNR9wGWUqnX,ucGVfFax931.IQ8pRiFktkT:EQ:NV&headers=ouname,eventdate,CtUD7DpDhUt,hQP5qXsaTSB,oindugucx72,ENRjVGxVL6l,ucGVfFax931.kNR9wGWUqnX,ucGVfFax931.IQ8pRiFktkT&totalPages=false&eventDate=LAST_12_MONTHS&lastUpdated=2023-08-01_2023-11-23&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=ucGVfFax931&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics/events/query/M3xtLkYBlKI?dimension=ou:USER_ORGUNIT,CWaAcQYKVpq.HUzRTYRFcYn,zyTL3AMIkf2,CH6wamtY9kK,yZmG3RbbBKG,cl2RC5MLQYO:GE:0,CWaAcQYKVpq.UFTvUJIMiH0:IN:BENDIOCARB01;CARBOSULFAN04;DDT4;DELTAMETHRIN005,CWaAcQYKVpq.X1DpyS5FN3T:IN:INDOOR,CWaAcQYKVpq.V1OnhZYfSa2:IN:ACTIVE;CLEARED&headers=ouname,CWaAcQYKVpq.HUzRTYRFcYn,eventdate,enrollmentdate,programstatus,zyTL3AMIkf2,CH6wamtY9kK,yZmG3RbbBKG,cl2RC5MLQYO,CWaAcQYKVpq.UFTvUJIMiH0,CWaAcQYKVpq.X1DpyS5FN3T,CWaAcQYKVpq.V1OnhZYfSa2&totalPages=false&eventDate=LAST_12_MONTHS&enrollmentDate=LAST_12_MONTHS&programStatus=ACTIVE,COMPLETED&lastUpdated=LAST_12_MONTHS&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=CWaAcQYKVpq&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics/events/query/YcxRnVWkbQ1?dimension=ou:USER_ORGUNIT,FfgRrNEF2jY:GE:0,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa,yGuXefzA4Sy:GE:0,oindugucx72:IN:FEMALE,Rv8WM2mTuS5:EQ:NV&filter=GIb6Ge9PCc4.GsxsEH4GmaR:EQ:NV&headers=ouname,FfgRrNEF2jY,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa,yGuXefzA4Sy,oindugucx72,Rv8WM2mTuS5&totalPages=false&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=GIb6Ge9PCc4&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics/events/query/YcxRnVWkbQ1?dimension=ou:USER_ORGUNIT,FfgRrNEF2jY:GE:0,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa&filter=GIb6Ge9PCc4.GsxsEH4GmaR:EQ:NV&headers=ouname,FfgRrNEF2jY,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa&totalPages=false&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=GIb6Ge9PCc4&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    },
+    {
+      "query": "/api/analytics/events/query/YcxRnVWkbQ1?dimension=ou:USER_ORGUNIT,N0mcRJ2kZpO:GE:0,FNysn92uKL9:GE:0,FfgRrNEF2jY:GE:0&filter=GIb6Ge9PCc4.GsxsEH4GmaR:EQ:NV&headers=ouname,N0mcRJ2kZpO,FNysn92uKL9,FfgRrNEF2jY&totalPages=false&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=GIb6Ge9PCc4&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "38"
+      }
+    }
+  ]
+}

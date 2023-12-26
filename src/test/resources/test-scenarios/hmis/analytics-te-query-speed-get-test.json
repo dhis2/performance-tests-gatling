@@ -1,0 +1,182 @@
+{
+  "scenarios": [
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?program=Xh88p1nyefp&enrollmentDate=Xh88p1nyefp.LAST_5_YEARS&includeMetadataDetails=true&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?program=Xh88p1nyefp&enrollmentDate=Xh88p1nyefp.LAST_5_YEARS&includeMetadataDetails=true&paging=false&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?program=Xh88p1nyefp&enrollmentDate=Xh88p1nyefp.LAST_5_YEARS&includeMetadataDetails=true&dimension=Xh88p1nyefp.ou:x4QB3b50NtR&ouMode=SELECTED&paging=false&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?program=Xh88p1nyefp&dimension=ouname&dimension=sB1IHYu2xQT:eq:James&includeMetadataDetails=false&headers=ouname,sB1IHYu2xQT,lastupdated&pageSize=200&asc=lastupdated&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?dimension=ouname&dimension=sB1IHYu2xQT:eq:James&includeMetadataDetails=false&headers=ouname,sB1IHYu2xQT,lastupdated&pageSize=500&asc=lastupdated&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?dimension=sB1IHYu2xQT:ILIKE:a,Xh88p1nyefp.ang4CLldbIu.THKJuSqbSAc:NEQ:NV&dataIdScheme=NAME&desc=lastupdated&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?program=Xh88p1nyefp&dimension=Xh88p1nyefp.K5ac7u3V5bB.ou:FV43JisquSm&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?dimension=sB1IHYu2xQT:ILIKE:a,Xh88p1nyefp.ang4CLldbIu.THKJuSqbSAc:EQ:NV&dataIdScheme=NAME&desc=lastupdated&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?dimension=sB1IHYu2xQT:ILIKE:a,Xh88p1nyefp.ang4CLldbIu.THKJuSqbSAc:EQ:NV&eventDate=Xh88p1nyefp.ang4CLldbIu.LAST_5_YEARS&dataIdScheme=NAME&desc=lastupdated&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?dimension=ouname&dimension=sB1IHYu2xQT:ilike:a&includeMetadataDetails=false&headers=ouname,sB1IHYu2xQT,lastupdated&pageSize=2000&desc=sB1IHYu2xQT&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?program=EZkN8vYZwjR&lastUpdated=LAST_5_YEARS&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?program=EZkN8vYZwjR&desc=EZkN8vYZwjR.so8YZ9J3MeO.uZ9c4fKXuNS,EZkN8vYZwjR.so8YZ9J3MeO.Q20pEixZxCs&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?program=EZkN8vYZwjR&asc=oindugucx72,Xhdn49gUd52&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?program=Xh88p1nyefp&desc=Xh88p1nyefp.K5ac7u3V5bB.ouname&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?dimension=fOKN0TJ7Lmi.mjnjkIyjsUj.cCANosIIJkP:eq:NV&asc=fOKN0TJ7Lmi.mjnjkIyjsUj.cCANosIIJkP&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    },
+    {
+      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?desc=ouname,lastupdated&relativePeriodDate=2023-12-14",
+      "expectations": {
+        "min": 230,
+        "max": 800,
+        "mean": 565
+      },
+      "version": {
+        "min": "41"
+      }
+    }
+  ]
+}
