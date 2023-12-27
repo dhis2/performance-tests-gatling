@@ -3,9 +3,9 @@
     {
       "query": "/api/systemSettings",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 55,
+        "max": 130,
+        "mean": 95
       },
       "version": {
         "min": "38"
@@ -14,9 +14,9 @@
     {
       "query": "/api/system/info",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 55,
+        "max": 130,
+        "mean": 95
       },
       "version": {
         "min": "38"
@@ -25,9 +25,9 @@
     {
       "query": "/api/userSettings",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 55,
+        "max": 135,
+        "mean": 95
       },
       "version": {
         "min": "38"
@@ -36,9 +36,9 @@
     {
       "query": "/api/me?fields=authorities,avatar,email,name,settings",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 60,
+        "max": 135,
+        "mean": 110
       },
       "version": {
         "min": "38"
@@ -47,9 +47,9 @@
     {
       "query": "/api/schemas/visualization?fields=apiEndpoint,name,displayName,authorities,singular,plural,shareable,metadata,klass,identifiableObject,translatable,properties[href,writable,collection,collectionName,name,propertyType,persisted,required,min,max,ordered,unique,constants,owner,itemPropertyType,translationKey,embeddedObject]",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 70,
+        "max": 155,
+        "mean": 110
       },
       "version": {
         "min": "38"
@@ -58,9 +58,9 @@
     {
       "query": "/api/schemas?fields=apiEndpoint,name,displayName,authorities,singular,plural,shareable,metadata,klass,identifiableObject,translatable,properties[href,writable,collection,collectionName,name,propertyType,persisted,required,min,max,ordered,unique,constants,owner,itemPropertyType,translationKey,embeddedObject]",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 125,
+        "max": 235,
+        "mean": 200
       },
       "version": {
         "min": "38"
