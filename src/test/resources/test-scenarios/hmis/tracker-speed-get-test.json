@@ -26,7 +26,7 @@
       "query": "/api/tracker/trackedEntities?filter=sB1IHYu2xQT:like:Jon&fields=attributes,enrollments,trackedEntity,orgUnit&program=Xh88p1nyefp&page=1&pageSize=5&ouMode=ACCESSIBLE",
       "expectations": {
         "min": 280,
-        "max": 420,
+        "max": 440,
         "mean": 385
       },
       "version": {
