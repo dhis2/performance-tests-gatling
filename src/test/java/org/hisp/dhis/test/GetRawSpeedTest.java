@@ -34,6 +34,7 @@ import static io.gatling.javaapi.http.HttpDsl.status;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.hisp.dhis.TestDefinitions.configureSimulationProtocol;
 import static org.hisp.dhis.TestDefinitions.constantSingleUser;
+import static org.hisp.dhis.TestHelper.fakePopulationBuilder;
 import static org.hisp.dhis.TestHelper.isVersionSupported;
 import static org.hisp.dhis.TestHelper.loadTestQueries;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -77,11 +78,18 @@ public class GetRawSpeedTest extends Simulation {
         assertions.add(details(query).responseTime().max().lte(max));
         assertions.add(details(query).responseTime().mean().lte(mean));
         assertions.add(details(query).successfulRequests().percent().gte(100d));
+      } else {
+        logger.warn("Skipping query: {}", query);
       }
     }
 
-    // Test and assert.
-    setUp(populationBuilders).assertions(assertions);
+    if (!populationBuilders.isEmpty()) {
+      // Test and assert.
+      setUp(populationBuilders).assertions(assertions);
+    } else {
+      // Skip unsupported queries avoiding a crash.
+      setUp(fakePopulationBuilder());
+    }
   }
 
   private PopulationBuilder populationBuilder(String query) {

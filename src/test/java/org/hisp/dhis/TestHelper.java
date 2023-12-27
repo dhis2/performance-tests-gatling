@@ -27,11 +27,17 @@
  */
 package org.hisp.dhis;
 
+import static io.gatling.javaapi.core.CoreDsl.scenario;
+import static io.gatling.javaapi.http.HttpDsl.http;
 import static org.hisp.dhis.TestDefinitions.DHIS2_VERSION;
 import static org.hisp.dhis.TestDefinitions.SCENARIO;
+import static org.hisp.dhis.TestDefinitions.configureSimulationProtocol;
+import static org.hisp.dhis.TestDefinitions.constantSingleUser;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.gatling.javaapi.core.PopulationBuilder;
+import io.gatling.javaapi.core.ScenarioBuilder;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -95,6 +101,17 @@ public class TestHelper {
     }
 
     return true;
+  }
+
+  /**
+   * Creates a {@link PopulationBuilder} with a fake scenario, pointing to localhost. No assertions
+   * will be defined.
+   *
+   * @return the {@link PopulationBuilder} with the fake scenario.
+   */
+  public static PopulationBuilder fakePopulationBuilder() {
+    ScenarioBuilder sb = scenario("Fake test (for unsupported)...").exec(http("localhost").get(""));
+    return sb.injectClosed(constantSingleUser()).protocols(configureSimulationProtocol());
   }
 
   /**
