@@ -68,7 +68,7 @@ mvn clean gatling:test
 
 All properties defined in `config.properties` can be overwritten (prefixing them with **-D**), if desirable, through the command line. Ie:
 ```
-mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dscenario=test-cases/hmis/analytics-en-query-speed-get-test.json -Dusername=anyName -Dpassword=anyPwd -Dversion=39
+mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dscenario=test-scenarios/hmis/analytics-en-query-speed-get-test.json -Dusername=anyName -Dpassword=anyPwd -Dversion=39
 ```
 
 It's also possible running all tests together using the script `run-all.sh`, located at the root of the project.
