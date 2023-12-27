@@ -80,9 +80,9 @@
     {
       "query": "/api/trackedEntityInstances.json?filter=sB1IHYu2xQT:like:Jon&fields=attributes,enrollments,trackedEntity,orgUnit&program=Xh88p1nyefp&page=1&pageSize=5&ouMode=ACCESSIBLE",
       "expectations": {
-        "min": 230,
-        "max": 720,
-        "mean": 515
+        "min": 100,
+        "max": 205,
+        "mean": 155
       },
       "version": {
         "min": "38"
