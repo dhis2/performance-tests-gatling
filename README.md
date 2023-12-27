@@ -58,7 +58,7 @@ This is very easy. Follow the steps below:
 
 ## Pointing to an external scenario file
 We can also point to external JSON scenario files that are living in the file system, outside this project.
-This can be done by specifying the root path of the respective file through the `scenario` property in `[config.properties](src/test/resources/config.properties)`, or at execution time (`-Dscenario=/myFolder/myScenarioFile.json`).
+This can be done by specifying the root path of the respective file through the `scenario` property in `config.properties`, or at execution time (`-Dscenario=/myFolder/myScenarioFile.json`).
 
 ## Executing the tests
 The tests are run through Maven, using the `config.properties` definitions. Ie:
