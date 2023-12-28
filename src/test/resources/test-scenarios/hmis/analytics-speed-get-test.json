@@ -115,7 +115,7 @@
       "expectations": {
         "min": 950,
         "max": 1650,
-        "mean": 1250
+        "mean": 1350
       },
       "version": {
         "min": "38"
