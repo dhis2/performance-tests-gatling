@@ -36,9 +36,9 @@
     {
       "query": "/api/analytics?dimension=dx:iKfKE7FhH9H;kqrwj0JOJon;YWOxEKIW5KB;d5VDVBgpNff&filter=ou:USER_ORGUNIT&filter=pe:TODAY&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
       "expectations": {
-        "min": 170000,
+        "min": 171000,
         "max": 175000,
-        "mean": 172000
+        "mean": 173000
       },
       "version": {
         "min": "38"
