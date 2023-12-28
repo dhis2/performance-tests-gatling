@@ -61,12 +61,22 @@ We can also point to external JSON scenario files that are living in the file sy
 This can be done by specifying the root path of the respective file through the `scenario` property in `config.properties`, or at execution time (`-Dscenario=/myFolder/myScenarioFile.json`).
 
 ## Executing the tests
-The tests are run through Maven, using the `config.properties` definitions. Ie:
+Ensure that the repository was cloned in the local machine:
+```
+git clone https://github.com/dhis2/performance-tests-gatling.git
+```
+
+Then `cd` into the project's directory:
+```
+cd performance-tests-gatling
+```
+
+Finally, the tests are run through Maven, using the `config.properties` definitions. Ie:
 ```
 mvn clean gatling:test
 ```
 
-All properties defined in `config.properties` can be overwritten (prefixing them with **-D**), if desirable, through the command line. Ie:
+Note that all properties defined in `config.properties` can be overwritten (prefixing them with **-D**), if desirable, through the command line. Ie:
 ```
 mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dscenario=test-scenarios/hmis/analytics-en-query-speed-get-test.json -Dusername=anyName -Dpassword=anyPwd -Dversion=39
 ```
@@ -78,3 +88,5 @@ It's also possible running all tests together using the script `run-all.sh`, loc
 - An immutable DHIS2 database (for consistent metrics/tests).
 - Most tests are based on the database `hmis/2.38.4/qa_hmis.sql.gz`. It can be found at https://im.dhis2.org/databases (you might require additional permission).
 - A dedicated DHIS2 instance to be hit by the performance tests (the tests will run against this instance).
+- Java JDK 11 or later
+- Maven 3.6 or later
