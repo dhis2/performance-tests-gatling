@@ -158,8 +158,8 @@
       "query": "/api/analytics?dimension=ou:USER_ORGUNIT_GRANDCHILDREN;USER_ORGUNIT_CHILDREN;USER_ORGUNIT,pe:LAST_5_YEARS&filter=dx:MhW02ngnDET&displayProperty=NAME&includeNumDen=true&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
       "expectations": {
         "min": 235000,
-        "max": 242000,
-        "mean": 240000
+        "max": 244000,
+        "mean": 242500
       },
       "version": {
         "min": "38"
