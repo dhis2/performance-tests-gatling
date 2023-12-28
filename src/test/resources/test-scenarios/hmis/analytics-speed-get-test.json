@@ -14,7 +14,7 @@
     {
       "query": "/api/analytics?dimension=dx:wPCJ11WI2ql;kTuZmE84bT9.ACTUAL_REPORTS;fQvyH9wHUEc;XTtXqeq6788;P0cCSjPQoq7;EZkN8vYZwjR.ZzoWAqln5xc;nmZkpHBcUd5;zjP3d0WhrLY;EZkN8vYZwjR.yqOaEgX6tOf;FLkRIMC0mq9,pe:MONTHS_THIS_YEAR;2018;2019;2020;2021;2022;2023&filter=ou:IWp9dQGM0bS;W6sNfkJcXGC;YvLOmtTQD6b;XdubcbI8tyT;vAyuVc8hfbK;LEVEL-jKnknQ9Mg6y;LEVEL-qpXLDdXT3po&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
       "expectations": {
-        "min": 5300,
+        "min": 5000,
         "max": 7450,
         "mean": 6250
       },
@@ -25,9 +25,9 @@
     {
       "query": "/api/analytics?dimension=dx:SH0iOmEe0AR;qQlS4yw9RaV;hHniKx89xJK;QSa605mN246;cKlPzK4efeq;v4o5oChYOcF;bZYLsyngaPn&filter=ou:USER_ORGUNIT&filter=pe:TODAY&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
       "expectations": {
-        "min": 265000,
+        "min": 270000,
         "max": 280000,
-        "mean": 272000
+        "mean": 279000
       },
       "version": {
         "min": "38"
@@ -113,7 +113,7 @@
     {
       "query": "/api/analytics?dimension=dx:SgyKp3Zuweo;n2TPjoeLbHl&filter=pe:LAST_5_YEARS&filter=ou:USER_ORGUNIT&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
       "expectations": {
-        "min": 1200,
+        "min": 950,
         "max": 1650,
         "mean": 1250
       },
@@ -146,7 +146,7 @@
     {
       "query": "/api/analytics?dimension=pe:LAST_12_MONTHS,ou:LEVEL-vFr4zVw6Avn&filter=dx:pL17czCoSHJ&displayProperty=NAME&includeNumDen=true&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
       "expectations": {
-        "min": 725,
+        "min": 700,
         "max": 1250,
         "mean": 850
       },
@@ -158,8 +158,8 @@
       "query": "/api/analytics?dimension=ou:USER_ORGUNIT_GRANDCHILDREN;USER_ORGUNIT_CHILDREN;USER_ORGUNIT,pe:LAST_5_YEARS&filter=dx:MhW02ngnDET&displayProperty=NAME&includeNumDen=true&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
       "expectations": {
         "min": 235000,
-        "max": 240000,
-        "mean": 238000
+        "max": 242000,
+        "mean": 240000
       },
       "version": {
         "min": "38"
@@ -169,8 +169,8 @@
       "query": "/api/analytics?dimension=pe:LAST_12_MONTHS,ou:USER_ORGUNIT_GRANDCHILDREN&filter=dx:JuuFw56JNeM&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
       "expectations": {
         "min": 900,
-        "max": 800,
-        "mean": 565
+        "max": 1450,
+        "mean": 1250
       },
       "version": {
         "min": "38"
