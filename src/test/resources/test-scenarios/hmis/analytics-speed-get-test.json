@@ -122,7 +122,7 @@
       }
     },
     {
-      "query": "/api/analytics?dimension=dx:C2bwEfFwiBX;rq7eOFDLmQK;HJ7yxI5uok5&filter=ou:USER_ORGUNIT&filter=pe: LAST_6_MONTHS&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
+      "query": "/api/analytics?dimension=dx:C2bwEfFwiBX;rq7eOFDLmQK;HJ7yxI5uok5&filter=ou:USER_ORGUNIT&filter=pe:LAST_6_MONTHS&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
       "expectations": {
         "min": 230,
         "max": 800,
