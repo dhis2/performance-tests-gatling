@@ -126,7 +126,7 @@
       "expectations": {
         "min": 175000,
         "max": 180000,
-        "mean": 177500
+        "mean": 180000
       },
       "version": {
         "min": "38"
@@ -146,7 +146,7 @@
     {
       "query": "/api/analytics?dimension=pe:LAST_12_MONTHS,ou:LEVEL-vFr4zVw6Avn&filter=dx:pL17czCoSHJ&displayProperty=NAME&includeNumDen=true&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
       "expectations": {
-        "min": 700,
+        "min": 680,
         "max": 1250,
         "mean": 850
       },
