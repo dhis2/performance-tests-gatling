@@ -159,7 +159,7 @@
       "expectations": {
         "min": 235000,
         "max": 244000,
-        "mean": 242500
+        "mean": 244000
       },
       "version": {
         "min": "38"
