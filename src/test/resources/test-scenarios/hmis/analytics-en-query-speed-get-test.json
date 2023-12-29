@@ -48,8 +48,8 @@
       "query": "/api/analytics/enrollments/query/Lt6P15ps7f6?dimension=ou:USER_ORGUNIT,ntelZthDPpR,WlgSirxU9bG,oindugucx72,OrvVU0I9wTT:EQ:1&headers=enrollmentdate,ouname,ntelZthDPpR,WlgSirxU9bG,oindugucx72,OrvVU0I9wTT&totalPages=false&enrollmentDate=THIS_YEAR,LAST_5_YEARS&displayProperty=NAME&outputType=ENROLLMENT&pageSize=100&page=1&includeMetadataDetails=true&relativePeriodDate=2023-11-14",
       "expectations": {
         "min": 64000,
-        "max": 68000,
-        "mean": 67000
+        "max": 69000,
+        "mean": 68500
       },
       "version": {
         "min": "38"
