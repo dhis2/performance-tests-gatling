@@ -5,7 +5,7 @@
       "expectations": {
         "min": 85,
         "max": 220,
-        "mean": 165
+        "mean": 160
       },
       "version": {
         "min": "38"
@@ -15,8 +15,8 @@
       "query": "/api/analytics/events/aggregate/YcxRnVWkbQ1.json?dimension=ou:IWp9dQGM0bS&dimension=pe:LAST_12_MONTHS&stage=G0ePNuYPT87&displayProperty=NAME&totalPages=false&outputType=EVENT&relativePeriodDate=2023-11-01",
       "expectations": {
         "min": 85,
-        "max": 185,
-        "mean": 160
+        "max": 195,
+        "mean": 150
       },
       "version": {
         "min": "38"
