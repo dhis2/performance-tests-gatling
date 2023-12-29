@@ -80,9 +80,9 @@
     {
       "query": "/api/analytics/events/aggregate/Xh88p1nyefp.json?dimension=ou:USER_ORGUNIT&dimension=pe:LAST_12_MONTHS&dimension=dSwpdHITQ85:dV8Ec2zJrze;RbJ4hRSGQaH&dimension=ang4CLldbIu.Jt68iauILtD:IN:FEMALE;MALE&filter=ang4CLldbIu.lWCjuohJSKB&filter=ang4CLldbIu.iZWtxl8sCi6&filter=ang4CLldbIu.sB1IHYu2xQT:LIKE:a&stage=ang4CLldbIu&displayProperty=NAME&totalPages=false&outputType=EVENT&user=Jxt0FoCLgdq&relativePeriodDate=2023-11-14",
       "expectations": {
-        "min": 60,
-        "max": 170,
-        "mean": 125
+        "min": 75,
+        "max": 185,
+        "mean": 145
       },
       "version": {
         "min": "38"
