@@ -31,8 +31,8 @@ import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static org.hisp.dhis.TestDefinitions.DHIS2_VERSION;
 import static org.hisp.dhis.TestDefinitions.SCENARIO;
-import static org.hisp.dhis.TestDefinitions.configureSimulationProtocol;
 import static org.hisp.dhis.TestDefinitions.constantSingleUser;
+import static org.hisp.dhis.TestDefinitions.defaultHttpProtocol;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -111,7 +111,7 @@ public class TestHelper {
    */
   public static PopulationBuilder fakePopulationBuilder() {
     ScenarioBuilder sb = scenario("Fake test (for unsupported)...").exec(http("localhost").get(""));
-    return sb.injectClosed(constantSingleUser(1)).protocols(configureSimulationProtocol());
+    return sb.injectClosed(constantSingleUser(1)).protocols(defaultHttpProtocol());
   }
 
   /**

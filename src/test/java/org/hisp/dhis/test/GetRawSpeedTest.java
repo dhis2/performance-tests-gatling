@@ -32,8 +32,8 @@ import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
-import static org.hisp.dhis.TestDefinitions.configureSimulationProtocol;
 import static org.hisp.dhis.TestDefinitions.constantSingleUser;
+import static org.hisp.dhis.TestDefinitions.defaultHttpProtocol;
 import static org.hisp.dhis.TestHelper.fakePopulationBuilder;
 import static org.hisp.dhis.TestHelper.isVersionSupported;
 import static org.hisp.dhis.TestHelper.loadTestQueries;
@@ -95,7 +95,7 @@ public class GetRawSpeedTest extends Simulation {
   private PopulationBuilder populationBuilder(String query) {
     return scenarioBuilder(query)
         .injectClosed(constantSingleUser(15))
-        .protocols(configureSimulationProtocol());
+        .protocols(defaultHttpProtocol());
   }
 
   private ScenarioBuilder scenarioBuilder(String query) {

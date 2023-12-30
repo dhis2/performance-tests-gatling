@@ -49,15 +49,36 @@ public class TestDefinitions {
   public static final String PASSWORD = CONFIG.getString("password");
   public static final String SCENARIO = CONFIG.getString("scenario");
 
+  /**
+   * Creates a {@link OpenInjectionStep} object with a single constant user during the given period
+   * of time.
+   *
+   * @param during the rump duration.
+   * @return the configured {@link OpenInjectionStep}.
+   */
   public static ClosedInjectionStep constantSingleUser(int during) {
     return constantConcurrentUsers(1).during(during);
   }
 
+  /**
+   * Creates a {@link OpenInjectionStep} object based on the given amount of users and rump
+   * duration.
+   *
+   * @param users the number of users to be created during the given period.
+   * @param during the rump duration.
+   * @return the configured {@link OpenInjectionStep}.
+   */
   public static OpenInjectionStep simpleUsersRumpUp(int users, int during) {
     return rampUsers(users).during(during);
   }
 
-  public static OpenInjectionStep complexUsersRumpUp() {
+  /**
+   * Creates a default {@link OpenInjectionStep} that defines default values for the users rump-up
+   * simulation.
+   *
+   * @return the {@link OpenInjectionStep} object.
+   */
+  public static OpenInjectionStep defaultComplexUsersRumpUp() {
     int totalDesiredUserCount = 15;
     double userRampUpPerInterval = 1;
     double rampUpIntervalSeconds = 3;
@@ -70,7 +91,12 @@ public class TestDefinitions {
         .during(Duration.ofSeconds(totalRampUptimeSeconds + steadyStateDurationSeconds));
   }
 
-  public static HttpProtocolBuilder configureSimulationProtocol() {
+  /**
+   * Configures a default HTTP simulation protocol to be used by the tests.
+   *
+   * @return the configured {@link HttpProtocolBuilder} object.
+   */
+  public static HttpProtocolBuilder defaultHttpProtocol() {
     System.out.println("# Pointing to instance: " + DHIS2_INSTANCE);
 
     return http.baseUrl(DHIS2_INSTANCE)
