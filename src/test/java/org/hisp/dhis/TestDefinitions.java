@@ -49,8 +49,8 @@ public class TestDefinitions {
   public static final String PASSWORD = CONFIG.getString("password");
   public static final String SCENARIO = CONFIG.getString("scenario");
 
-  public static ClosedInjectionStep constantSingleUser() {
-    return constantConcurrentUsers(1).during(15);
+  public static ClosedInjectionStep constantSingleUser(int during) {
+    return constantConcurrentUsers(1).during(during);
   }
 
   public static OpenInjectionStep simpleUsersRumpUp(int users, int during) {

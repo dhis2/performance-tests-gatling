@@ -94,7 +94,7 @@ public class GetRawSpeedTest extends Simulation {
 
   private PopulationBuilder populationBuilder(String query) {
     return scenarioBuilder(query)
-        .injectClosed(constantSingleUser())
+        .injectClosed(constantSingleUser(15))
         .protocols(configureSimulationProtocol());
   }
 

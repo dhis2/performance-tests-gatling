@@ -111,7 +111,7 @@ public class TestHelper {
    */
   public static PopulationBuilder fakePopulationBuilder() {
     ScenarioBuilder sb = scenario("Fake test (for unsupported)...").exec(http("localhost").get(""));
-    return sb.injectClosed(constantSingleUser()).protocols(configureSimulationProtocol());
+    return sb.injectClosed(constantSingleUser(1)).protocols(configureSimulationProtocol());
   }
 
   /**
