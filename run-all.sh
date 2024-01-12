@@ -1,6 +1,6 @@
 #! /usr/bin/bash
 
-readonly BASE_URL=http://127.0.0.1/2.41dev #http://localhost:8080/dhis
+readonly BASE_URL=https://test.performance.dhis2.org/2.41dev #http://localhost:8080/dhis
 
 echo "Executing tests..."
 
