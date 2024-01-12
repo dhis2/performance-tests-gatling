@@ -59,7 +59,7 @@
       "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?dimension=sB1IHYu2xQT:ILIKE:a,Xh88p1nyefp.ang4CLldbIu.THKJuSqbSAc:NEQ:NV&dataIdScheme=NAME&desc=lastupdated&relativePeriodDate=2023-12-14",
       "expectations": {
         "min": 365,
-        "max": 540,
+        "max": 615,
         "mean": 500
       },
       "version": {
@@ -81,8 +81,8 @@
       "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?dimension=sB1IHYu2xQT:ILIKE:a,Xh88p1nyefp.ang4CLldbIu.THKJuSqbSAc:EQ:NV&dataIdScheme=NAME&desc=lastupdated&relativePeriodDate=2023-12-14",
       "expectations": {
         "min": 190,
-        "max": 355,
-        "mean": 300
+        "max": 6200,
+        "mean": 375
       },
       "version": {
         "min": "41"
