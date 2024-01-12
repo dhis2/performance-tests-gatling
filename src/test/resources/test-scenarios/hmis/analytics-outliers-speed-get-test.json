@@ -3,9 +3,9 @@
     {
       "query": "/api/analytics/outlierDetection?ds=QoPiHH8oSfy&ou=XKGgynPS1WZ,rO2RVJWHpCe,FRmrFTE63D0,MBZYTqkEgwf,hdeC7uX9Cko,RdNV4tTRNEo,K27JzTKmBKh,hRQsZhmvqgS,sv6c7CpPcrc,dOhqCNenSjS,TOgZ99Jv0bN,pFCZqWnXtoU,IWp9dQGM0bS&startDate=2022-06-01&endDate=2024-01-02&algorithm=Z_SCORE&maxResults=500&orderBy=value&sortOrder=ASC&threshold=3",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 60,
+        "max": 5000,
+        "mean": 165
       },
       "version": {
         "min": "41"
@@ -14,9 +14,9 @@
     {
       "query": "/api/analytics/outlierDetection?ds=QoPiHH8oSfy&ou=RdNV4tTRNEo,dOhqCNenSjS,TOgZ99Jv0bN&startDate=2023-11-01&endDate=2024-01-12&algorithm=Z_SCORE&maxResults=35&orderBy=mean&threshold=5",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 55,
+        "max": 300,
+        "mean": 120
       },
       "version": {
         "min": "41"
@@ -25,9 +25,9 @@
     {
       "query": "/api/analytics/outlierDetection?ds=XvcWsuHBsGA&ou=J41dVMJoZF7&startDate=2021-10-01&endDate=2024-01-12&algorithm=MOD_Z_SCORE&maxResults=100&orderBy=median&threshold=10",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 60,
+        "max": 220,
+        "mean": 115
       },
       "version": {
         "min": "41"
@@ -36,9 +36,9 @@
     {
       "query": "/api/analytics/outlierDetection?dx=iaQuylCoH3u&ou=J41dVMJoZF7&startDate=2020-10-01&endDate=2024-01-02&algorithm=MOD_Z_SCORE&maxResults=100",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 60,
+        "max": 160,
+        "mean": 80
       },
       "version": {
         "min": "41"
@@ -47,9 +47,9 @@
     {
       "query": "/api/analytics/outlierDetection?dx=mG3LJzaZxb8&headers=aoc,dx,ouname,pe&ou=AoAbkWXFXLo,xDHTXf02C9T,aF0DFWVDW9Z,vBWtCmNNnCG,quFXhkOJGB4&startDate=2020-10-01&endDate=2024-01-02&algorithm=MOD_Z_SCORE&maxResults=100",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 60,
+        "max": 155,
+        "mean": 115
       },
       "version": {
         "min": "41"
@@ -58,9 +58,9 @@
     {
       "query": "/api/analytics/outlierDetection?dx=mG3LJzaZxb8&headers=aoc,dx,ouname,pe&ou=AoAbkWXFXLo,xDHTXf02C9T,aF0DFWVDW9Z,vBWtCmNNnCG,quFXhkOJGB4,IWp9dQGM0bS&startDate=2020-10-01&endDate=2024-01-02&algorithm=MOD_Z_SCORE&maxResults=100&orderBy=modified_zscore",
       "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
+        "min": 55,
+        "max": 165,
+        "mean": 115
       },
       "version": {
         "min": "41"
