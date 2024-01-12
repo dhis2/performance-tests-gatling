@@ -75,11 +75,16 @@ Finally, the tests are run through Maven, using the `config.properties` definiti
 ```
 mvn clean gatling:test
 ```
+The above will take the default directory defined, in `pom.xml`, for the test simulation. See
+```
+<simulationsFolder>${project.basedir}/src/test/java/org/hisp/dhis/analytics/get</simulationsFolder>
+```
 
 Note that all properties defined in `config.properties` can be overwritten (prefixing them with **-D**), if desirable, through the command line. Ie:
 ```
-mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dscenario=test-scenarios/hmis/analytics-en-query-speed-get-test.json -Dusername=anyName -Dpassword=anyPwd -Dversion=39
+mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dscenario=test-scenarios/hmis/analytics-en-query-speed-get-test.json -Dusername=anyName -Dpassword=anyPwd -Dversion=39 -Dinstance=https://test.performance.dhis2.org/2.39dev
 ```
+(In the example above we are forcing a single specific scenario: ***Dgatling.simulationClass=class***).
 
 It's also possible running all tests together using the script `run-all.sh`, located at the root of the project.
 **NOTE:** _This script contains a few variables that need to be set for each case/environment._
