@@ -56,7 +56,7 @@
       }
     },
     {
-      "query": "/api/analytics/outlierDetection?dx=mG3LJzaZxb8&headers=aoc,dx,ouname,pe&ou=AoAbkWXFXLo,xDHTXf02C9T,aF0DFWVDW9Z,vBWtCmNNnCG,quFXhkOJGB4,IWp9dQGM0bS&startDate=2020-10-01&endDate=2024-01-02&algorithm=MODIFIED_Z_SCORE&maxResults=100&orderBy=modified_zscore",
+      "query": "/api/analytics/outlierDetection?dx=mG3LJzaZxb8&headers=aoc,dx,ouname,pe&ou=AoAbkWXFXLo,xDHTXf02C9T,aF0DFWVDW9Z,vBWtCmNNnCG,quFXhkOJGB4,IWp9dQGM0bS&startDate=2020-10-01&endDate=2024-01-02&algorithm=MODIFIED_Z_SCORE&maxResults=100&orderBy=modifiedzscore",
       "expectations": {
         "min": 55,
         "max": 165,
