@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2023, University of Oslo
+ * Copyright (c) 2004-2024, University of Oslo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,35 +25,26 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.dhis.model;
+package org.dhis.test;
 
-import static org.dhis.test.Helper.asIntVersion;
+import static org.apache.commons.lang3.StringUtils.remove;
+import static org.apache.commons.lang3.StringUtils.rightPad;
 
-public class Version {
-  private String min;
-  private String max;
+public class Helper {
 
-  public String getMin() {
-    return min;
-  }
+  private Helper() {}
 
-  public void setMin(String min) {
-    this.min = min;
-  }
+  /**
+   * This method takes a number in the format of a String, like "40.5.0". Then it removes all "."
+   * (dots) and appends "0" (zero) to the right until the String length of size 5.
+   *
+   * @param numberWithDots the number to be converted, ie. "40.2.1.1"
+   * @return the version as int.
+   */
+  public static int asIntVersion(String numberWithDots) {
+    final int MAX_VERSION_DIGITS = 5;
+    String fiveNumbers = rightPad(remove(numberWithDots, "."), MAX_VERSION_DIGITS, "0");
 
-  public String getMax() {
-    return max;
-  }
-
-  public void setMax(String max) {
-    this.max = max;
-  }
-
-  public int minAsInt() {
-    return asIntVersion(min);
-  }
-
-  public int maxAsInt() {
-    return asIntVersion(max);
+    return Integer.parseInt(fiveNumbers);
   }
 }

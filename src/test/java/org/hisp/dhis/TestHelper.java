@@ -59,7 +59,7 @@ public class TestHelper {
    *
    * @return the list of {@link Scenario}.
    */
-  public static List<Scenario> loadTestQueries() {
+  public static List<Scenario> loadScenarios() {
     Scenarios urls;
     URL currentTestFile = localScenarioFile();
 
@@ -91,11 +91,11 @@ public class TestHelper {
    */
   public static boolean isVersionSupported(Version version) {
     if (version != null) {
-      if (version.getMin() != null && DHIS2_VERSION < version.getMin()) {
+      if (version.getMin() != null && DHIS2_VERSION < version.minAsInt()) {
         return false;
       }
 
-      if (version.getMax() != null && DHIS2_VERSION > version.getMax()) {
+      if (version.getMax() != null && DHIS2_VERSION > version.maxAsInt()) {
         return false;
       }
     }

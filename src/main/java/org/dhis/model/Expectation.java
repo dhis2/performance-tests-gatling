@@ -27,10 +27,13 @@
  */
 package org.dhis.model;
 
-public class Expectations {
+import static org.dhis.test.Helper.asIntVersion;
+
+public class Expectation {
   private Integer min;
   private Integer max;
   private Integer mean;
+  private String release;
 
   public Integer getMin() {
     return min;
@@ -54,5 +57,32 @@ public class Expectations {
 
   public void setMean(Integer mean) {
     this.mean = mean;
+  }
+
+  public String getRelease() {
+    return release;
+  }
+
+  public void setRelease(String release) {
+    this.release = release;
+  }
+
+  public int releaseAsInt() {
+    return asIntVersion(release);
+  }
+
+  @Override
+  public String toString() {
+    return "Expectation{"
+        + "min="
+        + min
+        + ", max="
+        + max
+        + ", mean="
+        + mean
+        + ", release='"
+        + release
+        + '\''
+        + '}';
   }
 }

@@ -32,11 +32,12 @@ import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.hisp.dhis.TestDefinitions.BASELINE;
 import static org.hisp.dhis.TestDefinitions.constantSingleUser;
 import static org.hisp.dhis.TestDefinitions.defaultHttpProtocol;
 import static org.hisp.dhis.TestHelper.fakePopulationBuilder;
 import static org.hisp.dhis.TestHelper.isVersionSupported;
-import static org.hisp.dhis.TestHelper.loadTestQueries;
+import static org.hisp.dhis.TestHelper.loadScenarios;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import io.gatling.javaapi.core.Assertion;
@@ -45,6 +46,7 @@ import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
 import java.util.ArrayList;
 import java.util.List;
+import org.dhis.model.Expectation;
 import org.dhis.model.Scenario;
 import org.slf4j.Logger;
 
@@ -57,20 +59,20 @@ public class GetRawSpeedTest extends Simulation {
   private static final Logger logger = getLogger(GetRawSpeedTest.class);
 
   public GetRawSpeedTest() {
-    List<Scenario> testQueries = loadTestQueries();
+    List<Scenario> scenarios = loadScenarios();
     List<PopulationBuilder> populationBuilders = new ArrayList<>();
     List<Assertion> assertions = new ArrayList<>();
 
-    for (Scenario testQuery : testQueries) {
+    for (Scenario testQuery : scenarios) {
       String query = testQuery.getQuery();
-      boolean hasExpectations = testQuery.getExpectations() != null;
-      boolean versionMatches = isVersionSupported(testQuery.getVersion());
+      Expectation expectation = testQuery.getExpectation(BASELINE);
+      boolean hasExpectation = expectation != null;
 
-      if (hasExpectations && versionMatches) {
+      if (hasExpectation && isVersionSupported(testQuery.getVersion())) {
         // Define expectations.
-        int min = defaultIfNull(testQuery.getExpectations().getMin(), 0);
-        int max = defaultIfNull(testQuery.getExpectations().getMax(), 0);
-        int mean = defaultIfNull(testQuery.getExpectations().getMean(), 0);
+        int min = defaultIfNull(expectation.getMin(), 0);
+        int max = defaultIfNull(expectation.getMax(), 0);
+        int mean = defaultIfNull(expectation.getMean(), 0);
 
         // Build assertions.
         populationBuilders.add(populationBuilder(query));

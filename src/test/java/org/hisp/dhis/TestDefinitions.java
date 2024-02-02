@@ -31,6 +31,8 @@ import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
 import static io.gatling.javaapi.core.CoreDsl.rampUsers;
 import static io.gatling.javaapi.core.CoreDsl.rampUsersPerSec;
 import static io.gatling.javaapi.http.HttpDsl.http;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.dhis.test.Helper.asIntVersion;
 import static org.hisp.dhis.ConfigLoader.CONFIG;
 
 import io.gatling.javaapi.core.ClosedInjectionStep;
@@ -44,7 +46,8 @@ import java.time.Duration;
  */
 public class TestDefinitions {
   public static final String DHIS2_INSTANCE = CONFIG.getString("instance");
-  public static final Double DHIS2_VERSION = CONFIG.getDouble("version", 0);
+  public static final int DHIS2_VERSION = asIntVersion(CONFIG.getString("version", EMPTY));
+  public static final int BASELINE = asIntVersion(CONFIG.getString("baseline", EMPTY));
   public static final String USERNAME = CONFIG.getString("username");
   public static final String PASSWORD = CONFIG.getString("password");
   public static final String SCENARIO = CONFIG.getString("scenario");

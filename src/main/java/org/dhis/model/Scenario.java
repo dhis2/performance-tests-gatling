@@ -27,9 +27,13 @@
  */
 package org.dhis.model;
 
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+
+import java.util.List;
+
 public class Scenario {
   private String query;
-  private Expectations expectations;
+  private List<Expectation> expectations;
   private Version version;
 
   public String getQuery() {
@@ -40,11 +44,11 @@ public class Scenario {
     this.query = query;
   }
 
-  public Expectations getExpectations() {
+  public List<Expectation> getExpectations() {
     return expectations;
   }
 
-  public void setExpectations(Expectations expectations) {
+  public void setExpectations(List<Expectation> expectations) {
     this.expectations = expectations;
   }
 
@@ -54,6 +58,17 @@ public class Scenario {
 
   public void setVersion(Version version) {
     this.version = version;
+  }
+
+  public Expectation getExpectation(Integer release) {
+    if (isNotEmpty(expectations)) {
+      return expectations.stream()
+          .filter(e -> e.releaseAsInt() == release)
+          .findFirst()
+          .orElse(null);
+    }
+
+    return null;
   }
 
   @Override
