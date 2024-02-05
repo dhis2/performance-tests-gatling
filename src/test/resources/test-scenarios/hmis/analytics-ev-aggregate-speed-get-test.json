@@ -17,9 +17,9 @@
         },
         {
           "release": "41.0",
-          "min": 75,
-          "max": 185,
-          "mean": 125
+          "min": 85,
+          "max": 215,
+          "mean": 175
         }
       ],
       "version": {
@@ -45,7 +45,7 @@
           "release": "41.0",
           "min": 75,
           "max": 185,
-          "mean": 125
+          "mean": 140
         }
       ],
       "version": {
@@ -69,9 +69,9 @@
         },
         {
           "release": "41.0",
-          "min": 75,
+          "min": 85,
           "max": 185,
-          "mean": 125
+          "mean": 155
         }
       ],
       "version": {
@@ -97,7 +97,7 @@
           "release": "41.0",
           "min": 75,
           "max": 185,
-          "mean": 125
+          "mean": 140
         }
       ],
       "version": {
@@ -123,7 +123,7 @@
           "release": "41.0",
           "min": 75,
           "max": 185,
-          "mean": 125
+          "mean": 135
         }
       ],
       "version": {
@@ -147,9 +147,9 @@
         },
         {
           "release": "41.0",
-          "min": 75,
+          "min": 80,
           "max": 185,
-          "mean": 125
+          "mean": 160
         }
       ],
       "version": {
@@ -175,7 +175,7 @@
           "release": "41.0",
           "min": 75,
           "max": 185,
-          "mean": 125
+          "mean": 135
         }
       ],
       "version": {
@@ -199,9 +199,9 @@
         },
         {
           "release": "41.0",
-          "min": 75,
-          "max": 185,
-          "mean": 125
+          "min": 80,
+          "max": 200,
+          "mean": 165
         }
       ],
       "version": {
