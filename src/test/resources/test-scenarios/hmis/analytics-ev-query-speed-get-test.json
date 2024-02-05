@@ -44,8 +44,8 @@
         {
           "release": "41.0",
           "min": 90,
-          "max": 285,
-          "mean": 180
+          "max": 395,
+          "mean": 225
         }
       ],
       "version": {
@@ -71,7 +71,7 @@
           "release": "41.0",
           "min": 90,
           "max": 295,
-          "mean": 165
+          "mean": 225
         }
       ],
       "version": {
@@ -97,7 +97,7 @@
           "release": "41.0",
           "min": 85,
           "max": 295,
-          "mean": 165
+          "mean": 220
         }
       ],
       "version": {
@@ -123,7 +123,7 @@
           "release": "41.0",
           "min": 90,
           "max": 295,
-          "mean": 165
+          "mean": 200
         }
       ],
       "version": {
