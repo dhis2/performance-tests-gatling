@@ -7,7 +7,7 @@
           "release": "41.0",
           "min": 85,
           "max": 220,
-          "mean": 135
+          "mean": 145
         }
       ],
       "version": {
@@ -20,8 +20,8 @@
         {
           "release": "41.0",
           "min": 145,
-          "max": 320,
-          "mean": 225
+          "max": 380,
+          "mean": 340
         }
       ],
       "version": {
@@ -34,8 +34,8 @@
         {
           "release": "41.0",
           "min": 85,
-          "max": 220,
-          "mean": 145
+          "max": 235,
+          "mean": 185
         }
       ],
       "version": {
@@ -49,7 +49,7 @@
           "release": "41.0",
           "min": 80,
           "max": 200,
-          "mean": 120
+          "mean": 145
         }
       ],
       "version": {
@@ -62,8 +62,8 @@
         {
           "release": "41.0",
           "min": 75,
-          "max": 295,
-          "mean": 135
+          "max": 385,
+          "mean": 325
         }
       ],
       "version": {
@@ -76,8 +76,8 @@
         {
           "release": "41.0",
           "min": 365,
-          "max": 615,
-          "mean": 500
+          "max": 715,
+          "mean": 665
         }
       ],
       "version": {
@@ -91,7 +91,7 @@
           "release": "41.0",
           "min": 95,
           "max": 240,
-          "mean": 170
+          "mean": 185
         }
       ],
       "version": {
@@ -103,9 +103,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 190,
-          "max": 7250,
-          "mean": 1365
+          "min": 250,
+          "max": 675,
+          "mean": 505
         }
       ],
       "version": {
@@ -131,9 +131,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 130,
-          "max": 310,
-          "mean": 210
+          "min": 240,
+          "max": 450,
+          "mean": 415
         }
       ],
       "version": {
@@ -187,9 +187,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 60,
+          "min": 105,
           "max": 245,
-          "mean": 145
+          "mean": 190
         }
       ],
       "version": {
@@ -201,9 +201,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 105,
-          "max": 320,
-          "mean": 185
+          "min": 255,
+          "max": 500,
+          "mean": 410
         }
       ],
       "version": {
@@ -215,9 +215,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 135,
-          "max": 340,
-          "mean": 190
+          "min": 195,
+          "max": 450,
+          "mean": 400
         }
       ],
       "version": {
