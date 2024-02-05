@@ -160,8 +160,8 @@
         {
           "release": "41.0",
           "min": 65,
-          "max": 210,
-          "mean": 135
+          "max": 215,
+          "mean": 150
         }
       ],
       "version": {
