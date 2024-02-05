@@ -70,8 +70,8 @@
         {
           "release": "41.0",
           "min": 120,
-          "max": 275,
-          "mean": 250
+          "max": 400,
+          "mean": 295
         }
       ],
       "version": {
@@ -95,9 +95,9 @@
         },
         {
           "release": "41.0",
-          "min": 80,
-          "max": 250,
-          "mean": 190
+          "min": 125,
+          "max": 370,
+          "mean": 225
         }
       ],
       "version": {
