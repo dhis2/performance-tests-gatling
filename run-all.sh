@@ -1,6 +1,6 @@
 #! /usr/bin/bash
 
-readonly BASE_URL=https://test.performance.dhis2.org/40.2.2 #http://localhost:8080/dhis
+readonly BASE_URL=https://test.performance.dhis2.org/2.40.2.2 #http://localhost:8080/dhis
 readonly VERSION=40.2.2
 readonly BASELINE=40.2.2
 
