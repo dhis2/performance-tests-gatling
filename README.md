@@ -41,19 +41,28 @@ This is very easy. Follow the steps below:
 ```
     {
       "query": "/api/analytics?dimension=dx:D6Z8vC4lHkk,pe:LAST_12_MONTHS&filter=ou:USER_ORGUNIT&displayProperty=NAME&includeNumDen=false&skipMeta=false&skipData=false&relativePeriodDate=2023-11-14",
-      "expectations": {
-        "min": 230,
-        "max": 800,
-        "mean": 565
-      },
+      "expectations": [
+        {
+          "release": "41.0",
+          "min": 85,
+          "max": 220,
+          "mean": 150
+        },
+        {
+          "release": "40.2.2",
+          "min": 85,
+          "max": 220,
+          "mean": 150
+        }
+      ],
       "version": {
-        "min": "38",
-        "max": "41"
+        "min": "40.1",
+        "max": "41.0"
       }
     }
 ```
 - _query_: the URL/endpoint to be tested.
-- _expectations_: the response times expected.
+- _expectations_: the response times expected for the targeted releases.
 - _version_: the minimum/maximum version where this URL/endpoint is valid and can be reached. Usually, only the minimum version is needed, unless there is a very good reason to set a maximum version.
 
 ## Pointing to an external scenario file
@@ -61,7 +70,9 @@ We can also point to external JSON scenario files that are living in the file sy
 This can be done by specifying the root path of the respective file through the `scenario` property in `config.properties`, or at execution time (`-Dscenario=/myFolder/myScenarioFile.json`).
 
 ## Executing the tests
-Ensure that the repository was cloned in the local machine:
+**NOTE:** _Before executing any test, ensure that a FULL vacuum was run on the current database. This will provide more consistency during the executions._
+
+Ensure the repository was cloned in the local machine:
 ```
 git clone https://github.com/dhis2/performance-tests-gatling.git
 ```
