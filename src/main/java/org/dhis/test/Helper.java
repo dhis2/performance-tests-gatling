@@ -27,6 +27,8 @@
  */
 package org.dhis.test;
 
+import static java.lang.Integer.parseInt;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.remove;
 import static org.apache.commons.lang3.StringUtils.rightPad;
 
@@ -39,12 +41,16 @@ public class Helper {
    * (dots) and appends "0" (zero) to the right until the String length of size 5.
    *
    * @param numberWithDots the number to be converted, ie. "40.2.1.1"
-   * @return the version as int.
+   * @return the version as int, or 0 if the input it null/blank.
    */
   public static int asIntVersion(String numberWithDots) {
+    if (isBlank(numberWithDots)) {
+      return 0;
+    }
+
     final int MAX_VERSION_DIGITS = 5;
     String fiveNumbers = rightPad(remove(numberWithDots, "."), MAX_VERSION_DIGITS, "0");
 
-    return Integer.parseInt(fiveNumbers);
+    return parseInt(fiveNumbers);
   }
 }
