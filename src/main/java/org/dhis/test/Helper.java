@@ -44,13 +44,9 @@ public class Helper {
    * @return the version as int, or 0 if the input it null/blank.
    */
   public static int asIntVersion(String numberWithDots) {
-    if (isBlank(numberWithDots)) {
-      return 0;
-    }
-
     final int MAX_VERSION_DIGITS = 5;
     String fiveNumbers = rightPad(remove(numberWithDots, "."), MAX_VERSION_DIGITS, "0");
 
-    return parseInt(fiveNumbers);
+    return Integer.parseInt(fiveNumbers);
   }
 }

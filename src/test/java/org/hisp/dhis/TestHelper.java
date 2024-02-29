@@ -91,11 +91,11 @@ public class TestHelper {
    */
   public static boolean isVersionSupported(Version version) {
     if (version != null) {
-      if (DHIS2_VERSION < version.minAsInt()) {
+      if (version.getMin() != null && DHIS2_VERSION < version.minAsInt()) {
         return false;
       }
 
-      if (DHIS2_VERSION > version.maxAsInt()) {
+      if (version.getMax() != null && DHIS2_VERSION > version.maxAsInt()) {
         return false;
       }
     }
