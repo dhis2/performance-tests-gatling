@@ -27,8 +27,6 @@
  */
 package org.dhis.test;
 
-import static java.lang.Integer.parseInt;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.remove;
 import static org.apache.commons.lang3.StringUtils.rightPad;
 

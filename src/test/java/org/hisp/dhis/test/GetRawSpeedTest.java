@@ -63,12 +63,11 @@ public class GetRawSpeedTest extends Simulation {
     List<PopulationBuilder> populationBuilders = new ArrayList<>();
     List<Assertion> assertions = new ArrayList<>();
 
-    for (Scenario testQuery : scenarios) {
-      String query = testQuery.getQuery();
-      Expectation expectation = testQuery.getExpectation(BASELINE);
-      boolean hasExpectation = expectation != null;
+    for (Scenario scenario : scenarios) {
+      String query = scenario.getQuery();
+      Expectation expectation = scenario.getExpectation(BASELINE);
 
-      if (hasExpectation && isVersionSupported(testQuery.getVersion())) {
+      if (conditionsAreValid(scenario)) {
         // Define expectations.
         int min = defaultIfNull(expectation.getMin(), 0);
         int max = defaultIfNull(expectation.getMax(), 0);
@@ -80,18 +79,41 @@ public class GetRawSpeedTest extends Simulation {
         assertions.add(details(query).responseTime().max().lte(max));
         assertions.add(details(query).responseTime().mean().lte(mean));
         assertions.add(details(query).successfulRequests().percent().gte(100d));
-      } else {
-        logger.warn("Skipping query: {}", query);
       }
     }
 
-    if (!populationBuilders.isEmpty()) {
+    boolean hasScenariosToTest = !populationBuilders.isEmpty();
+
+    if (hasScenariosToTest) {
       // Test and assert.
       setUp(populationBuilders).assertions(assertions);
     } else {
       // Skip unsupported queries avoiding a crash.
       setUp(fakePopulationBuilder());
     }
+  }
+
+  /**
+   * Checks if the {@link Scenario} conditions are valid.
+   *
+   * @param scenario the {@link Scenario}.
+   * @return true if the scenarios conditions are valid, false otherwise.
+   */
+  private boolean conditionsAreValid(Scenario scenario) {
+    String query = scenario.getQuery();
+
+    boolean hasExpectation = scenario.getExpectation(BASELINE) != null;
+    boolean isVersionSupported = isVersionSupported(scenario.getVersion());
+
+    if (!hasExpectation) {
+      logger.warn("Skipping query: {}. Expectation is missing.", query);
+    }
+
+    if (!isVersionSupported) {
+      logger.warn("Skipping query: {}. Scenario version is missing or not supported.", query);
+    }
+
+    return hasExpectation && isVersionSupported;
   }
 
   private PopulationBuilder populationBuilder(String query) {

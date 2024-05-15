@@ -90,14 +90,10 @@ public class TestHelper {
    * @return true if the version is supported, false otherwise.
    */
   public static boolean isVersionSupported(Version version) {
-    if (version != null) {
-      if (version.getMin() != null && DHIS2_VERSION < version.minAsInt()) {
-        return false;
-      }
-
-      if (version.getMax() != null && DHIS2_VERSION > version.maxAsInt()) {
-        return false;
-      }
+    if (version == null
+        || version.getMin() != null && DHIS2_VERSION < version.minAsInt()
+        || version.getMax() != null && DHIS2_VERSION > version.maxAsInt()) {
+      return false;
     }
 
     return true;
