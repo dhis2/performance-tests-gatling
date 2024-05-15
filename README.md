@@ -93,7 +93,7 @@ The above will take the default directory defined, in `pom.xml`, for the test si
 
 Note that all properties defined in `config.properties` can be overwritten (prefixing them with **-D**), if desirable, through the command line. Ie:
 ```
-mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dscenario=test-scenarios/hmis/analytics-en-query-speed-get-test.json -Dusername=anyName -Dpassword=anyPwd -Dversion=39 -Dinstance=https://test.performance.dhis2.org/2.39dev
+mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dscenario=test-scenarios/hmis/analytics-en-query-speed-get-test.json -Dusername=anyName -Dpassword=anyPwd -Dversion=39.4 -Dbaseline=41.0 -Dinstance=https://test.performance.dhis2.org/2.39dev
 ```
 (In the example above we are forcing a single specific scenario: ***Dgatling.simulationClass=class***).
 
