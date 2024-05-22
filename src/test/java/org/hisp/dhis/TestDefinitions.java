@@ -31,6 +31,8 @@ import static io.gatling.javaapi.core.CoreDsl.constantConcurrentUsers;
 import static io.gatling.javaapi.core.CoreDsl.rampUsers;
 import static io.gatling.javaapi.core.CoreDsl.rampUsersPerSec;
 import static io.gatling.javaapi.http.HttpDsl.http;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.dhis.test.Helper.asIntVersion;
 import static org.hisp.dhis.ConfigLoader.CONFIG;
@@ -51,6 +53,7 @@ public class TestDefinitions {
   public static final String USERNAME = CONFIG.getString("username");
   public static final String PASSWORD = CONFIG.getString("password");
   public static final String SCENARIO = CONFIG.getString("scenario");
+  public static final String QUERY = stream(CONFIG.getStringArray("query")).collect(joining(","));
 
   /**
    * Creates a {@link OpenInjectionStep} object with a single constant user during the given period

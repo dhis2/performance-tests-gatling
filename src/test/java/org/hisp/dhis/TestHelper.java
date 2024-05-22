@@ -29,7 +29,9 @@ package org.hisp.dhis;
 
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.hisp.dhis.TestDefinitions.DHIS2_VERSION;
+import static org.hisp.dhis.TestDefinitions.QUERY;
 import static org.hisp.dhis.TestDefinitions.SCENARIO;
 import static org.hisp.dhis.TestDefinitions.constantSingleUser;
 import static org.hisp.dhis.TestDefinitions.defaultHttpProtocol;
@@ -55,7 +57,7 @@ public class TestHelper {
 
   /**
    * Loads the list of scenarios from the scenario file specified in the "scenario" property.
-   * Through the "config.properties" file or at runtime.
+   * Through the "config.properties" file or at runtime. See {@link SCENARIO}.
    *
    * @return the list of {@link Scenario}.
    */
@@ -84,7 +86,7 @@ public class TestHelper {
   }
 
   /**
-   * Checks if the given version is currently supported, based on the DHIS2_VERSION set.
+   * Checks if the given version is currently supported, based on the {@link DHIS2_VERSION} set.
    *
    * @param version the {@link Version} to be matched.
    * @return true if the version is supported, false otherwise.
@@ -100,6 +102,26 @@ public class TestHelper {
   }
 
   /**
+   * Simply checks if the 'query' param/configuration was defined. See {@link QUERY}.
+   *
+   * @return true, if the 'query' is defined, false otherwise.
+   */
+  public static boolean isQuerySet() {
+    return isNotBlank(QUERY);
+  }
+
+  /**
+   * Checks if the given query matches the 'query' param, if there is one. If no 'query' param is
+   * defined, it always returns false. See {@link QUERY}.
+   *
+   * @param query the query (URL) to be matched.
+   * @return true, if it matches the 'query' param. Otherwise, false.
+   */
+  public static boolean queryMatchesParam(String query) {
+    return isNotBlank(query) && query.equals(QUERY);
+  }
+
+  /**
    * Creates a {@link PopulationBuilder} with a fake scenario, pointing to localhost. No assertions
    * will be defined.
    *
@@ -111,7 +133,8 @@ public class TestHelper {
   }
 
   /**
-   * Loads the current scenario file, relative to the local "test/resources" folder.
+   * Loads the current scenario file, relative to the local "test/resources" folder. See {@link
+   * SCENARIO}.
    *
    * @return the {@link URL} of the scenario file.
    */
@@ -120,7 +143,7 @@ public class TestHelper {
   }
 
   /**
-   * Loads the current scenario from a given absolute path.
+   * Loads the current scenario from a given absolute path. See {@link SCENARIO}.
    *
    * @return the {@link URL} of the scenario file.
    */

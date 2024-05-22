@@ -36,8 +36,10 @@ import static org.hisp.dhis.TestDefinitions.BASELINE;
 import static org.hisp.dhis.TestDefinitions.constantSingleUser;
 import static org.hisp.dhis.TestDefinitions.defaultHttpProtocol;
 import static org.hisp.dhis.TestHelper.fakePopulationBuilder;
+import static org.hisp.dhis.TestHelper.isQuerySet;
 import static org.hisp.dhis.TestHelper.isVersionSupported;
 import static org.hisp.dhis.TestHelper.loadScenarios;
+import static org.hisp.dhis.TestHelper.queryMatchesParam;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import io.gatling.javaapi.core.Assertion;
@@ -104,16 +106,26 @@ public class GetRawSpeedTest extends Simulation {
 
     boolean hasExpectation = scenario.getExpectation(BASELINE) != null;
     boolean isVersionSupported = isVersionSupported(scenario.getVersion());
+    boolean queryDoesNotMatchParam = isQuerySet() & !queryMatchesParam(query);
 
     if (!hasExpectation) {
-      logger.warn("Skipping query: {}. Expectation is missing.", query);
+      logger.warn("Skipping query: {}. Expectation is missing, check the query definition.", query);
+      return false;
     }
 
     if (!isVersionSupported) {
-      logger.warn("Skipping query: {}. Scenario version is missing or not supported.", query);
+      logger.warn(
+          "Skipping query: {}. Scenario version is missing or not supported by this query.", query);
+      return false;
     }
 
-    return hasExpectation && isVersionSupported;
+    if (queryDoesNotMatchParam) {
+      logger.warn(
+          "Skipping query: {}. A specific 'query' was set to run. It's not this one", query);
+      return false;
+    }
+
+    return true;
   }
 
   private PopulationBuilder populationBuilder(String query) {
