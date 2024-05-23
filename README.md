@@ -137,16 +137,16 @@ the project.
 
 ### Supported properties
 
-| Property           | Description                                                                                                                                            |
-|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| gatling.simulation | The target simulation class.                                                                                                                           |
-| instance           | The instance/server of DHIS2 that tests will hit.                                                                                                      |
-| version            | The version of the DHIS2 server instance.                                                                                                              |
-| baseline           | The DHIS2 version to be used as baseline for the test expectations.                                                                                    |
-| scenario           | Test suite/scenario to be executed (refers to a respective file name). It can be relative to the internal folder "test-scenarios" or an absolute path. |
-| query              | Points to a specific single query to run. All others will be ignored, except this one.                                                                 |
-| username           | Username of the target DHIS2 server to be used during the tests.                                                                                       |
-| password           | Password for the username.                                                                                                                             |
+| Property           | Description                                                                                                                                                                           |
+|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| gatling.simulation | The target simulation class.                                                                                                                                                          |
+| instance           | The instance/server of DHIS2 that tests will hit.                                                                                                                                     |
+| version            | The version of the DHIS2 server instance.                                                                                                                                             |
+| baseline           | The DHIS2 version to be used as baseline for the test expectations.                                                                                                                   |
+| scenario           | Test suite/scenario to be executed (refers to a respective file name). It can be relative to the internal folder "test-scenarios" or an absolute path.                                |
+| query              | Forces the execution of a specific single query. All others will be ignored, except this one. Double quotes (") must be used so it can read correctly. ie.: -Dquery="/api/test?arg=1" |
+| username           | Username of the target DHIS2 server to be used during the tests.                                                                                                                      |
+| password           | Password for the username.                                                                                                                                                            |
 
 # Pre-requirements
 
