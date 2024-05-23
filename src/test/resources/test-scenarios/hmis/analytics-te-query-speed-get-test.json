@@ -197,20 +197,6 @@
       }
     },
     {
-      "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?dimension=fOKN0TJ7Lmi.mjnjkIyjsUj.cCANosIIJkP:eq:NV&asc=fOKN0TJ7Lmi.mjnjkIyjsUj.cCANosIIJkP&relativePeriodDate=2023-12-14",
-      "expectations": [
-        {
-          "release": "41.0",
-          "min": 255,
-          "max": 500,
-          "mean": 410
-        }
-      ],
-      "version": {
-        "min": "41.0"
-      }
-    },
-    {
       "query": "/api/analytics/trackedEntities/query/MCPQUTHX1Ze?desc=ouname,lastupdated&relativePeriodDate=2023-12-14",
       "expectations": [
         {
