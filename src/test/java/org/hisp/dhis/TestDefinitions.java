@@ -41,12 +41,15 @@ import io.gatling.javaapi.core.ClosedInjectionStep;
 import io.gatling.javaapi.core.OpenInjectionStep;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import java.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides the common definitions and settings used across all tests. It's the class where all
  * common settings should be defined.
  */
 public class TestDefinitions {
+  private static final Logger logger = LoggerFactory.getLogger(TestDefinitions.class);
   public static final String DHIS2_INSTANCE = CONFIG.getString("instance");
   public static final int DHIS2_VERSION = asIntVersion(CONFIG.getString("version", EMPTY));
   public static final int BASELINE = asIntVersion(CONFIG.getString("baseline", EMPTY));
@@ -103,7 +106,7 @@ public class TestDefinitions {
    * @return the configured {@link HttpProtocolBuilder} object.
    */
   public static HttpProtocolBuilder defaultHttpProtocol() {
-    System.out.println("# Pointing to instance: " + DHIS2_INSTANCE);
+    logger.info("# Pointing to instance: " + DHIS2_INSTANCE);
 
     return http.baseUrl(DHIS2_INSTANCE)
         .acceptHeader("application/json")
