@@ -1,0 +1,18 @@
+{
+  "scenarios": [
+    {
+      "query": "/analytics/events/query/eBAyeGv0exc?dimension=ou:ImspTQPwCqd,eMyVanycQSC,qrur9Dvnyt5:GE:5:LE:10,oZg33kd9taw,fWIAEtYVEGk,msodh3rEMJa&headers=eventdate,ouname,eMyVanycQSC,qrur9Dvnyt5,oZg33kd9taw,fWIAEtYVEGk,msodh3rEMJa&totalPages=false&eventDate=LAST_10_YEARS&displayProperty=NAME&outputType=EVENT&pageSize=1000&page=1&includeMetadataDetails=true&stage=Zj7UnCAulEk&relativePeriodDate=2023-11-01",
+      "expectations": [
+        {
+          "release": "41.0",
+          "min": 95,
+          "max": 190,
+          "mean": 170
+        }
+      ],
+      "version": {
+        "min": "38.6"
+      }
+    }
+  ]
+}

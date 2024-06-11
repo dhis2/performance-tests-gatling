@@ -1,0 +1,18 @@
+{
+  "scenarios": [
+    {
+      "query": "/categoryOptions?paging=false&fields=id,name,organisationUnits[id,name,code],categoryOptionGroups[id,name,groupSets[id]],categoryOptionCombos[id,name]&relativePeriodDate=2023-11-01",
+      "expectations": [
+        {
+          "release": "41.0",
+          "min": 50,
+          "max": 2000,
+          "mean": 2300
+        }
+      ],
+      "version": {
+        "min": "38.6"
+      }
+    }
+  ]
+}

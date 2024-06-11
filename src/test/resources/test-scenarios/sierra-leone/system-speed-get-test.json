@@ -1,0 +1,18 @@
+{
+  "scenarios": [
+    {
+      "query": "/api/userSettings",
+      "expectations": [
+        {
+          "release": "41.0",
+          "min": 65,
+          "max": 140,
+          "mean": 125
+        }
+      ],
+      "version": {
+        "min": "38.6"
+      }
+    }
+  ]
+}
