@@ -5,9 +5,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 85,
-          "max": 220,
-          "mean": 150
+          "min": 120,
+          "max": 300,
+          "mean": 215
         }
       ],
       "version": {
@@ -19,9 +19,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 145,
-          "max": 395,
-          "mean": 345
+          "min": 140,
+          "max": 320,
+          "mean": 210
         }
       ],
       "version": {
@@ -35,7 +35,7 @@
           "release": "41.0",
           "min": 85,
           "max": 235,
-          "mean": 185
+          "mean": 160
         }
       ],
       "version": {
@@ -47,9 +47,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 80,
-          "max": 200,
-          "mean": 145
+          "min": 2750,
+          "max": 3550,
+          "mean": 3350
         }
       ],
       "version": {
@@ -61,9 +61,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 75,
-          "max": 385,
-          "mean": 325
+          "min": 80,
+          "max": 280,
+          "mean": 170
         }
       ],
       "version": {
@@ -75,9 +75,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 365,
-          "max": 745,
-          "mean": 675
+          "min": 1900,
+          "max": 2750,
+          "mean": 2600
         }
       ],
       "version": {
@@ -89,9 +89,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 95,
-          "max": 240,
-          "mean": 200
+          "min": 160,
+          "max": 345,
+          "mean": 250
         }
       ],
       "version": {
@@ -103,9 +103,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 250,
-          "max": 675,
-          "mean": 505
+          "min": 1650,
+          "max": 2400,
+          "mean": 2250
         }
       ],
       "version": {
@@ -117,9 +117,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 2800,
-          "max": 4000,
-          "mean": 3500
+          "min": 170,
+          "max": 360,
+          "mean": 255
         }
       ],
       "version": {
@@ -131,9 +131,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 2800,
-          "max": 4000,
-          "mean": 3500
+          "min": 420,
+          "max": 700,
+          "mean": 580
         }
       ],
       "version": {
@@ -145,9 +145,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 2800,
-          "max": 4000,
-          "mean": 3500
+          "min": 440,
+          "max": 720,
+          "mean": 565
         }
       ],
       "version": {
@@ -159,9 +159,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 2800,
-          "max": 4000,
-          "mean": 3500
+          "min": 95,
+          "max": 245,
+          "mean": 175
         }
       ],
       "version": {
