@@ -60,12 +60,13 @@ import org.slf4j.Logger;
 public class GetRawSpeedTest extends Simulation {
   private static final Logger logger = getLogger(GetRawSpeedTest.class);
 
-  public GetRawSpeedTest() {
+  public GetRawSpeedTest() throws InterruptedException {
     List<Scenario> scenarios = loadScenarios();
     List<PopulationBuilder> populationBuilders = new ArrayList<>();
     List<Assertion> assertions = new ArrayList<>();
 
     for (Scenario scenario : scenarios) {
+      Thread.sleep(5000);
       String query = scenario.getQuery();
       Expectation expectation = scenario.getExpectation(BASELINE);
 
