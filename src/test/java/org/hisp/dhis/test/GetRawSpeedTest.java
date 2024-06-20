@@ -66,7 +66,7 @@ public class GetRawSpeedTest extends Simulation {
     List<Assertion> assertions = new ArrayList<>();
 
     for (Scenario scenario : scenarios) {
-      Thread.sleep(5000);
+      //Thread.sleep(5000);
       String query = scenario.getQuery();
       Expectation expectation = scenario.getExpectation(BASELINE);
 
