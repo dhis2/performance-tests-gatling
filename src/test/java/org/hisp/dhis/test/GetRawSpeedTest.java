@@ -140,6 +140,6 @@ public class GetRawSpeedTest extends Simulation {
 
     return scenario("Raw speed test for GET " + query)
         .exec(http(query).get(query).check(status().is(200)))
-        .pause(5000);
+        .pause(5);
   }
 }
