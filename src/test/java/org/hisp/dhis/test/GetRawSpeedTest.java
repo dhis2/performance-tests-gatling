@@ -60,7 +60,7 @@ import org.slf4j.Logger;
 public class GetRawSpeedTest extends Simulation {
   private static final Logger logger = getLogger(GetRawSpeedTest.class);
 
-  public GetRawSpeedTest() throws InterruptedException {
+  public GetRawSpeedTest() {
     List<Scenario> scenarios = loadScenarios();
     List<PopulationBuilder> populationBuilders = new ArrayList<>();
     List<Assertion> assertions = new ArrayList<>();
@@ -139,6 +139,7 @@ public class GetRawSpeedTest extends Simulation {
     logger.info(query);
 
     return scenario("Raw speed test for GET " + query)
-        .exec(http(query).get(query).check(status().is(200)));
+        .exec(http(query).get(query).check(status().is(200)))
+        .pause(5000);
   }
 }
