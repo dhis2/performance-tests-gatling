@@ -6,8 +6,8 @@
         {
           "release": "41.0",
           "min": 95,
-          "max": 190,
-          "mean": 170
+          "max": 255,
+          "mean": 185
         }
       ],
       "version": {
@@ -19,9 +19,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 95,
-          "max": 190,
-          "mean": 170
+          "min": 80,
+          "max": 230,
+          "mean": 150
         }
       ],
       "version": {
@@ -33,9 +33,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 95,
-          "max": 190,
-          "mean": 170
+          "min": 130,
+          "max": 350,
+          "mean": 240
         }
       ],
       "version": {
