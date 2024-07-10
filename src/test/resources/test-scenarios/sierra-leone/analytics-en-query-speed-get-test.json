@@ -19,9 +19,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 15500,
-          "max": 16850,
-          "mean": 16650
+          "min": 85,
+          "max": 200,
+          "mean": 140
         }
       ],
       "version": {
