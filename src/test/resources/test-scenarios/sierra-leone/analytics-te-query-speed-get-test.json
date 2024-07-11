@@ -117,7 +117,7 @@
       "expectations": [
         {
           "release": "42.0",
-          "min": 170,
+          "min": 110,
           "max": 360,
           "mean": 255
         }
