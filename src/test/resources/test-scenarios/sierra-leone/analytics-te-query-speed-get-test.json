@@ -146,8 +146,8 @@
         {
           "release": "42.0",
           "min": 440,
-          "max": 720,
-          "mean": 595
+          "max": 740,
+          "mean": 610
         }
       ],
       "version": {
