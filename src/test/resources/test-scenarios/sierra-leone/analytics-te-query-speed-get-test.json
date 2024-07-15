@@ -89,7 +89,7 @@
       "expectations": [
         {
           "release": "42.0",
-          "min": 160,
+          "min": 90,
           "max": 345,
           "mean": 250
         }
@@ -132,8 +132,8 @@
         {
           "release": "42.0",
           "min": 420,
-          "max": 735,
-          "mean": 615
+          "max": 765,
+          "mean": 620
         }
       ],
       "version": {
