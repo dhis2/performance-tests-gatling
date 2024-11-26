@@ -1,0 +1,36 @@
+{
+  "scenarios": [
+    {
+      "query": "/api/tracker/events.json",
+      "expectations": [
+        {
+          "release": "38.6",
+          "min": 100,
+          "max": 200,
+          "mean": 160
+        },
+        {
+          "release": "40.2.2",
+          "min": 90,
+          "max": 200,
+          "mean": 160
+        },
+        {
+          "release": "41.0",
+          "min": 90,
+          "max": 200,
+          "mean": 160
+        },
+        {
+          "release": "42",
+          "min": 90,
+          "max": 5000,
+          "mean": 5000
+        }
+      ],
+      "version": {
+        "min": "38.6"
+      }
+    }
+  ]
+}
