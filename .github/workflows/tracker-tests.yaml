@@ -6,16 +6,10 @@ env:
   VERSION: 42
   BASELINE: 42
 on:
-  workflow_dispatch:
-    inputs:
-      server:
-        description: 'Server to run the performance tests'
-        # Default value if no value is explicitly provided
-        default: https://play.im.dhis2.org/dev
-        # Input has to be provided for the workflow to run
-        required: false
-        # The data type of the input
-        type: string
+  push:
+    branches:
+      - master
+  pull_request:
 concurrency:
   group: ${{ github.workflow}}-${{ github.ref }}
   cancel-in-progress: true
