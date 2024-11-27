@@ -1,7 +1,7 @@
 {
   "scenarios": [
     {
-      "query": "/api/tracker/enrollments.json",
+      "query": "/api/tracker/enrollments.json?fields=*,events[*]",
       "expectations": [
         {
           "release": "38.6",
