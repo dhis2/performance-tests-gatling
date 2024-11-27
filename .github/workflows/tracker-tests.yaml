@@ -6,6 +6,10 @@ env:
   VERSION: 42
   BASELINE: 42
 on:
+  push:
+    branches:
+      - master
+  pull_request:
   workflow_dispatch:
     inputs:
       server:
