@@ -9,7 +9,6 @@ env:
   PASSWORD: Tracker123
   CONNECTIONS: 1
 on:
-  pull_request:
   workflow_dispatch:
     inputs:
       server:
