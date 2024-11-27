@@ -5,6 +5,8 @@ env:
   BASE_URL: https://play.im.dhis2.org/dev
   VERSION: 42
   BASELINE: 42
+  USERNAME: tracker
+  PASSWORD: Tracker123
 on:
   workflow_dispatch
 concurrency:
@@ -22,7 +24,7 @@ jobs:
           distribution: temurin
           cache: maven
       - name: Run check test
-        run: mvn gatling:test -Dinstance=$BASE_URL -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-check-test.json
+        run: mvn gatling:test -Dinstance=$BASE_URL -Dusername=$USERNAME -Dpassword=$PASSWORD -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-check-test.json
         timeout-minutes: 2
   get-events-test:
     runs-on: ubuntu-latest
@@ -36,7 +38,7 @@ jobs:
           distribution: temurin
           cache: maven
       - name: Run get events tests
-        run: mvn gatling:test -Dinstance=$BASE_URL -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-event-test.json
+        run: mvn gatling:test -Dinstance=$BASE_URL -Dusername=$USERNAME -Dpassword=$PASSWORD -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-event-test.json
         timeout-minutes: 2
   get-enrollments-test:
     runs-on: ubuntu-latest
@@ -51,7 +53,7 @@ jobs:
           distribution: temurin
           cache: maven
       - name: Run get enrollments tests
-        run: mvn gatling:test -Dinstance=$BASE_URL -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-enrollment-test.json
+        run: mvn gatling:test -Dinstance=$BASE_URL -Dusername=$USERNAME -Dpassword=$PASSWORD -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-enrollment-test.json
         timeout-minutes: 2
   get-tes-test:
     runs-on: ubuntu-latest
@@ -66,5 +68,5 @@ jobs:
           distribution: temurin
           cache: maven
       - name: Run get tracked entities tests
-        run: mvn gatling:test -Dinstance=$BASE_URL -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-te-test.json
+        run: mvn gatling:test -Dinstance=$BASE_URL -Dusername=$USERNAME -Dpassword=$PASSWORD -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-te-test.json
         timeout-minutes: 2
