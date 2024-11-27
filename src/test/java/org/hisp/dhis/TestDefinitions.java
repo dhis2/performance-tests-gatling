@@ -110,7 +110,7 @@ public class TestDefinitions {
 
     return http.baseUrl(DHIS2_INSTANCE)
         .acceptHeader("application/json")
-        .maxConnectionsPerHost(1)
+        .maxConnectionsPerHost(100)
         .basicAuth(USERNAME, PASSWORD)
         .header("Content-Type", "application/json")
         .userAgentHeader("Gatling/Performance Test: " + DHIS2_INSTANCE);
