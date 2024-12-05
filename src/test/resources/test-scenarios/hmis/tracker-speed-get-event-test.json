@@ -1,7 +1,7 @@
 {
   "scenarios": [
     {
-      "query": "/api/tracker/events.json?fields=*",
+      "query": "/api/tracker/events.json?fields=*,!relationships",
       "expectations": [
         {
           "release": "38.6",

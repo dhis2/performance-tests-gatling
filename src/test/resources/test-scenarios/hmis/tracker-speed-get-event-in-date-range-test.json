@@ -1,7 +1,7 @@
 {
   "scenarios": [
     {
-      "query": "/api/tracker/enrollments.json",
+      "query": "/api/tracker/events.json?pageSize=100&totalPages=true&occurredAfter=2024-01-01&occurredBefore=2024-12-31",
       "expectations": [
         {
           "release": "38.6",
@@ -24,8 +24,8 @@
         {
           "release": "42",
           "min": 90,
-          "max": 500,
-          "mean": 400
+          "max": 3000,
+          "mean": 2000
         }
       ],
       "version": {

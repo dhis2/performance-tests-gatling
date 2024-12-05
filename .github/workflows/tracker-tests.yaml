@@ -7,6 +7,8 @@ env:
   BASELINE: 42
   USERNAME: tracker
   PASSWORD: Tracker123
+  ADMIN_USERNAME: admin
+  ADMIN_PASSWORD: district
   CONNECTIONS: 1
 on:
   workflow_dispatch:
@@ -23,7 +25,6 @@ concurrency:
   group: ${{ github.workflow}}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-
   get-events-test:
     runs-on: ubuntu-latest
     steps:
@@ -37,10 +38,25 @@ jobs:
       - name: Run get events tests
         run: mvn gatling:test -Dinstance=$BASE_URL -Dusername=$USERNAME -Dpassword=$PASSWORD -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-event-test.json
         timeout-minutes: 2
-  get-enrollments-test:
+  get-date-range-events-test:
     runs-on: ubuntu-latest
     if: ${{ always() }}
     needs: [ get-events-test ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+      - name: Run get events tests
+        run: mvn gatling:test -Dinstance=$BASE_URL -Dusername=$ADMIN_USERNAME -Dpassword=$ADMIN_PASSWORD -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-event-in-date-range-test.json
+        timeout-minutes: 2
+  get-enrollments-test:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [ get-date-range-events-test ]
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
