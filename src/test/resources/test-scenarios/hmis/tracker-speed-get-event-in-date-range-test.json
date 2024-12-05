@@ -1,7 +1,7 @@
 {
   "scenarios": [
     {
-      "query": "/api/tracker/events?order=createdAt:desc&page=1&pageSize=15&orgUnit=DiszpKrYNg8&ouMode=SELECTED&program=IpHINAT79UW&programStage=ZzYYXq4fJie&fields=*",
+      "query": "/api/tracker/events.json?pageSize=100&totalPages=true&occurredAfter=2024-01-01&occurredBefore=2024-12-31",
       "expectations": [
         {
           "release": "38.6",
@@ -24,8 +24,8 @@
         {
           "release": "42",
           "min": 90,
-          "max": 800,
-          "mean": 650
+          "max": 1800,
+          "mean": 1600
         }
       ],
       "version": {

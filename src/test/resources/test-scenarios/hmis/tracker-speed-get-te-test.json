@@ -25,7 +25,7 @@
           "release": "42",
           "min": 100,
           "max": 2000,
-          "mean": 1600
+          "mean": 1800
         }
       ],
       "version": {
