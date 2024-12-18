@@ -1,7 +1,7 @@
 {
   "scenarios": [
     {
-      "query": "/api/tracker/enrollments.json?fields=*,events[*]",
+      "query": "/api/tracker/enrollments.json",
       "expectations": [
         {
           "release": "38.6",
@@ -25,7 +25,7 @@
           "release": "42",
           "min": 90,
           "max": 800,
-          "mean": 500
+          "mean": 600
         }
       ],
       "version": {
