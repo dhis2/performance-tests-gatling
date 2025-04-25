@@ -20,12 +20,6 @@
           "min": 150500,
           "max": 165000,
           "mean": 165000
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 220,
-          "mean": 115
         }
       ],
       "version": {
@@ -52,12 +46,6 @@
           "min": 4400,
           "max": 6950,
           "mean": 6250
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 220,
-          "mean": 120
         }
       ],
       "version": {
@@ -84,12 +72,6 @@
           "min": 270000,
           "max": 285000,
           "mean": 285000
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 220,
-          "mean": 115
         }
       ],
       "version": {
@@ -116,12 +98,6 @@
           "min": 171000,
           "max": 179000,
           "mean": 179000
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 220,
-          "mean": 120
         }
       ],
       "version": {
@@ -148,12 +124,6 @@
           "min": 60,
           "max": 250,
           "mean": 185
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 220,
-          "mean": 120
         }
       ],
       "version": {
@@ -180,12 +150,6 @@
           "min": 160,
           "max": 550,
           "mean": 245
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 220,
-          "mean": 120
         }
       ],
       "version": {
@@ -212,12 +176,6 @@
           "min": 80,
           "max": 320,
           "mean": 150
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 220,
-          "mean": 120
         }
       ],
       "version": {
@@ -244,12 +202,6 @@
           "min": 65,
           "max": 450,
           "mean": 130
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 220,
-          "mean": 120
         }
       ],
       "version": {
@@ -276,12 +228,6 @@
           "min": 65,
           "max": 220,
           "mean": 115
-        },
-        {
-          "release": "42.0-doris",
-          "min": 65,
-          "max": 215,
-          "mean": 120
         }
       ],
       "version": {
@@ -308,12 +254,6 @@
           "min": 65,
           "max": 275,
           "mean": 105
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 225,
-          "mean": 120
         }
       ],
       "version": {
@@ -340,12 +280,6 @@
           "min": 900,
           "max": 1650,
           "mean": 1400
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 215,
-          "mean": 95
         }
       ],
       "version": {
@@ -372,12 +306,6 @@
           "min": 175000,
           "max": 180000,
           "mean": 180000
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 225,
-          "mean": 100
         }
       ],
       "version": {
@@ -404,12 +332,6 @@
           "min": 400,
           "max": 950,
           "mean": 800
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 205,
-          "mean": 100
         }
       ],
       "version": {
@@ -436,12 +358,6 @@
           "min": 1150,
           "max": 2100,
           "mean": 1800
-        },
-        {
-          "release": "42.0-doris",
-          "min": 160,
-          "max": 325,
-          "mean": 220
         }
       ],
       "version": {
@@ -468,12 +384,6 @@
           "min": 235000,
           "max": 244000,
           "mean": 244000
-        },
-        {
-          "release": "42.0-doris",
-          "min": 75,
-          "max": 230,
-          "mean": 115
         }
       ],
       "version": {
@@ -500,12 +410,6 @@
           "min": 900,
           "max": 1450,
           "mean": 1250
-        },
-        {
-          "release": "42.0-doris",
-          "min": 75,
-          "max": 245,
-          "mean": 115
         }
       ],
       "version": {
@@ -532,12 +436,6 @@
           "min": 1850,
           "max": 3000,
           "mean": 2500
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 220,
-          "mean": 115
         }
       ],
       "version": {
@@ -564,12 +462,6 @@
           "min": 115,
           "max": 500,
           "mean": 235
-        },
-        {
-          "release": "42.0-doris",
-          "min": 70,
-          "max": 220,
-          "mean": 120
         }
       ],
       "version": {
