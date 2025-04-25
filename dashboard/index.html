@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gatling Benchmarks</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" id="theme-stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>Gatling Benchmarks</h1>
+            <div class="header-controls">
+                <button id="toggle-query-params" class="toggle-button">
+                    <span class="toggle-text">Show Query Parameters</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <nav class="sidebar">
+                <div class="nav-header">Test Suites</div>
+                <div id="nav-content"></div>
+            </nav>
+
+            <main class="content-panel">
+                <div id="charts"></div>
+                <div class="tooltip"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/visualization_plotly.js"></script>
+    <script>
+        function switchTheme(theme) {
+            const stylesheet = document.getElementById('theme-stylesheet');
+            stylesheet.href = `css/style-${theme}.css`;
+        }
+    </script>
+</body>
+</html> 

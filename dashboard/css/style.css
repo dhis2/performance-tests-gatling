@@ -1,0 +1,328 @@
+:root {
+    --primary-color: #36a2eb;
+    --background-color: #1a1a1a;
+    --card-background: #2d2d2d;
+    --sidebar-width: 350px;
+    --header-height: 60px;
+    --border-color: #404040;
+    --text-color: #e0e0e0;
+    --text-color-light: #b0b0b0;
+    --hover-color: #3d3d3d;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.header {
+    background-color: var(--card-background);
+    padding: 0 20px;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--text-color);
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.toggle-button {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: var(--text-color);
+    transition: background-color 0.2s;
+}
+
+.toggle-button:hover {
+    background-color: var(--hover-color);
+}
+
+.toggle-text {
+    white-space: nowrap;
+}
+
+.toggle-button.collapsed .toggle-text {
+    content: "Show Query Parameters";
+}
+
+.toggle-button:not(.collapsed) .toggle-text {
+    content: "Hide Query Parameters";
+}
+
+.main-content {
+    display: flex;
+    margin-top: var(--header-height);
+    min-height: calc(100vh - var(--header-height));
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--card-background);
+    border-right: 1px solid var(--border-color);
+    padding: 20px 0;
+    position: fixed;
+    height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+}
+
+.nav-header {
+    padding: 10px 20px;
+    font-weight: bold;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 10px;
+}
+
+.db-group {
+    margin-bottom: 15px;
+}
+
+.db-title {
+    padding: 8px 20px;
+    font-weight: bold;
+    color: var(--text-color);
+    background-color: var(--hover-color);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.db-title:hover {
+    background-color: #e0e0e0;
+}
+
+.suite-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.suite-item {
+    padding: 8px 20px 8px 35px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: smaller;
+}
+
+.suite-item:hover {
+    background-color: var(--hover-color);
+}
+
+.suite-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.content-panel {
+    flex: 1;
+    _margin-left: var(--sidebar-width);
+    _padding: 10px;
+    _max-width: calc(100vw - var(--sidebar-width));
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    box-sizing: border-box;
+}
+
+#charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+    gap: 10px;
+    padding: 10px;
+    margin-left: var(--sidebar-width);
+    box-sizing: border-box;
+}
+
+.chart-container {
+    background: var(--card-background);
+    padding: 20px;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.plot-container {
+    width: 100%;
+    margin-top: 20px;
+    height: 200px;
+}
+
+.js-plotly-plot {
+    width: 100% !important;
+}
+
+.js-plotly-plot .main-svg {
+    width: 100% !important;
+}
+
+.chart-container svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.query-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.query-info {
+    font-size: 0.9em;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    padding: 10px;
+    _background-color: var(--background-color);
+    border-radius: 4px;
+    _border-left: 4px solid var(--primary-color);
+    width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-break: break-all;
+    max-width: 100%;
+}
+
+.query-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.query-toggle-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.query-toggle-icon.collapsed {
+    transform: rotate(-90deg);
+}
+
+.query-params-container {
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.query-params-container:not(.collapsed) {
+    max-height: 1000px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.full-query {
+    margin-bottom: 10px;
+    _padding-bottom: 10px;
+    _border-bottom: 1px solid var(--border-color);
+    overflow-wrap: break-word;
+    word-break: break-all;
+    font-size: smaller;
+}
+
+.endpoint {
+    font-weight: bold;
+    color: var(--text-color);
+    word-break: break-all;
+}
+
+.query-param {
+    margin: 5px 0;
+    padding-left: 15px;
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
+
+.param-key {
+    font-weight: bold;
+    color: var(--text-color);
+    word-break: break-all;
+}
+
+.param-value {
+    color: var(--text-color-light);
+    word-break: break-all;
+}
+
+.bar {
+    transition: opacity 0.3s;
+}
+
+.bar:hover {
+    opacity: 0.8;
+}
+
+.error-bar {
+    stroke-width: 2;
+}
+
+.error-bar-cap {
+    stroke-width: 2;
+}
+
+.tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    display: none;
+}
+
+.version-label {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+@media (max-width: 1200px) {
+    #charts {
+        grid-template-columns: 1fr;
+    }
+} 
