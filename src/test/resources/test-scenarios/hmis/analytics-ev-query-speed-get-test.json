@@ -53,7 +53,7 @@
       }
     },
     {
-      "query": "/api/analytics/events/query/YcxRnVWkbQ1?dimension=pe:LAST_YEAR;ou:USER_ORGUNIT,FfgRrNEF2jY:GE:0,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa,yGuXefzA4Sy:GE:0,oindugucx72:IN:FEMALE,Rv8WM2mTuS5:EQ:NV&filter=GIb6Ge9PCc4.GsxsEH4GmaR:EQ:NV&headers=ouname,FfgRrNEF2jY,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa,yGuXefzA4Sy,oindugucx72,Rv8WM2mTuS5&totalPages=false&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=GIb6Ge9PCc4&relativePeriodDate=2023-12-14",
+      "query": "/api/analytics/events/query/YcxRnVWkbQ1?dimension=pe:LAST_YEAR,ou:USER_ORGUNIT,FfgRrNEF2jY:GE:0,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa,yGuXefzA4Sy:GE:0,oindugucx72:IN:FEMALE,Rv8WM2mTuS5:EQ:NV&filter=GIb6Ge9PCc4.GsxsEH4GmaR:EQ:NV&headers=ouname,FfgRrNEF2jY,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa,yGuXefzA4Sy,oindugucx72,Rv8WM2mTuS5&totalPages=false&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=GIb6Ge9PCc4&relativePeriodDate=2023-12-14",
       "expectations": [
         {
           "release": "38.6",
@@ -79,7 +79,7 @@
       }
     },
     {
-      "query": "/api/analytics/events/query/YcxRnVWkbQ1?dimension=ou:USER_ORGUNIT,FfgRrNEF2jY:GE:0,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa&filter=GIb6Ge9PCc4.GsxsEH4GmaR:EQ:NV&headers=ouname,FfgRrNEF2jY,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa&totalPages=false&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=GIb6Ge9PCc4&relativePeriodDate=2023-12-14",
+      "query": "/api/analytics/events/query/YcxRnVWkbQ1?dimension=pe:LAST_YEAR,ou:USER_ORGUNIT,FfgRrNEF2jY:GE:0,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa&filter=GIb6Ge9PCc4.GsxsEH4GmaR:EQ:NV&headers=ouname,FfgRrNEF2jY,Gl0FmdEmSiz,n0qtoxsujRE,M9IPFKryhga,HSPoIdXLEwa&totalPages=false&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=GIb6Ge9PCc4&relativePeriodDate=2023-12-14",
       "expectations": [
         {
           "release": "38.6",
@@ -105,7 +105,7 @@
       }
     },
     {
-      "query": "/api/analytics/events/query/YcxRnVWkbQ1?dimension=ou:USER_ORGUNIT,N0mcRJ2kZpO:GE:0,FNysn92uKL9:GE:0,FfgRrNEF2jY:GE:0&filter=GIb6Ge9PCc4.GsxsEH4GmaR:EQ:NV&headers=ouname,N0mcRJ2kZpO,FNysn92uKL9,FfgRrNEF2jY&totalPages=false&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=GIb6Ge9PCc4&relativePeriodDate=2023-12-14",
+      "query": "/api/analytics/events/query/YcxRnVWkbQ1?dimension=pe:LAST_YEAR,ou:USER_ORGUNIT,N0mcRJ2kZpO:GE:0,FNysn92uKL9:GE:0,FfgRrNEF2jY:GE:0&filter=GIb6Ge9PCc4.GsxsEH4GmaR:EQ:NV&headers=ouname,N0mcRJ2kZpO,FNysn92uKL9,FfgRrNEF2jY&totalPages=false&displayProperty=NAME&outputType=EVENT&pageSize=100&page=1&includeMetadataDetails=true&stage=GIb6Ge9PCc4&relativePeriodDate=2023-12-14",
       "expectations": [
         {
           "release": "38.6",
