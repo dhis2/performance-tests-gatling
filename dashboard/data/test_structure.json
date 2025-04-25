@@ -1,0 +1,25 @@
+{
+    "databases": {
+        "hmis": {
+            "analytics-en-query-speed-get": "analytics-en-query-speed-get-test.json",
+            "analytics-ev-aggregate-speed-get": "analytics-ev-aggregate-speed-get-test.json",
+            "analytics-ev-query-speed-get": "analytics-ev-query-speed-get-test.json",
+            "analytics-outliers-speed-get": "analytics-outliers-speed-get-test.json",
+            "analytics-speed-get": "analytics-speed-get-test.json",
+            "analytics-te-query-speed-get": "analytics-te-query-speed-get-test.json",
+            "system-speed-get": "system-speed-get-test.json",
+            "tracker-speed-get-enrollment": "tracker-speed-get-enrollment-test.json",
+            "tracker-speed-get-event-in-date-range": "tracker-speed-get-event-in-date-range-test.json",
+            "tracker-speed-get-event": "tracker-speed-get-event-test.json",
+            "tracker-speed-get-te": "tracker-speed-get-te-test.json",
+            "tracker-speed-get": "tracker-speed-get-test.json"
+        },
+        "sierra-leone": {
+            "analytics-en-query-speed-get": "analytics-en-query-speed-get-test.json",
+            "analytics-ev-query-speed-get": "analytics-ev-query-speed-get-test.json",
+            "analytics-te-query-speed-get": "analytics-te-query-speed-get-test.json",
+            "system-speed-get": "system-speed-get-test.json",
+            "tracker-speed-get": "tracker-speed-get-test.json"
+        }
+    }
+} 
