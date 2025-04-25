@@ -20,6 +20,12 @@
           "min": 85,
           "max": 215,
           "mean": 175
+        },
+        {
+          "release": "42.0-doris",
+          "min": 85,
+          "max": 215,
+          "mean": 160
         }
       ],
       "version": {
@@ -43,6 +49,12 @@
         },
         {
           "release": "41.0",
+          "min": 75,
+          "max": 185,
+          "mean": 140
+        },
+        {
+          "release": "42.0-doris",
           "min": 75,
           "max": 185,
           "mean": 140
@@ -72,6 +84,12 @@
           "min": 85,
           "max": 185,
           "mean": 155
+        },
+        {
+          "release": "42.0-doris",
+          "min": 85,
+          "max": 185,
+          "mean": 155
         }
       ],
       "version": {
@@ -95,6 +113,12 @@
         },
         {
           "release": "41.0",
+          "min": 75,
+          "max": 185,
+          "mean": 140
+        },
+        {
+          "release": "42.0-doris",
           "min": 75,
           "max": 185,
           "mean": 140
@@ -124,6 +148,12 @@
           "min": 75,
           "max": 185,
           "mean": 135
+        },
+        {
+          "release": "42.0-doris",
+          "min": 75,
+          "max": 185,
+          "mean": 135
         }
       ],
       "version": {
@@ -149,6 +179,12 @@
           "release": "41.0",
           "min": 80,
           "max": 185,
+          "mean": 160
+        },
+        {
+          "release": "42.0-doris",
+          "min": 80,
+          "max": 200,
           "mean": 160
         }
       ],
@@ -176,6 +212,12 @@
           "min": 75,
           "max": 185,
           "mean": 135
+        },
+        {
+          "release": "42.0-doris",
+          "min": 75,
+          "max": 185,
+          "mean": 135
         }
       ],
       "version": {
@@ -199,6 +241,12 @@
         },
         {
           "release": "41.0",
+          "min": 80,
+          "max": 200,
+          "mean": 165
+        },
+        {
+          "release": "42.0-doris",
           "min": 80,
           "max": 200,
           "mean": 165

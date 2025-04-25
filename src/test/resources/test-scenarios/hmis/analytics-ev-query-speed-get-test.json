@@ -20,6 +20,12 @@
           "min": 305000,
           "max": 320000,
           "mean": 320000
+        },
+        {
+          "release": "42.0-doris",
+          "min": 245000,
+          "max": 280000,
+          "mean": 280000
         }
       ],
       "version": {
@@ -46,6 +52,12 @@
           "min": 90,
           "max": 395,
           "mean": 225
+        },
+        {
+          "release": "42.0-doris",
+          "min": 90,
+          "max": 275,
+          "mean": 200
         }
       ],
       "version": {
@@ -72,6 +84,12 @@
           "min": 90,
           "max": 295,
           "mean": 225
+        },
+        {
+          "release": "42.0-doris",
+          "min": 35000,
+          "max": 45000,
+          "mean": 45000
         }
       ],
       "version": {
@@ -98,6 +116,12 @@
           "min": 85,
           "max": 295,
           "mean": 220
+        },
+        {
+          "release": "42.0-doris",
+          "min": 1000,
+          "max": 2100,
+          "mean": 1750
         }
       ],
       "version": {
@@ -124,6 +148,12 @@
           "min": 90,
           "max": 295,
           "mean": 200
+        },
+        {
+          "release": "42.0-doris",
+          "min": 14000,
+          "max": 20000,
+          "mean": 20000
         }
       ],
       "version": {
