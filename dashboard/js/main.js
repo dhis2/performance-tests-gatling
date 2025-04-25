@@ -1,5 +1,5 @@
 // Available databases and their test suites
-const testSuites = {
+let testSuites = {
 };
 
 // Color palette for versions
@@ -14,75 +14,55 @@ const navContent = document.getElementById('nav-content');
 const chartsContainer = document.getElementById('charts');
 const tooltip = document.getElementById('tooltip');
 
-// Initialize navigation by scanning the test-scenarios directory
+// Initialize navigation by loading the test structure JSON
 async function initializeNavigation() {
     try {
-        const response = await fetch('../src/test/resources/test-scenarios/');
-        if (!response.ok) throw new Error('Failed to load test scenarios directory');
+        const response = await fetch('data/test_structure.json');
+        if (!response.ok) throw new Error('Failed to load test structure');
         
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+        const testStructure = await response.json();
+        testSuites = testStructure.databases;
         
-        // Extract database names from directory listing
-        const databases = Array.from(doc.querySelectorAll('a'))
-            .map(a => a.href)
-            .filter(href => href.endsWith('/'))
-            .map(href => href.split('/').slice(-2)[0])
-            .filter(name => name && !name.startsWith('.'));
-        
-        // For each database, load its test suites
-        for (const db of databases) {
+        // For each database, create its navigation group
+        Object.entries(testStructure.databases).forEach(([dbName, suites]) => {
             const dbGroup = document.createElement('div');
             dbGroup.className = 'db-group';
             
             const dbTitle = document.createElement('div');
             dbTitle.className = 'db-title';
-            dbTitle.textContent = db.toUpperCase();
+            dbTitle.textContent = dbName.toUpperCase();
             dbGroup.appendChild(dbTitle);
             
             const suiteList = document.createElement('ul');
             suiteList.className = 'suite-list';
             
-            // Load test suites for this database
-            const suiteResponse = await fetch(`../src/test/resources/test-scenarios/${db}/`);
-            if (suiteResponse.ok) {
-                const suiteHtml = await suiteResponse.text();
-                const suiteDoc = parser.parseFromString(suiteHtml, 'text/html');
+            // Add test suites for this database
+            Object.entries(suites).forEach(([suiteName, resultFile]) => {
+                const suiteItem = document.createElement('li');
+                suiteItem.className = 'suite-item';
+                suiteItem.textContent = suiteName;
+                suiteItem.dataset.db = dbName;
+                suiteItem.dataset.suite = suiteName;
                 
-                // Extract test suite names
-                const suites = Array.from(suiteDoc.querySelectorAll('a'))
-                    .map(a => a.href)
-                    .filter(href => href.endsWith('.json'))
-                    .map(href => href.split('/').pop().replace('.json', ''));
-                
-                suites.forEach(suite => {
-                    const suiteItem = document.createElement('li');
-                    suiteItem.className = 'suite-item';
-                    suiteItem.textContent = suite;
-                    suiteItem.dataset.db = db;
-                    suiteItem.dataset.suite = suite;
-                    
-                    suiteItem.addEventListener('click', () => {
-                        // Remove active class from all items
-                        document.querySelectorAll('.suite-item').forEach(item => {
-                            item.classList.remove('active');
-                        });
-                        // Add active class to clicked item
-                        suiteItem.classList.add('active');
-                        // Load the selected test suite
-                        loadTestSuite(db, suite);
-                        // Update URL
-                        updateURL(db, suite);
+                suiteItem.addEventListener('click', () => {
+                    // Remove active class from all items
+                    document.querySelectorAll('.suite-item').forEach(item => {
+                        item.classList.remove('active');
                     });
-                    
-                    suiteList.appendChild(suiteItem);
+                    // Add active class to clicked item
+                    suiteItem.classList.add('active');
+                    // Load the selected test suite
+                    loadTestSuite(dbName, suiteName);
+                    // Update URL
+                    updateURL(dbName, suiteName);
                 });
-            }
+                
+                suiteList.appendChild(suiteItem);
+            });
             
             dbGroup.appendChild(suiteList);
             navContent.appendChild(dbGroup);
-        }
+        });
         
         // Check URL parameters for initial selection
         const params = new URLSearchParams(window.location.search);
@@ -104,7 +84,7 @@ async function initializeNavigation() {
         }
     } catch (error) {
         console.error('Error initializing navigation:', error);
-        navContent.innerHTML = '<p>Error loading test scenarios</p>';
+        navContent.innerHTML = '<p>Error loading test structure</p>';
     }
 }
 
@@ -133,7 +113,11 @@ function updateURL(db, suite) {
 // Load test suite data
 async function loadTestSuite(db, suite) {
     try {
-        const response = await fetch(`../src/test/resources/test-scenarios/${db}/${suite}.json`);
+
+        // find the suite in the testSuites object
+        const suiteResults = testSuites[db][suite]; 
+
+        const response = await fetch(`../src/test/resources/test-scenarios/${db}/${suiteResults}`);
         const data = await response.json();
         displayCharts(data);
     } catch (error) {

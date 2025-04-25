@@ -23,6 +23,11 @@ function createVisualization(data, versionColors) {
     toggleButton.select('.toggle-text')
         .text('Show Query Parameters');
 
+    // Clean up existing plots and observers
+    chartsContainer.selectAll('.plot-container').each(function() {
+        const plotDiv = this;
+        Plotly.purge(plotDiv);
+    });
     chartsContainer.html('');
 
     data.scenarios.forEach((scenario, index) => {
@@ -139,7 +144,6 @@ function createVisualization(data, versionColors) {
                 font: { size: 12, color: '#e0e0e0' }
             },
             xaxis: {
-                // title: 'Response Time (ms)',
                 tickformat: ',d',
                 color: '#e0e0e0',
                 gridcolor: '#404040',
@@ -193,18 +197,21 @@ function createVisualization(data, versionColors) {
         };
 
         // Create the plot
-        Plotly.newPlot(plotContainer.node(), [trace], layout, {
+        const plotNode = plotContainer.node();
+        Plotly.newPlot(plotNode, [trace], layout, {
             displayModeBar: false,
             responsive: true
-        });
+        }).then(() => {
+            // Only add resize observer after the plot is created
+            const resizeObserver = new ResizeObserver(entries => {
+                for (const entry of entries) {
+                    if (entry.target.offsetParent !== null) { // Check if element is visible
+                        Plotly.Plots.resize(entry.target);
+                    }
+                }
+            });
 
-        // Add resize observer to handle size changes
-        const resizeObserver = new ResizeObserver(entries => {
-            for (const entry of entries) {
-                Plotly.Plots.resize(entry.target);
-            }
+            resizeObserver.observe(plotNode);
         });
-
-        resizeObserver.observe(plotContainer.node());
     });
 } 
