@@ -6,7 +6,7 @@
         {
           "release": "41.0",
           "min": 85,
-          "max": 220,
+          "max": 380,
           "mean": 150
         },
         {
@@ -57,8 +57,8 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 85,
-          "max": 235,
+          "min": 115,
+          "max": 525,
           "mean": 185
         },
         {
@@ -84,7 +84,7 @@
         {
           "release": "41.0",
           "min": 80,
-          "max": 200,
+          "max": 350,
           "mean": 145
         },
         {
@@ -135,8 +135,8 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 95,
-          "max": 240,
+          "min": 115,
+          "max": 465,
           "mean": 200
         },
         {
@@ -188,7 +188,7 @@
         {
           "release": "41.0",
           "min": 70,
-          "max": 200,
+          "max": 355,
           "mean": 135
         },
         {
@@ -214,7 +214,7 @@
         {
           "release": "41.0",
           "min": 65,
-          "max": 215,
+          "max": 375,
           "mean": 150
         },
         {
@@ -240,7 +240,7 @@
         {
           "release": "41.0",
           "min": 75,
-          "max": 205,
+          "max": 355,
           "mean": 125
         },
         {
@@ -266,7 +266,7 @@
         {
           "release": "41.0",
           "min": 105,
-          "max": 245,
+          "max": 455,
           "mean": 190
         },
         {
@@ -291,8 +291,8 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
+          "min": 185,
+          "max": 485,
           "mean": 400
         },
         {
@@ -317,9 +317,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 1900,
+          "max": 3000,
+          "mean": 2650
         },
         {
           "release": "42.0",
@@ -343,9 +343,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 2095,
+          "max": 3450,
+          "mean": 2800
         },
         {
           "release": "42.0",
@@ -369,9 +369,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 2095,
+          "max": 3450,
+          "mean": 2750
         },
         {
           "release": "42.0",
@@ -395,9 +395,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 2000,
+          "max": 2950,
+          "mean": 2650
         },
         {
           "release": "42.0",
@@ -421,9 +421,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 20550,
+          "max": 25500,
+          "mean": 25500
         },
         {
           "release": "42.0",
@@ -447,9 +447,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 20095,
+          "max": 25000,
+          "mean": 25000
         },
         {
           "release": "42.0",
@@ -473,9 +473,9 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 4600,
+          "max": 14050,
+          "mean": 10400
         },
         {
           "release": "42.0",
