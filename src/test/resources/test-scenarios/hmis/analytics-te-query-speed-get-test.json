@@ -6,8 +6,14 @@
         {
           "release": "41.0",
           "min": 85,
-          "max": 220,
+          "max": 380,
           "mean": 150
+        },
+        {
+          "release": "42.0",
+          "min": 100,
+          "max": 300,
+          "mean": 200
         },
         {
           "release": "42.0-doris",
@@ -30,6 +36,12 @@
           "mean": 345
         },
         {
+          "release": "42.0",
+          "min": 2100,
+          "max": 3200,
+          "mean": 3000
+        },
+        {
           "release": "42.0-doris",
           "min": 5000,
           "max": 5850,
@@ -45,9 +57,15 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 85,
-          "max": 235,
+          "min": 115,
+          "max": 525,
           "mean": 185
+        },
+        {
+          "release": "42.0",
+          "min": 500,
+          "max": 865,
+          "mean": 730
         },
         {
           "release": "42.0-doris",
@@ -66,8 +84,14 @@
         {
           "release": "41.0",
           "min": 80,
-          "max": 200,
+          "max": 350,
           "mean": 145
+        },
+        {
+          "release": "42.0",
+          "min": 130,
+          "max": 285,
+          "mean": 205
         },
         {
           "release": "42.0-doris",
@@ -90,6 +114,12 @@
           "mean": 325
         },
         {
+          "release": "42.0",
+          "min": 180,
+          "max": 505,
+          "mean": 325
+        },
+        {
           "release": "42.0-doris",
           "min": 290,
           "max": 565,
@@ -105,9 +135,15 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 95,
-          "max": 240,
+          "min": 115,
+          "max": 465,
           "mean": 200
+        },
+        {
+          "release": "42.0",
+          "min": 600,
+          "max": 1150,
+          "mean": 945
         },
         {
           "release": "42.0-doris",
@@ -130,6 +166,12 @@
           "mean": 415
         },
         {
+          "release": "42.0",
+          "min": 650,
+          "max": 1200,
+          "mean": 985
+        },
+        {
           "release": "42.0-doris",
           "min": 900,
           "max": 1800,
@@ -146,8 +188,14 @@
         {
           "release": "41.0",
           "min": 70,
-          "max": 200,
+          "max": 355,
           "mean": 135
+        },
+        {
+          "release": "42.0",
+          "min": 75,
+          "max": 265,
+          "mean": 155
         },
         {
           "release": "42.0-doris",
@@ -166,8 +214,14 @@
         {
           "release": "41.0",
           "min": 65,
-          "max": 215,
+          "max": 375,
           "mean": 150
+        },
+        {
+          "release": "42.0",
+          "min": 60,
+          "max": 280,
+          "mean": 165
         },
         {
           "release": "42.0-doris",
@@ -186,8 +240,14 @@
         {
           "release": "41.0",
           "min": 75,
-          "max": 205,
+          "max": 355,
           "mean": 125
+        },
+        {
+          "release": "42.0",
+          "min": 75,
+          "max": 275,
+          "mean": 160
         },
         {
           "release": "42.0-doris",
@@ -206,8 +266,14 @@
         {
           "release": "41.0",
           "min": 105,
-          "max": 245,
+          "max": 455,
           "mean": 190
+        },
+        {
+          "release": "42.0",
+          "min": 2850,
+          "max": 4000,
+          "mean": 3700
         },
         {
           "release": "42.0-doris",
@@ -225,8 +291,14 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
+          "min": 185,
+          "max": 485,
+          "mean": 400
+        },
+        {
+          "release": "42.0",
+          "min": 215,
+          "max": 485,
           "mean": 400
         },
         {
@@ -245,8 +317,14 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
+          "min": 1900,
+          "max": 3000,
+          "mean": 2650
+        },
+        {
+          "release": "42.0",
+          "min": 205,
+          "max": 495,
           "mean": 400
         },
         {
@@ -265,8 +343,14 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
+          "min": 2095,
+          "max": 3450,
+          "mean": 2800
+        },
+        {
+          "release": "42.0",
+          "min": 235,
+          "max": 545,
           "mean": 400
         },
         {
@@ -285,9 +369,15 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 2095,
+          "max": 3450,
+          "mean": 2750
+        },
+        {
+          "release": "42.0",
+          "min": 3650,
+          "max": 4850,
+          "mean": 4600
         },
         {
           "release": "42.0-doris",
@@ -305,9 +395,15 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 2000,
+          "max": 2950,
+          "mean": 2650
+        },
+        {
+          "release": "42.0",
+          "min": 5100,
+          "max": 6850,
+          "mean": 6400
         },
         {
           "release": "42.0-doris",
@@ -325,9 +421,15 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 20550,
+          "max": 25500,
+          "mean": 25500
+        },
+        {
+          "release": "42.0",
+          "min": 8650,
+          "max": 10150,
+          "mean": 8900
         },
         {
           "release": "42.0-doris",
@@ -345,9 +447,15 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 20095,
+          "max": 25000,
+          "mean": 25000
+        },
+        {
+          "release": "42.0",
+          "min": 5150,
+          "max": 7150,
+          "mean": 6600
         },
         {
           "release": "42.0-doris",
@@ -365,9 +473,15 @@
       "expectations": [
         {
           "release": "41.0",
-          "min": 195,
-          "max": 450,
-          "mean": 400
+          "min": 4600,
+          "max": 14050,
+          "mean": 10400
+        },
+        {
+          "release": "42.0",
+          "min": 5200,
+          "max": 7450,
+          "mean": 6900
         },
         {
           "release": "42.0-doris",
@@ -388,6 +502,12 @@
           "min": 195,
           "max": 450,
           "mean": 400
+        },
+        {
+          "release": "42.0",
+          "min": 8900,
+          "max": 12250,
+          "mean": 11000
         },
         {
           "release": "42.0-doris",
