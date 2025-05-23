@@ -17,6 +17,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.hisp.dhis.integration.sdk</groupId>
+      <artifactId>dhis2-java-sdk</artifactId>
+      <version>3.0.1</version>
+    </dependency>
+
+    <dependency>
       <groupId>io.gatling</groupId>
       <artifactId>gatling-app</artifactId>
       <version>${gatling.version}</version>

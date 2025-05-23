@@ -46,10 +46,18 @@ import io.gatling.javaapi.core.Assertion;
 import io.gatling.javaapi.core.PopulationBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.dhis.model.Expectation;
+import org.dhis.model.Fixture;
 import org.dhis.model.Scenario;
+import org.hisp.dhis.TestDefinitions;
+import org.hisp.dhis.integration.sdk.Dhis2ClientBuilder;
+import org.hisp.dhis.integration.sdk.api.Dhis2Client;
+import org.hisp.dhis.integration.sdk.api.RemoteDhis2ClientException;
 import org.slf4j.Logger;
 
 /**
@@ -60,10 +68,12 @@ import org.slf4j.Logger;
 public class GetRawSpeedTest extends Simulation {
   private static final Logger logger = getLogger(GetRawSpeedTest.class);
 
-  public GetRawSpeedTest() {
+  public GetRawSpeedTest() throws IOException {
     List<Scenario> scenarios = loadScenarios();
     List<PopulationBuilder> populationBuilders = new ArrayList<>();
     List<Assertion> assertions = new ArrayList<>();
+
+    Dhis2Client dhis2Client = Dhis2ClientBuilder.newClient(TestDefinitions.DHIS2_INSTANCE, TestDefinitions.USERNAME, TestDefinitions.PASSWORD).build();
 
     for (Scenario scenario : scenarios) {
       //Thread.sleep(5000);
@@ -73,15 +83,31 @@ public class GetRawSpeedTest extends Simulation {
       if (conditionsAreValid(scenario)) {
         // Define expectations.
         int min = defaultIfNull(expectation.getMin(), 0);
-        int max = defaultIfNull(expectation.getMax(), 0);
-        int mean = defaultIfNull(expectation.getMean(), 0);
+        int max = defaultIfNull(expectation.getMax(), Integer.MAX_VALUE);
+        int mean = defaultIfNull(expectation.getMean(), Integer.MAX_VALUE);
+        int ninetyPercentile = defaultIfNull(expectation.getNinetyPercentile(), Integer.MAX_VALUE);
 
         // Build assertions.
         populationBuilders.add(populationBuilder(query));
         assertions.add(details(query).responseTime().min().gte(min));
         assertions.add(details(query).responseTime().max().lte(max));
         assertions.add(details(query).responseTime().mean().lte(mean));
+        assertions.add(details(query).responseTime().percentile(90).lte(ninetyPercentile));
         assertions.add(details(query).successfulRequests().percent().gte(100d));
+
+        if (scenario.getFixtures() != null) {
+          for (Fixture fixture : scenario.getFixtures()) {
+            try {
+              dhis2Client.post(fixture.getOnCreatePath()).withResource(fixture.getResource()).transfer().close();
+            } catch (RemoteDhis2ClientException e) {
+              if (e.getHttpStatusCode() == 409) {
+                dhis2Client.put(fixture.getOnConflictPath()).withResource(fixture.getResource()).transfer().close();
+              } else {
+                throw e;
+              }
+            }
+          }
+        }
       }
     }
 

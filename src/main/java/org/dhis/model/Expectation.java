@@ -33,6 +33,7 @@ public class Expectation {
   private Integer min;
   private Integer max;
   private Integer mean;
+  private Integer ninetyPercentile;
   private String release;
 
   public Integer getMin() {
@@ -65,6 +66,14 @@ public class Expectation {
 
   public void setRelease(String release) {
     this.release = release;
+  }
+
+  public Integer getNinetyPercentile() {
+    return ninetyPercentile;
+  }
+
+  public void setNinetyPercentile(Integer ninetyPercentile) {
+    this.ninetyPercentile = ninetyPercentile;
   }
 
   public int releaseAsInt() {
