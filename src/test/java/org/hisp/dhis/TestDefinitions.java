@@ -66,7 +66,7 @@ public class TestDefinitions {
    * @return the configured {@link OpenInjectionStep}.
    */
   public static ClosedInjectionStep constantSingleUser(int during) {
-    return constantConcurrentUsers(1).during(during);
+    return constantConcurrentUsers(Integer.parseInt((String) CONFIG.getProperty("concurrentUsers"))).during(during);
   }
 
   /**
