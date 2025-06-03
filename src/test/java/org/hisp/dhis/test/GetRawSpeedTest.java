@@ -96,17 +96,7 @@ public class GetRawSpeedTest extends Simulation {
         assertions.add(details(query).successfulRequests().percent().gte(100d));
 
         if (scenario.getFixtures() != null) {
-          for (Fixture fixture : scenario.getFixtures()) {
-            try {
-              dhis2Client.post(fixture.getOnCreatePath()).withResource(fixture.getResource()).transfer().close();
-            } catch (RemoteDhis2ClientException e) {
-              if (e.getHttpStatusCode() == 409) {
-                dhis2Client.put(fixture.getOnConflictPath()).withResource(fixture.getResource()).transfer().close();
-              } else {
-                throw e;
-              }
-            }
-          }
+          addFixtures(scenario, dhis2Client);
         }
       }
     }
@@ -119,6 +109,26 @@ public class GetRawSpeedTest extends Simulation {
     } else {
       // Skip unsupported queries avoiding a crash.
       setUp(fakePopulationBuilder());
+    }
+  }
+
+  /**
+   * Adds the fixtures attached to the scenario.
+   *
+   * @param scenario the {@link Scenario}.
+   * @param dhis2Client the HTTP client for transferring fixtures {@link Dhis2Client}.
+   */
+  private void addFixtures(Scenario scenario, Dhis2Client dhis2Client) throws IOException {
+    for (Fixture fixture : scenario.getFixtures()) {
+      try {
+        dhis2Client.post(fixture.getOnCreatePath()).withResource(fixture.getResource()).transfer().close();
+      } catch (RemoteDhis2ClientException e) {
+        if (e.getHttpStatusCode() == 409) {
+          dhis2Client.put(fixture.getOnConflictPath()).withResource(fixture.getResource()).transfer().close();
+        } else {
+          throw e;
+        }
+      }
     }
   }
 
