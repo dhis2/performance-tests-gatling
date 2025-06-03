@@ -14,5 +14,6 @@ sleep 5; mvn gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpe
 sleep 5; mvn gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dinstance=$BASE_URL -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/analytics-outliers-speed-get-test.json;
 sleep 5; mvn gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dinstance=$BASE_URL -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/system-speed-get-test.json;
 sleep 5; mvn gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dinstance=$BASE_URL -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/hmis/tracker-speed-get-test.json;
+sleep 5; mvn gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest -Dinstance=$BASE_URL -Dversion=$VERSION -Dbaseline=$BASELINE -Dscenario=test-scenarios/sierra-leone/route-speed-run-test.json;
 
 echo "Finished!"

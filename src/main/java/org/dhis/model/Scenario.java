@@ -32,6 +32,7 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import java.util.List;
 
 public class Scenario {
+  private List<Fixture> fixtures;
   private String query;
   private List<Expectation> expectations;
   private Version version;
@@ -69,6 +70,14 @@ public class Scenario {
     }
 
     return null;
+  }
+
+  public List<Fixture> getFixtures() {
+    return fixtures;
+  }
+
+  public void setFixtures(List<Fixture> fixtures) {
+    this.fixtures = fixtures;
   }
 
   @Override
