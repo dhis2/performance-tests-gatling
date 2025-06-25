@@ -28,3 +28,5 @@ nbactions.xml
 .attach_pid*
 .DS_Store
 coverage
+.claude
+CLAUDE.local.md
