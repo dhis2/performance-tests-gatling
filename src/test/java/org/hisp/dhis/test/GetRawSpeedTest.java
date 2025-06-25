@@ -46,11 +46,9 @@ import io.gatling.javaapi.core.Assertion;
 import io.gatling.javaapi.core.PopulationBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.dhis.model.Expectation;
 import org.dhis.model.Fixture;
 import org.dhis.model.Scenario;
@@ -73,10 +71,13 @@ public class GetRawSpeedTest extends Simulation {
     List<PopulationBuilder> populationBuilders = new ArrayList<>();
     List<Assertion> assertions = new ArrayList<>();
 
-    Dhis2Client dhis2Client = Dhis2ClientBuilder.newClient(TestDefinitions.DHIS2_INSTANCE, TestDefinitions.USERNAME, TestDefinitions.PASSWORD).build();
+    Dhis2Client dhis2Client =
+        Dhis2ClientBuilder.newClient(
+                TestDefinitions.DHIS2_INSTANCE, TestDefinitions.USERNAME, TestDefinitions.PASSWORD)
+            .build();
 
     for (Scenario scenario : scenarios) {
-      //Thread.sleep(5000);
+      // Thread.sleep(5000);
       String query = scenario.getQuery();
       Expectation expectation = scenario.getExpectation(BASELINE);
 
@@ -121,10 +122,18 @@ public class GetRawSpeedTest extends Simulation {
   private void addFixtures(Scenario scenario, Dhis2Client dhis2Client) throws IOException {
     for (Fixture fixture : scenario.getFixtures()) {
       try {
-        dhis2Client.post(fixture.getOnCreatePath()).withResource(fixture.getResource()).transfer().close();
+        dhis2Client
+            .post(fixture.getOnCreatePath())
+            .withResource(fixture.getResource())
+            .transfer()
+            .close();
       } catch (RemoteDhis2ClientException e) {
         if (e.getHttpStatusCode() == 409) {
-          dhis2Client.put(fixture.getOnConflictPath()).withResource(fixture.getResource()).transfer().close();
+          dhis2Client
+              .put(fixture.getOnConflictPath())
+              .withResource(fixture.getResource())
+              .transfer()
+              .close();
         } else {
           throw e;
         }
