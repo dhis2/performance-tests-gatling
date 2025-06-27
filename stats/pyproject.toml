@@ -10,16 +10,19 @@ dependencies = [
     "plotly>=5.0.0",
     "kaleido>=0.2.1",
     "numpy>=1.24.0",
+    "dash>=2.15.0",
+    "dash-bootstrap-components>=1.5.0",
 ]
 
 [project.scripts]
 percentiles = "percentiles:main"
+percentiles-dash = "percentiles:run_dash_app"
 
 [tool.uv]
 package = true
 
 [tool.setuptools]
-py-modules = ["percentiles"]
+py-modules = ["percentiles", "dash_app"]
 
 [dependency-groups]
 dev = [

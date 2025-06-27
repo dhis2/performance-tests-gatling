@@ -1,16 +1,20 @@
 # Gatling Percentiles Calculator
 
-A Python CLI tool that calculates percentiles (min, 50th, 75th, 95th, 99th, max) from Gatling
+A Python tool that calculates percentiles (min, 50th, 75th, 95th, 99th, max) from Gatling
 `simulation.csv` files using the T-Digest algorithm to exactly match Gatling's HTML report
 percentile calculations.
+
+Available as both a **CLI tool** and a **web application** (Dash app).
 
 ## Features
 
 * **T-Digest Algorithm**: Uses the same T-Digest algorithm as Gatling for exact compatibility
 * **Multiple Reports Support**: Process single reports or directories containing multiple simulation runs
 * **Easy Installation**: Install globally like a binary using `uv`
-* **CSV Output**: Outputs percentile data as CSV to console
+* **Dual Interface**: Choose between CLI tool or web application
+* **CSV Output**: Outputs percentile data as CSV to console (CLI) or interactive table (web app)
 * **Interactive Plotting**: Generate interactive HTML plots with simulation and request filtering
+* **Directory Loading**: Web app loads data from filesystem directories (same as CLI)
 
 ## Installation
 
@@ -22,7 +26,7 @@ Install globally using `uv` for easy access from anywhere:
 uv tool install .
 ```
 
-Use the `percentiles` command from anywhere.
+Use the `percentiles` command (CLI) or `percentiles-dash` command (web app) from anywhere.
 
 ### Local Development
 
@@ -30,10 +34,38 @@ For development or one-time use:
 
 ```bash
 uv sync
-uv run percentiles <report_directory>
+uv run percentiles <report_directory>     # CLI version
+uv run python dash_app.py                 # Web app version (direct)
+uv run python -c "from percentiles import run_dash_app; run_dash_app()"  # Web app via module
 ```
 
 ## Usage
+
+### Web Application (Dash App)
+
+Run the web application:
+
+```bash
+# After global installation
+percentiles-dash
+
+# Or for local development
+uv run python dash_app.py
+```
+
+The web app will start on `http://127.0.0.1:8050` by default and provides:
+
+* **Directory Path Input**: Enter filesystem paths to directories containing simulation data (same as CLI)
+* **Interactive Table**: View percentile data in a sortable, filterable table
+* **Interactive Plots**: Same plotting functionality as CLI with dropdown filters
+* **Real-time Processing**: Immediate results after loading directory
+
+**Supported Directory Formats:**
+* Single report directories containing `simulation.csv` files
+* Multiple report directories with subdirectories named `<simulation>-<timestamp>`
+* Same directory structure requirements as the CLI tool
+
+### CLI Tool (Command Line)
 
 ### Basic Usage
 

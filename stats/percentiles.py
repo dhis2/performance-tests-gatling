@@ -543,5 +543,17 @@ Examples:
             format_output(results)
 
 
+def run_dash_app(host="127.0.0.1", port=8050, debug=True):
+    """Run the Dash web application."""
+    try:
+        import dash_app
+
+        dash_app.run_dash_app(host=host, port=port, debug=debug)
+    except ImportError as e:
+        print(f"Error: Could not import dash_app module: {e}", file=sys.stderr)
+        print("Make sure dash dependencies are installed with: uv sync", file=sys.stderr)
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     main()
