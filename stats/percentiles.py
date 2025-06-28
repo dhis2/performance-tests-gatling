@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
 """
 Gatling Percentiles Calculator
 
@@ -13,6 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import NamedTuple
 
+import argcomplete
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -776,6 +778,9 @@ Examples:
         default="exact",
         help="Percentile calculation method (default: exact)",
     )
+
+    # Enable autocompletion
+    argcomplete.autocomplete(parser)
 
     args = parser.parse_args()
 

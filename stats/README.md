@@ -115,6 +115,45 @@ samples/
 * **Python**: Python 3.13 or higher (managed automatically by uv)
 * **uv**: Python package and project manager https://docs.astral.sh/uv
 
+## Shell Autocompletion
+
+To enable tab completion for `gstat` commands and options:
+
+### For zsh (recommended)
+
+```bash
+# Enable bash completion compatibility and register gstat
+echo 'autoload -U bashcompinit && bashcompinit' >> ~/.zshrc
+echo 'eval "$(register-python-argcomplete gstat)"' >> ~/.zshrc
+
+# Restart shell or reload config
+source ~/.zshrc
+```
+
+### For bash
+
+```bash
+# Register gstat for autocompletion
+echo 'eval "$(register-python-argcomplete gstat)"' >> ~/.bashrc
+
+# Restart shell or reload config
+source ~/.bashrc
+```
+
+### Global completion (all Python CLI tools)
+
+For system-wide completion of all Python CLI tools with argcomplete support:
+
+```bash
+activate-global-python-argcomplete --user
+```
+
+After setup, you'll get autocompletion for:
+* Command options: `gstat --<TAB>` → `--plot`, `--output`, `--method`, `--help`
+* Method values: `gstat --method <TAB>` → `exact`, `tdigest`
+* Plot types: `gstat --plot <TAB>` → `distribution`, `stacked`
+* File/directory path completion for report directories
+
 ## Development
 
 ### Setup
