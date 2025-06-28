@@ -1,0 +1,15 @@
+name: Tracker Performance - Ubuntu Default
+
+on:
+  # schedule:
+    # Run every hour
+    # - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  call-performance-tests:
+    if: github.actor == github.repository_owner
+    uses: ./.github/workflows/tracker-performance-tests.yml
+    with:
+      runner-type: ubuntu-24.04
+      share-connections: false

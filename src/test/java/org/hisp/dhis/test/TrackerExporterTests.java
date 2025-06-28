@@ -38,16 +38,22 @@ import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 
 public class TrackerExporterTests extends Simulation {
-  HttpProtocolBuilder httpProtocolBuilder =
-      http.baseUrl("http://localhost:8080")
-          .acceptHeader("application/json")
-          .maxConnectionsPerHost(100)
-          .basicAuth("admin", "district")
-          .header("Content-Type", "application/json")
-          .userAgentHeader("Gatling/Performance Test")
-          .disableCaching();
 
   public TrackerExporterTests() {
+    // https://docs.gatling.io/reference/script/http/protocol/#shareconnections
+    HttpProtocolBuilder httpProtocolBuilder =
+        http.baseUrl("http://localhost:8080")
+            .acceptHeader("application/json")
+            .maxConnectionsPerHost(100)
+            .basicAuth("admin", "district")
+            .header("Content-Type", "application/json")
+            .userAgentHeader("Gatling/Performance Test")
+            .disableCaching(); // to repeat the same request without HTTP cache influence (304)
+
+    if (System.getProperty("shareConnections") != null) {
+      httpProtocolBuilder.shareConnections();
+    }
+
     // SL DB has ~424k events vs ~257k in HMIS DB
     // Event program: VBqh0ynB2wv Malaria Case Registration is the largest event program with ~200k
     // events
@@ -55,8 +61,8 @@ public class TrackerExporterTests extends Simulation {
     // Event program: bMcwwoVnbSR Malaria testing and surveillance has ~10k events
     String smallProgram = "bMcwwoVnbSR";
     String program = System.getProperty("large") != null ? largeProgram : smallProgram;
-    // TODO(ivo) get realistic query from Glowroot
 
+    // TODO(ivo) get realistic query from Glowroot
     // get a 100 requests per run irrespective of the response times so comparisons are likely
     // to be more accurate
     String query =

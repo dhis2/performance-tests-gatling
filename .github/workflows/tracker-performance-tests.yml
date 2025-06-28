@@ -1,4 +1,4 @@
-name: Tracker performance tests
+name: Tracker Performance Tests Template
 
 on:
   workflow_call:
@@ -6,21 +6,33 @@ on:
       runner-type:
         required: true
         type: string
-        description: 'Runner type to use (e.g., ubuntu-24.04, buildjet-8vcpu-ubuntu-2204)'
+        description: 'Runner type to use (e.g., ubuntu-24.04, buildjet-2vcpu-ubuntu-2204)'
+      share-connections:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to use shared HTTP connections in Gatling tests'
   workflow_dispatch:
     inputs:
       runner-type:
         required: true
         type: choice
         description: 'Runner type to use'
+        # https://docs.github.com/en/actions/how-tos/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for--private-repositories
+        # https://buildjet.com/for-github-actions/docs/about/pricing#amd
         options:
           - ubuntu-24.04
-          - buildjet-8vcpu-ubuntu-2204
+          - buildjet-2vcpu-ubuntu-2204
         default: ubuntu-24.04
+      share-connections:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to use shared HTTP connections in Gatling tests'
 
 jobs:
   performance-tests:
-    if: github.event_name == 'workflow_call' || github.actor == 'teleivo'
+    if: github.actor == github.repository_owner
     runs-on: ${{ inputs.runner-type }}
 
     steps:
@@ -44,7 +56,7 @@ jobs:
       run: |
         DHIS2_IMAGE=dhis2/core:42.0 \
         DHIS2_DB_DUMP_URL=https://databases.dhis2.org/sierra-leone/2.42.0/dhis2-db-sierra-leone.sql.gz \
-        docker compose up -d
+        docker compose up --detach
 
     - name: Wait for DHIS2 to be ready
       run: |
@@ -54,13 +66,13 @@ jobs:
 
     - name: Run tracker performance tests
       run: |
-        mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.TrackerExporterTests
+        mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.TrackerExporterTests ${{ inputs.share-connections && '-DshareConnections' || '' }}
 
     - name: Upload Gatling report
       if: always() # reports should always be uploaded as tests can fail due to our performance assertions
       uses: actions/upload-artifact@v4
       with:
-        name: gatling-report-${{ runner.name }}-${{ github.run_id }}-${{ github.sha }}
+        name: gatling-report-${{ inputs.runner-type }}${{ inputs.share-connections && '-shared' || '' }}-${{ github.run_id }}-${{ github.sha }}
         path: |
           target/gatling/
           !target/gatling/lastRun.txt
