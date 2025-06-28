@@ -1,7 +1,7 @@
 [project]
-name = "gatling-percentiles"
+name = "gatling-statistics"
 version = "0.1.0"
-description = "Calculate percentiles from Gatling simulation.csv using T-Digest algorithm"
+description = "Calculate and plot percentiles from Gatling simulation.csv"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-percentiles = "percentiles:main"
+gstat = "percentiles:main"
 
 [tool.uv]
 package = true

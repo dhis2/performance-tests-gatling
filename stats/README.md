@@ -1,4 +1,4 @@
-# Gatling Percentiles Calculator
+# gstat - Gatling Statistics Calculator
 
 A Python CLI tool that calculates percentiles (min, 50th, 75th, 95th, 99th, max) from Gatling
 `simulation.csv` files. Supports both exact percentile calculation (default) and T-Digest algorithm
@@ -23,7 +23,7 @@ Install globally using `uv` for easy access from anywhere:
 uv tool install .
 ```
 
-Use the `percentiles` command from anywhere.
+Use the `gstat` command from anywhere.
 
 ### Local Development
 
@@ -31,7 +31,7 @@ For development or one-time use:
 
 ```bash
 uv sync
-uv run percentiles <report_directory>
+uv run gstat <report_directory>
 ```
 
 ## Usage
@@ -39,7 +39,7 @@ uv run percentiles <report_directory>
 Output percentiles per simulation, run and request name as CSV
 
 ```bash
-percentiles <report_directory>
+gstat <report_directory>
 ```
 
 * You must point to a report directory created by Gatling. Either a single report directory or a
@@ -71,10 +71,10 @@ Choose between exact calculation (default) or T-Digest approximation:
 
 ```bash
 # Use exact percentile calculation (default)
-percentiles <report_directory>
+gstat <report_directory>
 
 # Use T-Digest algorithm (matches Gatling's method)
-percentiles <report_directory> --method tdigest
+gstat <report_directory> --method tdigest
 ```
 
 ### Plotting
@@ -83,13 +83,13 @@ Generate interactive HTML plots instead of CSV output:
 
 ```bash
 # Generate plot and open in browser
-percentiles ../samples/ --plot
+gstat ../samples/ --plot
 
 # Save plot to file
-percentiles ../samples/ --plot --output my_plot.html
+gstat ../samples/ --plot --output my_plot.html
 
 # Combine with method selection
-percentiles ../samples/ --plot --method tdigest
+gstat ../samples/ --plot --method tdigest
 ```
 
 ### Directory Structure
@@ -133,7 +133,7 @@ uv run pre-commit install
 
 ```bash
 # Run the tool locally
-uv run percentiles <report_directory>
+uv run gstat <report_directory>
 
 # Format code with ruff
 uv run ruff format .

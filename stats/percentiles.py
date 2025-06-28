@@ -742,17 +742,17 @@ def main():
         epilog="""
 Examples:
   # Single report directory
-  percentiles ./samples/trackerexportertests-20250627064559771
+  gstat ./samples/trackerexportertests-20250627064559771
 
   # Multiple report directories
-  percentiles ./samples/
+  gstat ./samples/
 
   # With distribution plotting (default)
-  percentiles ./samples/ --plot
-  percentiles ./samples/ --plot distribution
+  gstat ./samples/ --plot
+  gstat ./samples/ --plot distribution
 
   # With stacked percentile bar chart
-  percentiles ./samples/ --plot stacked
+  gstat ./samples/ --plot stacked
         """,
     )
     parser.add_argument(
