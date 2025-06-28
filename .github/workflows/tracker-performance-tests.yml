@@ -1,14 +1,27 @@
 name: Tracker performance tests
 
 on:
+  workflow_call:
+    inputs:
+      runner-type:
+        required: true
+        type: string
+        description: 'Runner type to use (e.g., ubuntu-24.04, buildjet-8vcpu-ubuntu-2204)'
   workflow_dispatch:
-  push: # remove once registered
+    inputs:
+      runner-type:
+        required: true
+        type: choice
+        description: 'Runner type to use'
+        options:
+          - ubuntu-24.04
+          - buildjet-8vcpu-ubuntu-2204
+        default: ubuntu-24.04
 
 jobs:
   performance-tests:
-    # TODO try later
-    # runs-on: buildjet-8vcpu-ubuntu-2204
-    runs-on: ubuntu-24.04
+    if: github.event_name == 'workflow_call' || github.actor == 'teleivo'
+    runs-on: ${{ inputs.runner-type }}
 
     steps:
     - name: Checkout code
@@ -47,7 +60,7 @@ jobs:
       if: always() # reports should always be uploaded as tests can fail due to our performance assertions
       uses: actions/upload-artifact@v4
       with:
-        name: gatling-report-${{ runner.name }}-${{ github.sha }}-${{ github.run_id }}
+        name: gatling-report-${{ runner.name }}-${{ github.run_id }}-${{ github.sha }}
         path: |
           target/gatling/
           !target/gatling/lastRun.txt
