@@ -313,6 +313,7 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
             "directory": result.directory,
             "simulation": result.simulation,
             "run_timestamp": result.run_timestamp,
+            "run_timestamp_formatted": format_timestamp(result.run_timestamp),
             "request_name": result.request_name,
             "count": result.count,
             **result.percentiles,
@@ -382,7 +383,7 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
             for range_name, height_col, base_col in ranges:
                 fig.add_trace(
                     go.Bar(
-                        x=request_data["run_timestamp"],
+                        x=request_data["run_timestamp_formatted"],
                         y=request_data[height_col],
                         base=base_col,
                         name=range_name,
@@ -637,8 +638,9 @@ def create_interactive_plot(
                         if j < len(visibility):
                             visibility[j] = True
 
-                    # Create hierarchical label
-                    label = f"{simulation} | {run_timestamp} | {request_name}"
+                    # Create hierarchical label with formatted timestamp
+                    formatted_ts = format_timestamp(run_timestamp)
+                    label = f"{simulation} | {formatted_ts} | {request_name}"
 
                     all_combinations.append(
                         {
