@@ -31,24 +31,21 @@ import static io.gatling.javaapi.core.CoreDsl.details;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
-import static org.hisp.dhis.TestDefinitions.constantSingleUser;
-import static org.slf4j.LoggerFactory.getLogger;
 
+import io.gatling.javaapi.core.OpenInjectionStep;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
-import org.slf4j.Logger;
 
-// TODO(ivo) is there a way to give the simulation a different name than the class name?
 public class TrackerExporterTests extends Simulation {
-  private static final Logger logger = getLogger(TrackerExporterTests.class);
   HttpProtocolBuilder httpProtocolBuilder =
       http.baseUrl("http://localhost:8080")
           .acceptHeader("application/json")
           .maxConnectionsPerHost(100)
           .basicAuth("admin", "district")
           .header("Content-Type", "application/json")
-          .userAgentHeader("Gatling/Performance Test");
+          .userAgentHeader("Gatling/Performance Test")
+          .disableCaching();
 
   public TrackerExporterTests() {
     // SL DB has ~424k events vs ~257k in HMIS DB
@@ -59,14 +56,18 @@ public class TrackerExporterTests extends Simulation {
     String smallProgram = "bMcwwoVnbSR";
     String program = System.getProperty("large") != null ? largeProgram : smallProgram;
     // TODO(ivo) get realistic query from Glowroot
+
+    // get a 100 requests per run irrespective of the response times so comparisons are likely
+    // to be more accurate
     String query =
         "/api/tracker/events?program="
             + program
             + "&pageSize=100&totalPages=true&occurredAfter=2024-01-01&occurredBefore=2024-12-31";
     ScenarioBuilder scenario =
-        scenario(query).exec(http("events").get(query).check(status().is(200)));
+        scenario(query).repeat(100).on(http("events").get(query).check(status().is(200)));
 
-    setUp(scenario.injectClosed(constantSingleUser(15)))
+    // only one user at a time
+    setUp(scenario.injectOpen(OpenInjectionStep.atOnceUsers(1)))
         .protocols(httpProtocolBuilder)
         .assertions(
             details("events").successfulRequests().percent().gte(100d),
