@@ -9,6 +9,7 @@ to match Gatling's HTML report percentile calculations exactly.
 import argparse
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import NamedTuple
 
@@ -41,6 +42,28 @@ def parse_simulation_csv(csv_path: Path) -> pd.DataFrame:
     return request_df
 
 
+def calculate_percentiles_exact(response_times: list[float]) -> dict[str, float]:
+    """Calculate exact percentiles using numpy."""
+    if not response_times:
+        return {"min": 0, "50th": 0, "75th": 0, "95th": 0, "99th": 0, "max": 0}
+
+    if len(response_times) == 1:
+        val = response_times[0]
+        return {"min": val, "50th": val, "75th": val, "95th": val, "99th": val, "max": val}
+
+    # Calculate exact percentiles
+    percentiles = np.percentile(response_times, [50, 75, 95, 99])
+
+    return {
+        "min": float(np.min(response_times)),
+        "50th": float(percentiles[0]),
+        "75th": float(percentiles[1]),
+        "95th": float(percentiles[2]),
+        "99th": float(percentiles[3]),
+        "max": float(np.max(response_times)),
+    }
+
+
 def calculate_percentiles_with_tdigest(response_times: list[float]) -> dict[str, float]:
     """Calculate percentiles using T-Digest algorithm (like Gatling)."""
     if not response_times:
@@ -68,6 +91,7 @@ def calculate_percentiles_with_tdigest(response_times: list[float]) -> dict[str,
 class SimulationResult(NamedTuple):
     """Container for simulation processing results."""
 
+    directory: str
     simulation: str
     run_timestamp: str
     request_name: str
@@ -85,6 +109,30 @@ def parse_directory_name(dir_name: str) -> tuple[str, str] | None:
     if match:
         return match.group(1), match.group(2)
     return None
+
+
+def format_timestamp(timestamp_str: str) -> str:
+    """Convert timestamp string to human-readable format.
+
+    Input: '20250627064559771' (YYYYMMDDHHMMSSmmm)
+    Output: '2025-06-27 06:45:59'
+    """
+    try:
+        # Parse timestamp - format is YYYYMMDDHHMMSSmmm
+        year = timestamp_str[0:4]
+        month = timestamp_str[4:6]
+        day = timestamp_str[6:8]
+        hour = timestamp_str[8:10]
+        minute = timestamp_str[10:12]
+        second = timestamp_str[12:14]
+        # milliseconds = timestamp_str[14:17]  # Not used in display
+
+        # Create datetime object and format it
+        dt = datetime(int(year), int(month), int(day), int(hour), int(minute), int(second))
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    except (ValueError, IndexError):
+        # If parsing fails, return original
+        return timestamp_str
 
 
 def is_multiple_reports_directory(directory: Path) -> bool:
@@ -109,7 +157,7 @@ def is_multiple_reports_directory(directory: Path) -> bool:
 
 
 def process_report_directory(
-    report_dir: Path, simulation: str = None, run_timestamp: str = None
+    report_dir: Path, simulation: str = None, run_timestamp: str = None, method: str = "exact"
 ) -> list[SimulationResult]:
     """Process single report directory and return results with optional info."""
     simulation_csv = report_dir / "simulation.csv"
@@ -119,6 +167,9 @@ def process_report_directory(
         sys.exit(1)
 
     df = parse_simulation_csv(simulation_csv)
+
+    # Get directory name for the directory column
+    directory_name = report_dir.name
 
     # If no simulation/timestamp provided, try to parse from directory name
     if simulation is None or run_timestamp is None:
@@ -135,15 +186,20 @@ def process_report_directory(
     for request_name, group in df.groupby("request_name"):
         response_times = group["response_time_ms"].tolist()
         count = len(response_times)
-        percentiles = calculate_percentiles_with_tdigest(response_times)
+        if method == "tdigest":
+            percentiles = calculate_percentiles_with_tdigest(response_times)
+        else:
+            percentiles = calculate_percentiles_exact(response_times)
         results.append(
-            SimulationResult(simulation, run_timestamp, request_name, count, percentiles)
+            SimulationResult(
+                directory_name, simulation, run_timestamp, request_name, count, percentiles
+            )
         )
 
     return results
 
 
-def process_multiple_reports(base_dir: Path) -> list[SimulationResult]:
+def process_multiple_reports(base_dir: Path, method: str = "exact") -> list[SimulationResult]:
     """Process directory containing multiple simulation report subdirectories."""
     all_results = []
 
@@ -163,7 +219,7 @@ def process_multiple_reports(base_dir: Path) -> list[SimulationResult]:
             continue
 
         try:
-            results = process_report_directory(subdir, simulation, run_timestamp)
+            results = process_report_directory(subdir, simulation, run_timestamp, method)
             all_results.extend(results)
         except Exception as e:
             print(f"Warning: Error processing {subdir}: {e}", file=sys.stderr)
@@ -254,6 +310,7 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
     data = []
     for result in results:
         row = {
+            "directory": result.directory,
             "simulation": result.simulation,
             "run_timestamp": result.run_timestamp,
             "request_name": result.request_name,
@@ -651,16 +708,21 @@ def create_interactive_plot(
 
 def format_output(results: list[SimulationResult], is_multiple: bool = False) -> None:
     """Format and print results as CSV."""
-    # Always use the full format with simulation and run_timestamp columns
-    print("simulation,run_timestamp,request_name,count,min,50th,75th,95th,99th,max")
+    # Always use the full format with directory, simulation and run_timestamp columns
+    print("directory,simulation,run_timestamp,request_name,count,min,50th,75th,95th,99th,max")
 
-    # Sort results by simulation, run_timestamp, request_name
-    sorted_results = sorted(results, key=lambda r: (r.simulation, r.run_timestamp, r.request_name))
+    # Sort results by directory, simulation, run_timestamp, request_name
+    sorted_results = sorted(
+        results, key=lambda r: (r.directory, r.simulation, r.run_timestamp, r.request_name)
+    )
 
     # Print results
     for result in sorted_results:
+        # Format timestamp to human-readable
+        formatted_timestamp = format_timestamp(result.run_timestamp)
+
         print(
-            f"{result.simulation},{result.run_timestamp},{result.request_name},{result.count},"
+            f"{result.directory},{result.simulation},{formatted_timestamp},{result.request_name},{result.count},"
             f"{result.percentiles['min']:.0f},"
             f"{result.percentiles['50th']:.0f},"
             f"{result.percentiles['75th']:.0f},"
@@ -673,7 +735,7 @@ def format_output(results: list[SimulationResult], is_multiple: bool = False) ->
 def main():
     """CLI entry point - can be called as 'percentiles' command."""
     parser = argparse.ArgumentParser(
-        description="Calculate percentiles from Gatling simulation.csv using T-Digest algorithm",
+        description="Calculate percentiles from Gatling simulation.csv files",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -706,6 +768,12 @@ Examples:
     parser.add_argument(
         "--output", "-o", type=Path, help="Output file for plot (default: show in browser)"
     )
+    parser.add_argument(
+        "--method",
+        choices=["exact", "tdigest"],
+        default="exact",
+        help="Percentile calculation method (default: exact)",
+    )
 
     args = parser.parse_args()
 
@@ -723,9 +791,9 @@ Examples:
     if args.plot:
         # Get percentile results for plotting
         if is_multiple:
-            results = process_multiple_reports(args.report_directory)
+            results = process_multiple_reports(args.report_directory, args.method)
         else:
-            results = process_report_directory(args.report_directory)
+            results = process_report_directory(args.report_directory, method=args.method)
 
         if args.plot == "stacked":
             fig = create_stacked_percentile_plot(results)
@@ -753,10 +821,10 @@ Examples:
             fig.show()
     else:
         if is_multiple:
-            results = process_multiple_reports(args.report_directory)
+            results = process_multiple_reports(args.report_directory, args.method)
             format_output(results)
         else:
-            results = process_report_directory(args.report_directory)
+            results = process_report_directory(args.report_directory, method=args.method)
             format_output(results)
 
 

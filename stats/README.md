@@ -1,12 +1,13 @@
 # Gatling Percentiles Calculator
 
 A Python CLI tool that calculates percentiles (min, 50th, 75th, 95th, 99th, max) from Gatling
-`simulation.csv` files using the T-Digest algorithm to exactly match Gatling's HTML report
-percentile calculations.
+`simulation.csv` files. Supports both exact percentile calculation (default) and T-Digest algorithm
+approximation (matches Gatling's HTML report calculations).
 
 ## Features
 
-* **T-Digest Algorithm**: Uses the same T-Digest algorithm as Gatling for compatibility
+* **Exact Percentiles**: Default method using NumPy for accurate percentile calculations
+* **T-Digest Algorithm**: Optional method using the same T-Digest algorithm as Gatling for compatibility
 * **Multiple Reports Support**: Process single reports or directories containing multiple simulation runs
 * **Easy Installation**: Install globally like a binary using `uv`
 * **CSV Output**: Outputs percentile data as CSV to console
@@ -64,6 +65,18 @@ trackerexportertests,20250627064559771,events,38,320,357,380,557,1258,1258
 trackerexportertests,20250627095400668,events,7,2138,2346,2383,3345,3345,3345
 ```
 
+### Percentile Calculation Methods
+
+Choose between exact calculation (default) or T-Digest approximation:
+
+```bash
+# Use exact percentile calculation (default)
+percentiles <report_directory>
+
+# Use T-Digest algorithm (matches Gatling's method)
+percentiles <report_directory> --method tdigest
+```
+
 ### Plotting
 
 Generate interactive HTML plots instead of CSV output:
@@ -74,6 +87,9 @@ percentiles ../samples/ --plot
 
 # Save plot to file
 percentiles ../samples/ --plot --output my_plot.html
+
+# Combine with method selection
+percentiles ../samples/ --plot --method tdigest
 ```
 
 ### Directory Structure
