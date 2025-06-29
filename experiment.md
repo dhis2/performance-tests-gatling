@@ -1,8 +1,24 @@
 # Performance Test Reliability Experiment
 
+Run a controlled experiment to compare the variability of running DHIS2 performances tests on
+different GitHub runners (standard Ubuntu vs BuildJet).
+
 ## Method
 
-TODO explain
+Workflow .github/workflows/tracker-performance-tests.yml is run these variations
+1. GitHubs own Ubuntu runner with Gatlings [shareConnections](https://docs.gatling.io/reference/script/http/protocol/#shareconnections) off
+2. GitHubs own Ubuntu runner with Gatlings [shareConnections](https://docs.gatling.io/reference/script/http/protocol/#shareconnections) on
+3. BuildJet custom runner with Gatlings [shareConnections](https://docs.gatling.io/reference/script/http/protocol/#shareconnections) off
+4. BuildJet custom runner with Gatlings [shareConnections](https://docs.gatling.io/reference/script/http/protocol/#shareconnections) on
+
+The workflows are run 24 times a day and upload the Gatling report to GitHubs artifacts.
+
+### Analysis
+
+1. Download all artifacts `./workflows-download.sh`
+2. Flatten the artifacts `./experiment-pre-process.sh`
+3. Extract data out of Gatlings binary `simulation.log` into `simulation.csv`
+3. TODO MAD analysis (maybe another step) to compare the variability within an environment
 
 ## GHA
 
@@ -28,20 +44,3 @@ gh run list --workflow="Tracker Performance - BuildJet Shared" --json databaseId
 
 This will automatically delete all the artifacts associated with those runs.
 
-### Download all artifacts
-
-Download all artifacts from the 4 matrix workflows into `./experiment` folder as zip files
-
-```sh
-./download-experiments.sh
-```
-
-### Pre-process for analysis
-
-Organize artifacts into analysis structure with subfolders per experiment coordinate
-
-```sh
-./experiment-pre-process.sh
-```
-
-Creates structure: `analysis/{experiment-coordinate}/trackerexportertests-{timestamp}/`
