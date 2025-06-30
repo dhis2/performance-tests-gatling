@@ -12,6 +12,11 @@ on:
         type: boolean
         default: false
         description: 'Whether to use shared HTTP connections in Gatling tests'
+      test-target:
+        required: false
+        type: string
+        default: 'local'
+        description: 'Test target: local (Docker) or play (play.im.dhis2.org)'
   workflow_dispatch:
     inputs:
       runner-type:
@@ -29,6 +34,14 @@ on:
         type: boolean
         default: false
         description: 'Whether to use shared HTTP connections in Gatling tests'
+      test-target:
+        required: false
+        type: choice
+        description: 'Test target'
+        options:
+          - local
+          - play
+        default: local
 
 jobs:
   performance-tests:
@@ -53,12 +66,14 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
 
     - name: Start DHIS2
+      if: inputs.test-target == 'local'
       run: |
         DHIS2_IMAGE=dhis2/core:42.0 \
         DHIS2_DB_DUMP_URL=https://databases.dhis2.org/sierra-leone/2.42.0/dhis2-db-sierra-leone.sql.gz \
         docker compose up --detach
 
     - name: Wait for DHIS2 to be ready
+      if: inputs.test-target == 'local'
       run: |
         echo "Waiting for DHIS2 to start..."
         timeout 300 bash -c 'until docker compose ps | grep -q "healthy"; do sleep 10; echo "Still waiting..."; done'
@@ -66,17 +81,17 @@ jobs:
 
     - name: Run tracker performance tests
       run: |
-        mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.TrackerExporterTests ${{ inputs.share-connections && '-DshareConnections' || '' }}
+        mvn clean gatling:test -Dgatling.simulationClass=org.hisp.dhis.test.TrackerExporterTests ${{ inputs.share-connections && '-DshareConnections' || '' }} ${{ inputs.test-target == 'play' && '-Dinstance=https://play.im.dhis2.org/stable-2-42-0' || '' }}
 
     - name: Upload Gatling report
       if: always() # reports should always be uploaded as tests can fail due to our performance assertions
       uses: actions/upload-artifact@v4
       with:
-        name: gatling-report-${{ inputs.runner-type }}${{ inputs.share-connections && '-shared' || '' }}-${{ github.run_id }}-${{ github.sha }}
+        name: gatling-report-${{ inputs.runner-type }}${{ inputs.test-target == 'play' && '-play' || '' }}${{ inputs.share-connections && '-shared' || '' }}-${{ github.run_id }}-${{ github.sha }}
         path: |
           target/gatling/
           !target/gatling/lastRun.txt
 
     - name: Cleanup
-      if: always()
+      if: inputs.test-target == 'local' && always()
       run: docker compose down --volumes

@@ -41,8 +41,9 @@ public class TrackerExporterTests extends Simulation {
 
   public TrackerExporterTests() {
     // https://docs.gatling.io/reference/script/http/protocol/#shareconnections
+    String baseUrl = System.getProperty("instance", "http://localhost:8080");
     HttpProtocolBuilder httpProtocolBuilder =
-        http.baseUrl("http://localhost:8080")
+        http.baseUrl(baseUrl)
             .acceptHeader("application/json")
             .maxConnectionsPerHost(100)
             .basicAuth("admin", "district")

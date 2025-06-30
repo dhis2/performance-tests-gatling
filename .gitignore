@@ -31,3 +31,8 @@ coverage
 .claude
 CLAUDE.local.md
 samples
+
+# Experiment analysis outputs
+experiment-analysis/.venv/
+experiment-analysis/.ipynb_checkpoints/
+experiment-analysis/.ruff_cache/

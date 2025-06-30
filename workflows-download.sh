@@ -1,5 +1,5 @@
 #!/bin/bash
-# Download all artifacts from the 4 matrix workflows
+# Download all artifacts from the 6 matrix workflows
 
 mkdir -p experiment-workflows-gh
 
@@ -26,5 +26,7 @@ download_workflow_artifacts "Tracker Performance - Ubuntu Default" "Ubuntu Defau
 download_workflow_artifacts "Tracker Performance - Ubuntu Shared" "Ubuntu Shared"
 download_workflow_artifacts "Tracker Performance - BuildJet Default" "BuildJet Default"
 download_workflow_artifacts "Tracker Performance - BuildJet Shared" "BuildJet Shared"
+download_workflow_artifacts "Tracker Performance - Ubuntu Play" "Ubuntu Play"
+download_workflow_artifacts "Tracker Performance - Ubuntu Play Shared" "Ubuntu Play Shared"
 
 echo "Download complete! Check ./experiment-workflows-gh folder"
