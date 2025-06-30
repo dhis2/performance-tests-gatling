@@ -1,0 +1,11 @@
+services:
+  proxy:
+    image: nginx:alpine
+    # Uses nginx limit_req module to add delays to requests
+    # Delay configuration is defined in nginx.conf
+    volumes:
+      - ./docker/nginx-proxy.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "127.0.0.1:18080:18080" # proxied DHIS2
+    depends_on:
+      - web
