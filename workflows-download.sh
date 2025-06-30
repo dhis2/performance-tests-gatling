@@ -3,16 +3,28 @@
 
 mkdir -p experiment-workflows-gh
 
-echo "Downloading Ubuntu Default artifacts..."
-gh run list --workflow="Tracker Performance - Ubuntu Default" --json databaseId --jq '.[].databaseId' | xargs -I {} gh run download {} --dir experiment-workflows-gh
+# Function to download artifacts for a workflow, skipping already downloaded runs
+download_workflow_artifacts() {
+    local workflow_name="$1"
+    local workflow_short_name="$2"
 
-echo "Downloading Ubuntu Shared artifacts..."
-gh run list --workflow="Tracker Performance - Ubuntu Shared" --json databaseId --jq '.[].databaseId' | xargs -I {} gh run download {} --dir experiment-workflows-gh
+    echo "Downloading $workflow_short_name artifacts..."
 
-echo "Downloading BuildJet Default artifacts..."
-gh run list --workflow="Tracker Performance - BuildJet Default" --json databaseId --jq '.[].databaseId' | xargs -I {} gh run download {} --dir experiment-workflows-gh
+    # Get all run IDs for the workflow
+    gh run list --workflow="$workflow_name" --json databaseId --jq '.[].databaseId' | while read -r run_id; do
+        # Check if we already have artifacts from this run
+        if ls experiment-workflows-gh | grep -q "$run_id"; then
+            continue
+        else
+            gh run download "$run_id" --dir experiment-workflows-gh 2>/dev/null || true
+        fi
+    done
+}
 
-echo "Downloading BuildJet Shared artifacts..."
-gh run list --workflow="Tracker Performance - BuildJet Shared" --json databaseId --jq '.[].databaseId' | xargs -I {} gh run download {} --dir experiment-workflows-gh
+# Download artifacts from each workflow
+download_workflow_artifacts "Tracker Performance - Ubuntu Default" "Ubuntu Default"
+download_workflow_artifacts "Tracker Performance - Ubuntu Shared" "Ubuntu Shared"
+download_workflow_artifacts "Tracker Performance - BuildJet Default" "BuildJet Default"
+download_workflow_artifacts "Tracker Performance - BuildJet Shared" "BuildJet Shared"
 
 echo "Download complete! Check ./experiment-workflows-gh folder"
