@@ -931,7 +931,14 @@ def create_scatter_plot(
         template="plotly_dark",
         showlegend=False,
         font=dict(size=14),
-        xaxis=dict(title=dict(font=dict(size=16)), tickformat="%H:%M:%S", tickangle=45),
+        xaxis=dict(
+            title=dict(font=dict(size=16)),
+            tickformat="%H:%M:%S",
+            tickangle=45,
+            showgrid=True,
+            gridcolor="rgba(128, 128, 128, 0.3)",
+            dtick=1000,  # 1 second intervals (1000ms)
+        ),
         yaxis=dict(title=dict(font=dict(size=16))),
         updatemenus=[
             {
