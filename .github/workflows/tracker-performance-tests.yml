@@ -92,6 +92,13 @@ jobs:
           target/gatling/
           !target/gatling/lastRun.txt
 
+    - name: Upload tcpdump capture
+      if: always() && inputs.test-target == 'local' # only upload tcpdump for local tests using Docker
+      uses: actions/upload-artifact@v4
+      with:
+        name: tcpdump-dhis2-${{ inputs.runner-type }}${{ inputs.share-connections && '-shared' || '' }}-${{ github.run_id }}-${{ github.sha }}
+        path: data/dhis2.pcap
+
     - name: Cleanup
       if: inputs.test-target == 'local' && always()
       run: docker compose down --volumes
