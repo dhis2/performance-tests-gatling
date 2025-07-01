@@ -17,6 +17,11 @@ on:
         type: string
         default: 'local'
         description: 'Test target: local (Docker) or play (play.im.dhis2.org)'
+      debug-tcp:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to upload TCP dump for debugging (only for local tests)'
   workflow_dispatch:
     inputs:
       runner-type:
@@ -42,6 +47,11 @@ on:
           - local
           - play
         default: local
+      debug-tcp:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to upload TCP dump for debugging (only for local tests)'
 
 jobs:
   performance-tests:
@@ -93,7 +103,7 @@ jobs:
           !target/gatling/lastRun.txt
 
     - name: Upload tcpdump capture
-      if: always() && inputs.test-target == 'local' # only upload tcpdump for local tests using Docker
+      if: always() && inputs.test-target == 'local' && inputs.debug-tcp # only upload tcpdump for local tests using Docker when debug-tcp is enabled (dumps are ~8MB)
       uses: actions/upload-artifact@v4
       with:
         name: tcpdump-dhis2-${{ inputs.runner-type }}${{ inputs.share-connections && '-shared' || '' }}-${{ github.run_id }}-${{ github.sha }}
