@@ -151,7 +151,7 @@ activate-global-python-argcomplete --user
 After setup, you'll get autocompletion for:
 * Command options: `gstat --<TAB>` → `--plot`, `--output`, `--method`, `--help`
 * Method values: `gstat --method <TAB>` → `exact`, `tdigest`
-* Plot types: `gstat --plot <TAB>` → `distribution`, `stacked`
+* Plot types: `gstat --plot <TAB>` → `distribution`, `stacked`, `scatter`
 * File/directory path completion for report directories
 
 ## Development

@@ -267,6 +267,49 @@ def process_report_directory_for_plotting(
     return {simulation: {run_timestamp: raw_data}}
 
 
+def process_report_directory_for_scatter_plotting(
+    report_dir: Path, simulation: str = None, run_timestamp: str = None
+) -> dict[str, dict[str, dict[str, list[tuple[int, int, float]]]]]:
+    """Process report directory and return response times with timestamps for scatter plotting.
+
+    Returns nested dict: {simulation: {run_timestamp:
+                         {request_name: [(start_timestamp, end_timestamp, response_time)]}}}
+    """
+    simulation_csv = report_dir / "simulation.csv"
+
+    if not simulation_csv.exists():
+        print(f"simulation.csv not found in {report_dir}", file=sys.stderr)
+        sys.exit(1)
+
+    df = parse_simulation_csv(simulation_csv)
+
+    # If no simulation/timestamp provided, try to parse from directory name
+    if simulation is None or run_timestamp is None:
+        parsed = parse_directory_name(report_dir.name)
+        if parsed:
+            simulation, run_timestamp = parsed
+        else:
+            # Fallback for single directory mode
+            simulation = simulation or "unknown"
+            run_timestamp = run_timestamp or "unknown"
+
+    # Group by request_name and return timestamps with response times
+    raw_data = {}
+    for request_name, group in df.groupby("request_name"):
+        # Combine start_timestamp, end_timestamp and response_time_ms into tuples
+        timestamp_response_pairs = list(
+            zip(
+                group["start_timestamp"],
+                group["end_timestamp"],
+                group["response_time_ms"],
+                strict=False,
+            )
+        )
+        raw_data[request_name] = timestamp_response_pairs
+
+    return {simulation: {run_timestamp: raw_data}}
+
+
 def process_multiple_reports_for_plotting(
     base_dir: Path,
 ) -> dict[str, dict[str, dict[str, list[float]]]]:
@@ -293,6 +336,45 @@ def process_multiple_reports_for_plotting(
 
         try:
             data = process_report_directory_for_plotting(subdir, simulation, run_timestamp)
+            # Merge the nested dictionaries
+            for sim, runs in data.items():
+                if sim not in all_data:
+                    all_data[sim] = {}
+                all_data[sim].update(runs)
+        except Exception as e:
+            print(f"Warning: Error processing {subdir}: {e}", file=sys.stderr)
+            continue
+
+    return all_data
+
+
+def process_multiple_reports_for_scatter_plotting(
+    base_dir: Path,
+) -> dict[str, dict[str, dict[str, list[tuple[int, int, float]]]]]:
+    """Process directory containing multiple simulation reports for scatter plotting.
+
+    Returns nested dict: {simulation: {run_timestamp:
+                         {request_name: [(start_timestamp, end_timestamp, response_time)]}}}
+    """
+    all_data = {}
+
+    for subdir in sorted(base_dir.iterdir()):
+        if not subdir.is_dir():
+            continue
+
+        parsed = parse_directory_name(subdir.name)
+        if not parsed:
+            continue
+
+        simulation, run_timestamp = parsed
+        simulation_csv = subdir / "simulation.csv"
+
+        if not simulation_csv.exists():
+            print(f"Warning: simulation.csv not found in {subdir}, skipping", file=sys.stderr)
+            continue
+
+        try:
+            data = process_report_directory_for_scatter_plotting(subdir, simulation, run_timestamp)
             # Merge the nested dictionaries
             for sim, runs in data.items():
                 if sim not in all_data:
@@ -710,6 +792,173 @@ def create_interactive_plot(
     return fig
 
 
+def create_scatter_plot(
+    scatter_data: dict[str, dict[str, dict[str, list[tuple[int, int, float]]]]],
+) -> go.Figure:
+    """Create interactive scatter plot showing response times over time."""
+
+    fig = go.Figure()
+
+    if not scatter_data:
+        return fig
+
+    # Get all simulations, runs, and requests
+    simulations = sorted(scatter_data.keys())
+
+    # Default to first simulation, first run, first request for initial display
+    default_simulation = simulations[0] if simulations else None
+    default_run = None
+    default_request = None
+
+    if default_simulation and scatter_data[default_simulation]:
+        runs = sorted(scatter_data[default_simulation].keys())
+        default_run = runs[0] if runs else None
+
+        if default_run and scatter_data[default_simulation][default_run]:
+            requests = sorted(scatter_data[default_simulation][default_run].keys())
+            default_request = requests[0] if requests else None
+
+    if not default_simulation or not default_run or not default_request:
+        return fig
+
+    # Create traces for all combinations (initially all hidden except default)
+    trace_mapping = {}  # Maps (simulation, run, request) to trace index
+    trace_idx = 0
+
+    for simulation in simulations:
+        for run_timestamp in sorted(scatter_data[simulation].keys()):
+            for request_name in sorted(scatter_data[simulation][run_timestamp].keys()):
+                timestamp_response_pairs = scatter_data[simulation][run_timestamp][request_name]
+
+                if not timestamp_response_pairs:
+                    continue
+
+                # Extract start timestamps, end timestamps and response times
+                start_timestamps, end_timestamps, response_times = zip(
+                    *timestamp_response_pairs, strict=False
+                )
+
+                # Convert end timestamps to datetime objects for better x-axis formatting
+                end_datetime_objects = [datetime.fromtimestamp(ts / 1000) for ts in end_timestamps]
+                start_datetime_objects = [
+                    datetime.fromtimestamp(ts / 1000) for ts in start_timestamps
+                ]
+
+                # Determine if this should be initially visible
+                is_default = (
+                    simulation == default_simulation
+                    and run_timestamp == default_run
+                    and request_name == default_request
+                )
+
+                # Create scatter trace
+                fig.add_trace(
+                    go.Scatter(
+                        x=end_datetime_objects,
+                        y=response_times,
+                        mode="markers",
+                        name=f"{simulation}_{run_timestamp}_{request_name}",
+                        visible=is_default,
+                        marker=dict(size=6, opacity=0.7, color="lightblue"),
+                        hovertemplate=(
+                            "<b>%{y:.0f}ms</b><br>"
+                            "Start time: %{customdata}<br>"
+                            "End time: %{x}<br>"
+                            f"Simulation: {simulation}<br>"
+                            f"Run: {format_timestamp(run_timestamp)}<br>"
+                            f"Request: {request_name}<br>"
+                            "<extra></extra>"
+                        ),
+                        customdata=[dt.strftime("%H:%M:%S") for dt in start_datetime_objects],
+                        showlegend=False,
+                    )
+                )
+
+                # Store mapping
+                trace_mapping[(simulation, run_timestamp, request_name)] = trace_idx
+                trace_idx += 1
+
+    # Create comprehensive dropdown with all combinations
+    all_combinations = []
+
+    for simulation in simulations:
+        for run_timestamp in sorted(scatter_data[simulation].keys()):
+            for request_name in sorted(scatter_data[simulation][run_timestamp].keys()):
+                if (simulation, run_timestamp, request_name) in trace_mapping:
+                    visibility = [False] * len(fig.data)
+                    trace_idx = trace_mapping[(simulation, run_timestamp, request_name)]
+                    visibility[trace_idx] = True
+
+                    # Create hierarchical label with formatted timestamp
+                    formatted_ts = format_timestamp(run_timestamp)
+                    label = f"{simulation} | {formatted_ts} | {request_name}"
+
+                    all_combinations.append(
+                        {
+                            "label": label,
+                            "method": "update",
+                            "args": [
+                                {"visible": visibility},
+                                {
+                                    "title": dict(
+                                        text=(
+                                            "Response Times Over Time "
+                                            "(simulation|timestamp|request)"
+                                        ),
+                                        x=0.5,
+                                        xanchor="center",
+                                        y=0.95,
+                                        yanchor="top",
+                                        font=dict(size=18, color="white"),
+                                    )
+                                },
+                            ],
+                        }
+                    )
+
+    # Update layout with single comprehensive dropdown
+    fig.update_layout(
+        title=dict(
+            text="Response Times Over Time (simulation|timestamp|request)",
+            x=0.5,
+            xanchor="center",
+            y=0.95,
+            yanchor="top",
+            font=dict(size=18, color="white"),
+        ),
+        xaxis_title="Time",
+        yaxis_title="Response Time (ms)",
+        template="plotly_dark",
+        showlegend=False,
+        font=dict(size=14),
+        xaxis=dict(title=dict(font=dict(size=16)), tickformat="%H:%M:%S", tickangle=45),
+        yaxis=dict(title=dict(font=dict(size=16))),
+        updatemenus=[
+            {
+                "buttons": all_combinations,
+                "direction": "down",
+                "showactive": True,
+                "x": 0.5,
+                "xanchor": "center",
+                "y": 1.05,
+                "yanchor": "top",
+                "bgcolor": "#2d2d2d",
+                "bordercolor": "#555555",
+                "borderwidth": 1,
+                "font": {"size": 11, "color": "#ffffff"},
+                "active": 0,
+                "pad": {"r": 10, "t": 5, "b": 5, "l": 10},
+            }
+        ]
+        if all_combinations
+        else [],
+        # Add some top margin for the dropdown
+        margin=dict(t=120, b=80, l=60, r=60),
+    )
+
+    return fig
+
+
 def format_output(results: list[SimulationResult], is_multiple: bool = False) -> None:
     """Format and print results as CSV."""
     # Always use the full format with directory, simulation and run_timestamp columns
@@ -755,6 +1004,9 @@ Examples:
 
   # With stacked percentile bar chart
   gstat ./samples/ --plot stacked
+
+  # With scatter plot of response times over time
+  gstat ./samples/ --plot scatter
         """,
     )
     parser.add_argument(
@@ -766,7 +1018,7 @@ Examples:
         "--plot",
         nargs="?",
         const="distribution",
-        choices=["distribution", "stacked"],
+        choices=["distribution", "stacked", "scatter"],
         help="Generate interactive plot instead of CSV output (default: distribution)",
     )
     parser.add_argument(
@@ -804,6 +1056,22 @@ Examples:
 
         if args.plot == "stacked":
             fig = create_stacked_percentile_plot(results)
+        elif args.plot == "scatter":
+            # For scatter plot, we need timestamp data
+            if is_multiple:
+                scatter_data = process_multiple_reports_for_scatter_plotting(args.report_directory)
+            else:
+                # Convert single report data to nested format for plotting function
+                if results:
+                    sim = results[0].simulation
+                    run = results[0].run_timestamp
+                    scatter_single = process_report_directory_for_scatter_plotting(
+                        args.report_directory, sim, run
+                    )
+                    scatter_data = scatter_single
+                else:
+                    scatter_data = {}
+            fig = create_scatter_plot(scatter_data)
         else:
             # For original distribution plot, we need both percentiles and raw data
             if is_multiple:
