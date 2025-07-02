@@ -17,7 +17,7 @@ approximation (matches Gatling's HTML report calculations).
 
 ### Global Installation (Recommended)
 
-Install globally using `uv` for easy access from anywhere:
+Install globally using `uv` for easy access from anywhere (use --reinstall to update):
 
 ```bash
 uv tool install .
@@ -183,7 +183,7 @@ uv run ruff check . --fix
 # Run pre-commit hooks manually
 uv run pre-commit run --all-files
 
-# Install as global tool for testing
+# Install as global tool for testing (use --reinstall to update)
 uv tool install .
 ```
 
