@@ -40,7 +40,6 @@ import io.gatling.javaapi.http.HttpProtocolBuilder;
 public class TrackerExporterTests extends Simulation {
 
   public TrackerExporterTests() {
-    // https://docs.gatling.io/reference/script/http/protocol/#shareconnections
     String baseUrl = System.getProperty("instance", "http://localhost:8080");
     HttpProtocolBuilder httpProtocolBuilder =
         http.baseUrl(baseUrl)
@@ -51,6 +50,18 @@ public class TrackerExporterTests extends Simulation {
             .userAgentHeader("Gatling/Performance Test")
             .disableCaching(); // to repeat the same request without HTTP cache influence (304)
 
+    // https://docs.gatling.io/reference/script/http/protocol/#shareconnections
+    // This only has an influence on tests with multiple virtual users (VU).
+    //
+    // https://stackoverflow.com/questions/34987476/gatling-repeat-with-connection-re-use
+    //> By default, Gatling has one connection pool per virtual user, so each of them do re-use
+    //> connections between sequential requests, and can have more than one concurrent connection when
+    //> dealing with resource fetching, which you do as you enabled inferHtmlResources. This way, virtual
+    //> users behave as independent browsers.
+    //
+    //https://groups.google.com/g/gatling/c/wesGpk4-_eQ/m/FG1V3KDaUtMJ
+    //> shareConnections means that you have one single global HTTP connection pool, not one per virtual
+    //> user.
     if (System.getProperty("shareConnections") != null) {
       httpProtocolBuilder.shareConnections();
     }
