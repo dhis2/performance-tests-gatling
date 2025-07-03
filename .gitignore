@@ -36,3 +36,5 @@ samples
 experiment-analysis/.venv/
 experiment-analysis/.ipynb_checkpoints/
 experiment-analysis/.ruff_cache/
+
+experiment-raw-speed-tests/
