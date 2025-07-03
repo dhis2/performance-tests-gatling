@@ -137,6 +137,13 @@ def format_timestamp(timestamp_str: str) -> str:
         return timestamp_str
 
 
+def truncate_simulation_name(simulation_name: str, max_length: int = 25) -> str:
+    """Truncate simulation name to max_length characters, adding ... if truncated."""
+    if len(simulation_name) <= max_length:
+        return simulation_name
+    return simulation_name[: max_length - 3] + "..."
+
+
 def is_multiple_reports_directory(directory: Path) -> bool:
     """Check if directory contains multiple simulation report subdirectories."""
     if not directory.is_dir():
@@ -479,7 +486,7 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
                             f"<b>{range_name}</b><br>"
                             "Timestamp: %{x}<br>"
                             "Range: %{base:.0f}ms - %{customdata:.0f}ms<br>"
-                            f"Simulation: {simulation}<br>"
+                            f"Simulation: {truncate_simulation_name(simulation)}<br>"
                             f"Request: {request_name}<br>"
                             "<extra></extra>"
                         ),
@@ -513,7 +520,7 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
 
             simulation_buttons.append(
                 {
-                    "label": simulation,
+                    "label": truncate_simulation_name(simulation),
                     "method": "update",
                     "args": [{"visible": visibility}, {"title": "Response Time Percentiles"}],
                 }
@@ -724,7 +731,9 @@ def create_interactive_plot(
 
                     # Create hierarchical label with formatted timestamp
                     formatted_ts = format_timestamp(run_timestamp)
-                    label = f"{simulation} | {formatted_ts} | {request_name}"
+                    label = (
+                        f"{truncate_simulation_name(simulation)} | {formatted_ts} | {request_name}"
+                    )
 
                     all_combinations.append(
                         {
@@ -864,7 +873,7 @@ def create_scatter_plot(
                             "<b>%{y:.0f}ms</b><br>"
                             "Start time: %{customdata}<br>"
                             "End time: %{x}<br>"
-                            f"Simulation: {simulation}<br>"
+                            f"Simulation: {truncate_simulation_name(simulation)}<br>"
                             f"Run: {format_timestamp(run_timestamp)}<br>"
                             f"Request: {request_name}<br>"
                             "<extra></extra>"
@@ -891,7 +900,9 @@ def create_scatter_plot(
 
                     # Create hierarchical label with formatted timestamp
                     formatted_ts = format_timestamp(run_timestamp)
-                    label = f"{simulation} | {formatted_ts} | {request_name}"
+                    label = (
+                        f"{truncate_simulation_name(simulation)} | {formatted_ts} | {request_name}"
+                    )
 
                     all_combinations.append(
                         {
