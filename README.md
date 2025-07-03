@@ -157,3 +157,9 @@ the project.
   instance).
 - Java JDK 11 or later
 - Maven 3.6 or later
+
+## Dashboard
+
+```sh
+python -m http.server 8000
+```
