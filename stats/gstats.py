@@ -36,11 +36,17 @@ percentile_line_colors = {
     "max": "#8B0000",  # Dark red
 }
 
-# TODO use a dynamic approach later on
 dropdown_position_x = {
     "simulation": 0.02,
     "request": 0.15,
     "timestamp": 0.75,
+}
+
+# Dropdown configurations for each plot type
+dropdown_configs = {
+    "stacked": ["simulation", "request"],
+    "distribution": ["simulation", "request", "timestamp"],
+    "scatter": ["simulation", "request", "timestamp"],
 }
 
 # dark mode makes the active selection illegible
@@ -271,6 +277,211 @@ def truncate_string(string: str, max_length: int = 25) -> str:
     return string[: max_length - 3] + "..."
 
 
+def create_dropdown_buttons(
+    dropdown_type: str,
+    items: list[str],
+    get_visibility_fn: callable,
+    get_label_fn: callable = None,
+) -> list[dict]:
+    """Create dropdown buttons for a specific dropdown type."""
+    buttons = []
+
+    for item in items:
+        visibility = get_visibility_fn(item)
+        label = get_label_fn(item) if get_label_fn else truncate_string(item, 100)
+
+        buttons.append(
+            {
+                "label": label,
+                "method": "update",
+                "args": [{"visible": visibility}],
+            }
+        )
+
+    return buttons
+
+
+def create_plot_dropdowns(
+    plot_type: str,
+    gatling_data: GatlingData,
+    trace_mapping: dict,
+    fig_data_length: int,
+    defaults: dict,
+) -> list[dict]:
+    """Create all dropdown menus for a specific plot type."""
+    dropdown_types = dropdown_configs[plot_type]
+    updatemenus = []
+
+    for dropdown_type in dropdown_types:
+        if dropdown_type == "simulation":
+            items = gatling_data.get_simulations()
+
+            def get_visibility_fn(sim):
+                return _get_simulation_visibility(
+                    sim, gatling_data, trace_mapping, fig_data_length, defaults, plot_type
+                )
+
+            def get_label_fn(sim):
+                return truncate_string(sim)
+
+        elif dropdown_type == "request":
+            items = _get_all_requests_for_plot(gatling_data, defaults, plot_type)
+
+            def get_visibility_fn(req):
+                return _get_request_visibility(
+                    req, gatling_data, trace_mapping, fig_data_length, defaults, plot_type
+                )
+
+            def get_label_fn(req):
+                return truncate_string(req, 100)
+
+        elif dropdown_type == "timestamp":
+            items = gatling_data.get_runs(defaults["simulation"])
+
+            def get_visibility_fn(run):
+                return _get_run_visibility(
+                    run, gatling_data, trace_mapping, fig_data_length, defaults, plot_type
+                )
+
+            def get_label_fn(run):
+                return _get_run_label(run, gatling_data, defaults["simulation"])
+
+        buttons = create_dropdown_buttons(dropdown_type, items, get_visibility_fn, get_label_fn)
+
+        menu = updatemenus_default | {
+            "buttons": buttons,
+            "x": dropdown_position_x[dropdown_type],
+        }
+        updatemenus.append(menu)
+
+    return updatemenus
+
+
+def _get_all_requests_for_plot(
+    gatling_data: GatlingData, defaults: dict, plot_type: str
+) -> list[str]:
+    """Get all request names for the plot type."""
+    if plot_type == "stacked":
+        # Stacked uses all requests across all simulations
+        all_requests = set()
+        for simulation in gatling_data.get_simulations():
+            for run_timestamp in gatling_data.get_runs(simulation):
+                all_requests.update(gatling_data.get_requests(simulation, run_timestamp))
+        return sorted(all_requests)
+    else:
+        # Distribution/scatter use requests for default simulation/run
+        return gatling_data.get_requests(defaults["simulation"], defaults["run"])
+
+
+def _get_simulation_visibility(
+    simulation: str,
+    gatling_data: GatlingData,
+    trace_mapping: dict,
+    fig_data_length: int,
+    defaults: dict,
+    plot_type: str,
+) -> list[bool]:
+    """Get visibility array for selecting a simulation."""
+    visibility = [False] * fig_data_length
+
+    if plot_type == "stacked":
+        # Show first request for this simulation
+        all_requests = _get_all_requests_for_plot(gatling_data, defaults, plot_type)
+        if all_requests:
+            first_request = all_requests[0]
+            key = (simulation, first_request)
+            if key in trace_mapping:
+                start_idx, end_idx = trace_mapping[key]
+                for j in range(start_idx, end_idx):
+                    if j < len(visibility):
+                        visibility[j] = True
+    else:
+        # Distribution/scatter: show first run and first request for this simulation
+        sim_runs = gatling_data.get_runs(simulation)
+        if sim_runs:
+            first_run = sim_runs[0]
+            sim_requests = gatling_data.get_requests(simulation, first_run)
+            if sim_requests:
+                first_request = sim_requests[0]
+                key = (simulation, first_run, first_request)
+                if key in trace_mapping:
+                    if plot_type == "distribution":
+                        start_idx, end_idx = trace_mapping[key]
+                        for j in range(start_idx, end_idx):
+                            if j < len(visibility):
+                                visibility[j] = True
+                    else:  # scatter
+                        trace_idx = trace_mapping[key]
+                        visibility[trace_idx] = True
+
+    return visibility
+
+
+def _get_request_visibility(
+    request: str,
+    gatling_data: GatlingData,
+    trace_mapping: dict,
+    fig_data_length: int,
+    defaults: dict,
+    plot_type: str,
+) -> list[bool]:
+    """Get visibility array for selecting a request."""
+    visibility = [False] * fig_data_length
+
+    if plot_type == "stacked":
+        key = (defaults["simulation"], request)
+        if key in trace_mapping:
+            start_idx, end_idx = trace_mapping[key]
+            for j in range(start_idx, end_idx):
+                if j < len(visibility):
+                    visibility[j] = True
+    else:
+        # Distribution/scatter
+        key = (defaults["simulation"], defaults["run"], request)
+        if key in trace_mapping:
+            if plot_type == "distribution":
+                start_idx, end_idx = trace_mapping[key]
+                for j in range(start_idx, end_idx):
+                    if j < len(visibility):
+                        visibility[j] = True
+            else:  # scatter
+                trace_idx = trace_mapping[key]
+                visibility[trace_idx] = True
+
+    return visibility
+
+
+def _get_run_visibility(
+    run: str,
+    gatling_data: GatlingData,
+    trace_mapping: dict,
+    fig_data_length: int,
+    defaults: dict,
+    plot_type: str,
+) -> list[bool]:
+    """Get visibility array for selecting a run."""
+    visibility = [False] * fig_data_length
+
+    key = (defaults["simulation"], run, defaults["request"])
+    if key in trace_mapping:
+        if plot_type == "distribution":
+            start_idx, end_idx = trace_mapping[key]
+            for j in range(start_idx, end_idx):
+                if j < len(visibility):
+                    visibility[j] = True
+        else:  # scatter
+            trace_idx = trace_mapping[key]
+            visibility[trace_idx] = True
+
+    return visibility
+
+
+def _get_run_label(run: str, gatling_data: GatlingData, simulation: str) -> str:
+    """Get formatted label for a run timestamp."""
+    run_data = gatling_data.get_run_data(simulation, run)
+    return run_data.formatted_timestamp if run_data else run
+
+
 def is_multiple_reports_directory(directory: Path) -> bool:
     """Check if directory contains multiple simulation report subdirectories."""
     if not directory.is_dir():
@@ -465,47 +676,11 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
             # Store mapping for dropdown functionality
             trace_mapping[(simulation, request_name)] = (start_trace_idx, trace_idx)
 
-    # Create dropdown for simulation selection
-    simulation_buttons = []
-    for simulation in simulations:
-        # Show first request of this simulation by default
-        if all_requests:
-            first_request = all_requests[0]
-            visibility = [False] * len(fig.data)
-
-            if (simulation, first_request) in trace_mapping:
-                start_idx, end_idx = trace_mapping[(simulation, first_request)]
-                for j in range(start_idx, end_idx):
-                    if j < len(visibility):
-                        visibility[j] = True
-
-            simulation_buttons.append(
-                {
-                    "label": truncate_string(simulation),
-                    "method": "update",
-                    "args": [{"visible": visibility}, {"title": "Response Time Percentiles"}],
-                }
-            )
-
-    # Create dropdown for request selection (initially for default simulation)
-    request_buttons = []
-    if default_simulation:
-        for request_name in all_requests:
-            visibility = [False] * len(fig.data)
-
-            if (default_simulation, request_name) in trace_mapping:
-                start_idx, end_idx = trace_mapping[(default_simulation, request_name)]
-                for j in range(start_idx, end_idx):
-                    if j < len(visibility):
-                        visibility[j] = True
-
-            request_buttons.append(
-                {
-                    "label": truncate_string(request_name, 100),
-                    "method": "update",
-                    "args": [{"visible": visibility}, {"title": "Response Time Percentiles"}],
-                }
-            )
+    # Create dropdowns using common logic
+    defaults = {"simulation": default_simulation, "request": default_request}
+    updatemenus = create_plot_dropdowns(
+        "stacked", gatling_data, trace_mapping, len(fig.data), defaults
+    )
 
     fig.update_layout(
         xaxis_title="Runs",
@@ -517,18 +692,7 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
         legend=dict(
             orientation="v", yanchor="top", y=0.8, xanchor="left", x=1.02, title="Percentile Ranges"
         ),
-        updatemenus=[
-            updatemenus_default
-            | {
-                "buttons": simulation_buttons,
-                "x": dropdown_position_x["simulation"],
-            },
-            updatemenus_default
-            | {
-                "buttons": request_buttons,
-                "x": dropdown_position_x["request"],
-            },
-        ],
+        updatemenus=updatemenus,
     )
 
     return fig
@@ -636,80 +800,15 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                     trace_idx,
                 )
 
-    # Create dropdown for simulation selection
-    simulation_buttons = []
-    for simulation in simulations:
-        # Show first run and first request of this simulation by default
-        sim_runs = gatling_data.get_runs(simulation)
-        if sim_runs:
-            first_run = sim_runs[0]
-            sim_requests = gatling_data.get_requests(simulation, first_run)
-            if sim_requests:
-                first_request = sim_requests[0]
-                visibility = [False] * len(fig.data)
-
-                if (simulation, first_run, first_request) in trace_mapping:
-                    start_idx, end_idx = trace_mapping[(simulation, first_run, first_request)]
-                    for j in range(start_idx, end_idx):
-                        if j < len(visibility):
-                            visibility[j] = True
-
-                simulation_buttons.append(
-                    {
-                        "label": truncate_string(simulation),
-                        "method": "update",
-                        "args": [{"visible": visibility}, {"title": "Response Time Distribution"}],
-                    }
-                )
-
-    # Create dropdown for request selection (initially for default simulation)
-    request_buttons = []
-    if default_simulation and default_run:
-        sim_requests = gatling_data.get_requests(default_simulation, default_run)
-
-        for request_name in sim_requests:
-            visibility = [False] * len(fig.data)
-
-            if (default_simulation, default_run, request_name) in trace_mapping:
-                start_idx, end_idx = trace_mapping[(default_simulation, default_run, request_name)]
-                for j in range(start_idx, end_idx):
-                    if j < len(visibility):
-                        visibility[j] = True
-
-            request_buttons.append(
-                {
-                    "label": truncate_string(request_name, 100),
-                    "method": "update",
-                    "args": [{"visible": visibility}, {"title": "Response Time Distribution"}],
-                }
-            )
-
-    # Create dropdown for run timestamp selection (initially for default simulation)
-    run_buttons = []
-    if default_simulation:
-        sim_runs = gatling_data.get_runs(default_simulation)
-
-        for run_timestamp in sim_runs:
-            visibility = [False] * len(fig.data)
-
-            if (default_simulation, run_timestamp, default_request) in trace_mapping:
-                start_idx, end_idx = trace_mapping[
-                    (default_simulation, run_timestamp, default_request)
-                ]
-                for j in range(start_idx, end_idx):
-                    if j < len(visibility):
-                        visibility[j] = True
-
-            run_data = gatling_data.get_run_data(default_simulation, run_timestamp)
-            label = run_data.formatted_timestamp if run_data else run_timestamp
-
-            run_buttons.append(
-                {
-                    "label": label,
-                    "method": "update",
-                    "args": [{"visible": visibility}, {"title": "Response Time Distribution"}],
-                }
-            )
+    # Create dropdowns using common logic
+    defaults = {
+        "simulation": default_simulation,
+        "run": default_run,
+        "request": default_request,
+    }
+    updatemenus = create_plot_dropdowns(
+        "distribution", gatling_data, trace_mapping, len(fig.data), defaults
+    )
 
     fig.update_layout(
         xaxis_title="Response Time (ms)",
@@ -719,23 +818,7 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
         font=dict(size=14),
         xaxis=dict(title=dict(font=dict(size=16))),
         yaxis=dict(title=dict(font=dict(size=16))),
-        updatemenus=[
-            updatemenus_default
-            | {
-                "buttons": simulation_buttons,
-                "x": dropdown_position_x["simulation"],
-            },
-            updatemenus_default
-            | {
-                "buttons": request_buttons,
-                "x": dropdown_position_x["request"],
-            },
-            updatemenus_default
-            | {
-                "buttons": run_buttons,
-                "x": dropdown_position_x["timestamp"],
-            },
-        ],
+        updatemenus=updatemenus,
     )
 
     return fig
@@ -810,72 +893,15 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                 trace_mapping[(simulation, run_timestamp, request_name)] = trace_idx
                 trace_idx += 1
 
-    # Create dropdown for simulation selection
-    simulation_buttons = []
-    for simulation in simulations:
-        # Show first run and first request of this simulation by default
-        sim_runs = gatling_data.get_runs(simulation)
-        if sim_runs:
-            first_run = sim_runs[0]
-            sim_requests = gatling_data.get_requests(simulation, first_run)
-            if sim_requests:
-                first_request = sim_requests[0]
-                visibility = [False] * len(fig.data)
-
-                if (simulation, first_run, first_request) in trace_mapping:
-                    trace_idx = trace_mapping[(simulation, first_run, first_request)]
-                    visibility[trace_idx] = True
-
-                simulation_buttons.append(
-                    {
-                        "label": truncate_string(simulation),
-                        "method": "update",
-                        "args": [{"visible": visibility}, {"title": "Response Times"}],
-                    }
-                )
-
-    # Create dropdown for request selection (initially for default simulation)
-    request_buttons = []
-    if default_simulation and default_run:
-        sim_requests = gatling_data.get_requests(default_simulation, default_run)
-
-        for request_name in sim_requests:
-            visibility = [False] * len(fig.data)
-
-            if (default_simulation, default_run, request_name) in trace_mapping:
-                trace_idx = trace_mapping[(default_simulation, default_run, request_name)]
-                visibility[trace_idx] = True
-
-            request_buttons.append(
-                {
-                    "label": truncate_string(request_name, 100),
-                    "method": "update",
-                    "args": [{"visible": visibility}, {"title": "Response Times"}],
-                }
-            )
-
-    # Create dropdown for run timestamp selection (initially for default simulation)
-    run_buttons = []
-    if default_simulation:
-        sim_runs = gatling_data.get_runs(default_simulation)
-
-        for run_timestamp in sim_runs:
-            visibility = [False] * len(fig.data)
-
-            if (default_simulation, run_timestamp, default_request) in trace_mapping:
-                trace_idx = trace_mapping[(default_simulation, run_timestamp, default_request)]
-                visibility[trace_idx] = True
-
-            run_data = gatling_data.get_run_data(default_simulation, run_timestamp)
-            label = run_data.formatted_timestamp if run_data else run_timestamp
-
-            run_buttons.append(
-                {
-                    "label": label,
-                    "method": "update",
-                    "args": [{"visible": visibility}, {"title": "Response Times"}],
-                }
-            )
+    # Create dropdowns using common logic
+    defaults = {
+        "simulation": default_simulation,
+        "run": default_run,
+        "request": default_request,
+    }
+    updatemenus = create_plot_dropdowns(
+        "scatter", gatling_data, trace_mapping, len(fig.data), defaults
+    )
 
     fig.update_layout(
         xaxis_title="Time",
@@ -892,23 +918,7 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
             dtick=1000,  # 1 second intervals (1000ms)
         ),
         yaxis=dict(title=dict(font=dict(size=16))),
-        updatemenus=[
-            updatemenus_default
-            | {
-                "buttons": simulation_buttons,
-                "x": dropdown_position_x["simulation"],
-            },
-            updatemenus_default
-            | {
-                "buttons": request_buttons,
-                "x": dropdown_position_x["request"],
-            },
-            updatemenus_default
-            | {
-                "buttons": run_buttons,
-                "x": dropdown_position_x["timestamp"],
-            },
-        ],
+        updatemenus=updatemenus,
     )
 
     return fig
