@@ -37,4 +37,6 @@ experiment-analysis/.venv/
 experiment-analysis/.ipynb_checkpoints/
 experiment-analysis/.ruff_cache/
 
+experiment-workflows-gh/
+experiment-workflows-flat/
 experiment-raw-speed-tests/
