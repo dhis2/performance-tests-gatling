@@ -145,6 +145,7 @@ class RequestData(NamedTuple):
     response_times: list[float]
     timestamps: list[tuple[datetime, datetime]]  # (start, end)
     percentiles: dict[str, float]
+    mean: float
     count: int
 
 
@@ -544,11 +545,13 @@ def _load_single_directory(gatling_data: GatlingData, directory: Path, method: s
         timestamps = list(zip(group["start_timestamp"], group["end_timestamp"], strict=False))
         count = len(response_times)
         percentiles = calculate_percentiles(response_times, method)
+        mean = np.mean(response_times)
 
         request_data = RequestData(
             response_times=response_times,
             timestamps=timestamps,
             percentiles=percentiles,
+            mean=mean,
             count=count,
         )
 
