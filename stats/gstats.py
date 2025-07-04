@@ -391,7 +391,7 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
 
             # Prepare data for this simulation-request combination
             run_timestamps = []
-            run_timestamps_formatted = []
+            run_hover_labels = []
             percentiles_data = {
                 "min": [],
                 "50th": [],
@@ -407,7 +407,9 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
                 )
                 if request_data:
                     run_timestamps.append(run_timestamp)
-                    run_timestamps_formatted.append(format_timestamp(run_timestamp))
+                    run_data = gatling_data.get_run_data(simulation, run_timestamp)
+                    hover_label = run_data.formatted_timestamp if run_data else run_timestamp
+                    run_hover_labels.append(hover_label)
                     for key in percentiles_data:
                         percentiles_data[key].append(request_data.percentiles[key])
 
@@ -446,7 +448,7 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
             for range_name, height_vals, base_vals in ranges:
                 fig.add_trace(
                     go.Bar(
-                        x=run_timestamps_formatted,
+                        x=list(range(1, len(run_timestamps) + 1)),  # start run number at 1
                         y=height_vals,
                         base=base_vals,
                         name=range_name,
@@ -455,11 +457,13 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
                         showlegend=is_default,
                         hovertemplate=(
                             f"<b>{range_name}</b><br>"
-                            "Timestamp: %{x}<br>"
-                            "Range: %{base:.0f}ms - %{customdata:.0f}ms<br>"
+                            "Timestamp: %{customdata[0]}<br>"
+                            "Range: %{base:.0f}ms - %{customdata[1]:.0f}ms<br>"
                             "<extra></extra>"
                         ),
-                        customdata=base_vals + height_vals,
+                        customdata=list(
+                            zip(run_hover_labels, base_vals + height_vals, strict=False)
+                        ),
                     )
                 )
                 trace_idx += 1
@@ -510,7 +514,7 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
             )
 
     fig.update_layout(
-        xaxis_title="Run Timestamp",
+        xaxis_title="Runs",
         yaxis_title="Response Time (ms)",
         barmode="relative",  # this creates the stacking effect
         template="plotly_dark",
@@ -589,7 +593,7 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
 
                 # Calculate histogram
                 counts, bin_edges = np.histogram(response_times, bins=50)
-                bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+                bin_centers = np.round((bin_edges[:-1] + bin_edges[1:]) / 2).astype(int)
                 percentages = (counts / len(response_times)) * 100
 
                 # Create bar trace
