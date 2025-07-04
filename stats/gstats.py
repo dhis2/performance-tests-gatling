@@ -741,7 +741,7 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
 
                 # Calculate histogram
                 counts, bin_edges = np.histogram(response_times, bins=50)
-                bin_centers = np.round((bin_edges[:-1] + bin_edges[1:]) / 2).astype(int)
+                bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
                 percentages = (counts / len(response_times)) * 100
 
                 # Create bar trace
@@ -822,7 +822,18 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
         template="plotly_dark",
         showlegend=False,
         font=dict(size=14),
-        xaxis=dict(title=dict(font=dict(size=16))),
+        xaxis=dict(
+            title=dict(font=dict(size=16)),
+            showticklabels=True,
+            tickmode="linear",
+            tick0=0,
+            dtick=10,
+            tickfont=dict(size=12),
+            ticks="outside",
+            ticklen=5,
+            tickwidth=1,
+            tickcolor="white",
+        ),
         yaxis=dict(title=dict(font=dict(size=16))),
         updatemenus=updatemenus,
     )
