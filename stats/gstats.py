@@ -137,16 +137,17 @@ class SimulationResult(NamedTuple):
 
     directory: str
     simulation: str
-    run_timestamp: str
+    run_timestamp: datetime
+    run_timestamp_display: str
     request_name: str
     count: int
     percentiles: dict[str, float]
 
 
-def parse_directory_name(dir_name: str) -> tuple[str, str] | None:
-    """Parse directory name to extract simulation name and timestamp.
+def parse_gating_directory_name(dir_name: str) -> tuple[str, str] | None:
+    """Parse directory name to extract simulation name and timestamp from Gatlings report directory
+    naming convention of <simulation>-<timestamp>
 
-    Expected format: <simulation>-<timestamp>
     Returns: (simulation, timestamp) or None if format doesn't match
     """
     match = re.match(r"^(.+)-([0-9]+)$", dir_name)
@@ -155,28 +156,45 @@ def parse_directory_name(dir_name: str) -> tuple[str, str] | None:
     return None
 
 
-def format_timestamp(timestamp_str: str) -> str:
-    """Convert timestamp string to human-readable format.
+def parse_gatling_directory_timestamp(timestamp_str: str) -> datetime:
+    """Parse directory timestamp string to datetime object.
 
     Input: '20250627064559771' (YYYYMMDDHHMMSSmmm)
-    Output: '2025-06-27 06:45:59'
+    Output: datetime object
     """
     try:
-        # Parse timestamp - format is YYYYMMDDHHMMSSmmm
         year = timestamp_str[0:4]
         month = timestamp_str[4:6]
         day = timestamp_str[6:8]
         hour = timestamp_str[8:10]
         minute = timestamp_str[10:12]
         second = timestamp_str[12:14]
-        # milliseconds = timestamp_str[14:17]  # Not used in display
+        milliseconds = timestamp_str[14:17] if len(timestamp_str) >= 17 else "000"
 
-        # Create datetime object and format it
-        dt = datetime(int(year), int(month), int(day), int(hour), int(minute), int(second))
-        return dt.strftime("%Y-%m-%d %H:%M:%S")
+        dt = datetime(
+            int(year),
+            int(month),
+            int(day),
+            int(hour),
+            int(minute),
+            int(second),
+            int(milliseconds) * 1000,
+        )
+        return dt
     except (ValueError, IndexError):
-        # If parsing fails, return original
+        return datetime.min
+
+
+def format_timestamp(timestamp_str: str) -> str:
+    """Convert timestamp string to human-readable format.
+
+    Input: '20250627064559771' (YYYYMMDDHHMMSSmmm)
+    Output: '2025-06-27 06:45:59'
+    """
+    dt = parse_gatling_directory_timestamp(timestamp_str)
+    if dt == datetime.min:
         return timestamp_str
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def truncate_string(string: str, max_length: int = 25) -> str:
@@ -197,7 +215,7 @@ def is_multiple_reports_directory(directory: Path) -> bool:
 
     # Look for subdirectories with the pattern <simulation>_<timestamp>
     for subdir in directory.iterdir():
-        if subdir.is_dir() and parse_directory_name(subdir.name):
+        if subdir.is_dir() and parse_gating_directory_name(subdir.name):
             if (subdir / "simulation.csv").exists():
                 return True
 
@@ -208,15 +226,11 @@ def process_report_directory(
     report_dir: Path, simulation: str = None, run_timestamp: str = None, method: str = "exact"
 ) -> list[SimulationResult]:
     """Process single report directory and return results with optional info."""
-    simulation_csv = report_dir / "simulation.csv"
-    df = parse_simulation_csv(simulation_csv)
-
-    # Get directory name for the directory column
-    directory_name = report_dir.name
+    df = parse_simulation_csv(report_dir / "simulation.csv")
 
     # If no simulation/timestamp provided, try to parse from directory name
     if simulation is None or run_timestamp is None:
-        parsed = parse_directory_name(report_dir.name)
+        parsed = parse_gating_directory_name(report_dir.name)
         if parsed:
             simulation, run_timestamp = parsed
         else:
@@ -231,7 +245,13 @@ def process_report_directory(
         percentiles = calculate_percentiles(response_times, method)
         results.append(
             SimulationResult(
-                directory_name, simulation, run_timestamp, request_name, count, percentiles
+                report_dir.name,
+                simulation,
+                parse_gatling_directory_timestamp(run_timestamp),
+                format_timestamp(run_timestamp),
+                request_name,
+                count,
+                percentiles,
             )
         )
 
@@ -246,7 +266,7 @@ def process_multiple_reports(base_dir: Path, method: str = "exact") -> list[Simu
         if not subdir.is_dir():
             continue
 
-        parsed = parse_directory_name(subdir.name)
+        parsed = parse_gating_directory_name(subdir.name)
         if not parsed:
             continue
 
@@ -278,12 +298,11 @@ def process_report_directory_for_plotting(
 
     Returns nested dict: {simulation: {run_timestamp: {request_name: [response_times]}}}
     """
-    simulation_csv = report_dir / "simulation.csv"
-    df = parse_simulation_csv(simulation_csv)
+    df = parse_simulation_csv(report_dir / "simulation.csv")
 
     # If no simulation/timestamp provided, try to parse from directory name
     if simulation is None or run_timestamp is None:
-        parsed = parse_directory_name(report_dir.name)
+        parsed = parse_gating_directory_name(report_dir.name)
         if parsed:
             simulation, run_timestamp = parsed
         else:
@@ -312,7 +331,7 @@ def process_report_directory_for_scatter_plotting(
 
     # If no simulation/timestamp provided, try to parse from directory name
     if simulation is None or run_timestamp is None:
-        parsed = parse_directory_name(report_dir.name)
+        parsed = parse_gating_directory_name(report_dir.name)
         if parsed:
             simulation, run_timestamp = parsed
         else:
@@ -350,7 +369,7 @@ def process_multiple_reports_for_plotting(
         if not subdir.is_dir():
             continue
 
-        parsed = parse_directory_name(subdir.name)
+        parsed = parse_gating_directory_name(subdir.name)
         if not parsed:
             continue
 
@@ -389,7 +408,7 @@ def process_multiple_reports_for_scatter_plotting(
         if not subdir.is_dir():
             continue
 
-        parsed = parse_directory_name(subdir.name)
+        parsed = parse_gating_directory_name(subdir.name)
         if not parsed:
             continue
 
@@ -424,7 +443,7 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
             "directory": result.directory,
             "simulation": result.simulation,
             "run_timestamp": result.run_timestamp,
-            "run_timestamp_formatted": format_timestamp(result.run_timestamp),
+            "run_timestamp_formatted": result.run_timestamp_display,
             "request_name": result.request_name,
             "count": result.count,
             **result.percentiles,
@@ -492,11 +511,11 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
                         marker_color=percentile_range_colors[range_name],
                         visible=is_default,
                         showlegend=is_default,
-                        legendgroup=range_name,
                         hovertemplate=(
                             f"<b>{range_name}</b><br>"
                             "Timestamp: %{x}<br>"
                             "Range: %{base:.0f}ms - %{customdata:.0f}ms<br>"
+                            "<extra></extra>"
                         ),
                         customdata=base_col + request_data[height_col],
                     )
@@ -757,7 +776,7 @@ def plot_percentiles(
 
             run_buttons.append(
                 {
-                    "label": format_timestamp(run_timestamp),
+                    "label": run_timestamp,
                     "method": "update",
                     "args": [{"visible": visibility}, {"title": "Response Time Distribution"}],
                 }
@@ -937,10 +956,8 @@ def format_output(results: list[SimulationResult]) -> None:
         results, key=lambda r: (r.directory, r.simulation, r.run_timestamp, r.request_name)
     )
 
-    # Print results
     for result in sorted_results:
-        # Format timestamp to human-readable
-        formatted_timestamp = format_timestamp(result.run_timestamp)
+        formatted_timestamp = result.run_timestamp_display
 
         print(
             f"{result.directory},{result.simulation},{formatted_timestamp},{result.request_name},{result.count},"
