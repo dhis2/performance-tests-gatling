@@ -654,15 +654,6 @@ def plot_percentiles(
                 start_trace_idx = trace_idx
                 trace_idx += 1
 
-                # TODO align colors with legend of stacked
-                # Add percentile lines
-                # percentile_colors = {
-                #     "50th": "green",
-                #     "75th": "orange",
-                #     "95th": "red",
-                #     "99th": "darkred",
-                # }
-
                 for percentile_name, color in percentile_line_colors.items():
                     if percentile_name in percentiles:
                         fig.add_trace(
@@ -700,9 +691,11 @@ def plot_percentiles(
                         if j < len(visibility):
                             visibility[j] = True
 
-                    # Create hierarchical label with formatted timestamp
+                    # TODO extract the dropdown logic at some point
+                    formatted_simulation = truncate_string(simulation)
                     formatted_ts = format_timestamp(run_timestamp)
-                    label = f"{truncate_string(simulation)} | {formatted_ts} | {request_name}"
+                    formated_request = truncate_string(request_name)
+                    label = f"{formatted_simulation} | {formatted_ts} | {formated_request}"
 
                     all_combinations.append(
                         {
@@ -710,55 +703,22 @@ def plot_percentiles(
                             "method": "update",
                             "args": [
                                 {"visible": visibility},
-                                {
-                                    "title": dict(
-                                        text=(
-                                            "Response Time Distribution "
-                                            "(simulation|timestamp|request)"
-                                        ),
-                                        x=0.5,
-                                        xanchor="center",
-                                        y=0.95,
-                                        yanchor="top",
-                                        font=dict(size=18, color="white"),
-                                    )
-                                },
                             ],
                         }
                     )
 
-    # Update layout with single comprehensive dropdown
     fig.update_layout(
-        title=dict(
-            text="Response Time Distribution (simulation|timestamp|request)",
-            x=0.5,
-            xanchor="center",
-            y=0.95,
-            yanchor="top",
-            font=dict(size=18, color="white"),
-        ),
         xaxis_title="Response Time (ms)",
-        yaxis_title="Percentage of Requests (%)",
+        yaxis_title="Number of requests",
         template="plotly_dark",
         showlegend=False,
         font=dict(size=14),
         xaxis=dict(title=dict(font=dict(size=16))),
         yaxis=dict(title=dict(font=dict(size=16))),
         updatemenus=[
-            {
+            updatemenus_default
+            | {
                 "buttons": all_combinations,
-                "direction": "down",
-                "showactive": True,
-                "x": 0.5,
-                "xanchor": "center",
-                "y": 1.05,
-                "yanchor": "top",
-                "bgcolor": "#2d2d2d",
-                "bordercolor": "#555555",
-                "borderwidth": 1,
-                "font": {"size": 11, "color": "#ffffff"},
-                "active": 0,
-                "pad": {"r": 10, "t": 5, "b": 5, "l": 10},
             }
         ]
         if all_combinations
