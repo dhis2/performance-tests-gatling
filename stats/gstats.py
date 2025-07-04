@@ -133,18 +133,6 @@ def calculate_percentiles_tdigest(response_times: list[float]) -> dict[str, floa
     }
 
 
-class SimulationResult(NamedTuple):
-    """Container for simulation processing results."""
-
-    directory: str
-    simulation: str
-    run_timestamp: datetime
-    run_timestamp_display: str
-    request_name: str
-    count: int
-    percentiles: dict[str, float]
-
-
 class RequestData(NamedTuple):
     """Data for a specific request in a specific run."""
 
@@ -208,26 +196,6 @@ class GatlingData:
     ) -> RequestData | None:
         """Get request data for specific simulation/run/request."""
         return self.data.get(simulation, {}).get(run_timestamp, {}).get(request_name)
-
-    def to_simulation_results(self) -> list[SimulationResult]:
-        """Convert to legacy SimulationResult format for CSV output."""
-        results = []
-        for simulation in self.data:
-            for run_timestamp in self.data[simulation]:
-                for request_name in self.data[simulation][run_timestamp]:
-                    request_data = self.data[simulation][run_timestamp][request_name]
-                    results.append(
-                        SimulationResult(
-                            directory=f"{simulation}-{run_timestamp}",
-                            simulation=simulation,
-                            run_timestamp=parse_gatling_directory_timestamp(run_timestamp),
-                            run_timestamp_display=format_timestamp(run_timestamp),
-                            request_name=request_name,
-                            count=request_data.count,
-                            percentiles=request_data.percentiles,
-                        )
-                    )
-        return results
 
 
 def parse_gating_directory_name(dir_name: str) -> tuple[str, str] | None:
@@ -891,28 +859,30 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
     return fig
 
 
-def format_output(results: list[SimulationResult]) -> None:
+def format_output(gatling_data: GatlingData) -> None:
     """Format and print results as CSV."""
-    # Always use the full format with directory, simulation and run_timestamp columns
     print("directory,simulation,run_timestamp,request_name,count,min,50th,75th,95th,99th,max")
 
-    # Sort results by directory, simulation, run_timestamp, request_name
-    sorted_results = sorted(
-        results, key=lambda r: (r.directory, r.simulation, r.run_timestamp, r.request_name)
-    )
+    # Data is already sorted by GatlingData.finalize_ordering()
+    for simulation in gatling_data.get_simulations():
+        for run_timestamp in gatling_data.get_runs(simulation):
+            for request_name in gatling_data.get_requests(simulation, run_timestamp):
+                request_data = gatling_data.get_request_data(
+                    simulation, run_timestamp, request_name
+                )
+                if request_data:
+                    directory = f"{simulation}-{run_timestamp}"
+                    formatted_timestamp = format_timestamp(run_timestamp)
 
-    for result in sorted_results:
-        formatted_timestamp = result.run_timestamp_display
-
-        print(
-            f"{result.directory},{result.simulation},{formatted_timestamp},{result.request_name},{result.count},"
-            f"{result.percentiles['min']:.0f},"
-            f"{result.percentiles['50th']:.0f},"
-            f"{result.percentiles['75th']:.0f},"
-            f"{result.percentiles['95th']:.0f},"
-            f"{result.percentiles['99th']:.0f},"
-            f"{result.percentiles['max']:.0f}"
-        )
+                    print(
+                        f"{directory},{simulation},{formatted_timestamp},{request_name},{request_data.count},"
+                        f"{request_data.percentiles['min']:.0f},"
+                        f"{request_data.percentiles['50th']:.0f},"
+                        f"{request_data.percentiles['75th']:.0f},"
+                        f"{request_data.percentiles['95th']:.0f},"
+                        f"{request_data.percentiles['99th']:.0f},"
+                        f"{request_data.percentiles['max']:.0f}"
+                    )
 
 
 def main():
@@ -987,8 +957,7 @@ Examples:
         else:
             fig.show()
     else:
-        results = gatling_data.to_simulation_results()
-        format_output(results)
+        format_output(gatling_data)
 
 
 if __name__ == "__main__":
