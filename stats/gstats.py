@@ -185,9 +185,9 @@ class GatlingData:
         # Sort simulations alphabetically
         sorted_sims = OrderedDict(sorted(self.data.items()))
 
-        # Sort run timestamps in descending order (newest first)
+        # Sort run timestamps in ascending order (oldest first)
         for simulation in sorted_sims:
-            sorted_runs = OrderedDict(sorted(sorted_sims[simulation].items(), reverse=True))
+            sorted_runs = OrderedDict(sorted(sorted_sims[simulation].items()))
             sorted_sims[simulation] = sorted_runs
 
         self.data = sorted_sims
@@ -561,7 +561,6 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
     if not gatling_data.data:
         return go.Figure()
 
-    # Get unique simulations and requests for dropdowns (already sorted)
     simulations = gatling_data.get_simulations()
     all_requests = set()
     for simulation in simulations:
@@ -576,10 +575,9 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
     if not default_simulation or not default_request:
         return go.Figure()
 
-    # Create traces for all combinations
+    # Create traces for each simulation-request combination
     fig = go.Figure()
 
-    # Create traces for each simulation-request combination
     trace_mapping = {}
     trace_idx = 0
 
@@ -662,7 +660,7 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
                         showlegend=is_default,
                         hovertemplate=(
                             f"<b>{range_name}</b><br>"
-                            "Timestamp: %{customdata[0]}<br>"
+                            "Run timestamp: %{customdata[0]}<br>"
                             "Range: %{base:.0f}ms - %{customdata[1]:.0f}ms<br>"
                             "<extra></extra>"
                         ),
@@ -673,10 +671,8 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
                 )
                 trace_idx += 1
 
-            # Store mapping for dropdown functionality
             trace_mapping[(simulation, request_name)] = (start_trace_idx, trace_idx)
 
-    # Create dropdowns using common logic
     defaults = {"simulation": default_simulation, "request": default_request}
     updatemenus = create_plot_dropdowns(
         "stacked", gatling_data, trace_mapping, len(fig.data), defaults
@@ -794,13 +790,11 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                         )
                         trace_idx += 1
 
-                # Store mapping
                 trace_mapping[(simulation, run_timestamp, request_name)] = (
                     start_trace_idx,
                     trace_idx,
                 )
 
-    # Create dropdowns using common logic
     defaults = {
         "simulation": default_simulation,
         "run": default_run,
@@ -875,7 +869,6 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                     and request_name == default_request
                 )
 
-                # Create scatter trace
                 fig.add_trace(
                     go.Scatter(
                         x=end_timestamps,
@@ -889,11 +882,9 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                     )
                 )
 
-                # Store mapping
                 trace_mapping[(simulation, run_timestamp, request_name)] = trace_idx
                 trace_idx += 1
 
-    # Create dropdowns using common logic
     defaults = {
         "simulation": default_simulation,
         "run": default_run,
