@@ -179,9 +179,9 @@ class GatlingData:
         # Sort simulations alphabetically
         sorted_sims = OrderedDict(sorted(self.data.items()))
 
-        # Sort run timestamps chronologically (requests are already sorted when added)
+        # Sort run timestamps in descending order (newest first)
         for simulation in sorted_sims:
-            sorted_runs = OrderedDict(sorted(sorted_sims[simulation].items()))
+            sorted_runs = OrderedDict(sorted(sorted_sims[simulation].items(), reverse=True))
             sorted_sims[simulation] = sorted_runs
 
         self.data = sorted_sims
