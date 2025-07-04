@@ -8,6 +8,7 @@ Calculate statistics like percentiles from Gatling simulation.csv files.
 import argparse
 import re
 import sys
+from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
 from typing import NamedTuple
@@ -144,6 +145,91 @@ class SimulationResult(NamedTuple):
     percentiles: dict[str, float]
 
 
+class RequestData(NamedTuple):
+    """Data for a specific request in a specific run."""
+
+    response_times: list[float]
+    timestamps: list[tuple[datetime, datetime]]  # (start, end)
+    percentiles: dict[str, float]
+    count: int
+
+
+class GatlingData:
+    """Unified data structure for all Gatling performance data.
+
+    Structure: {simulation: {run_timestamp: {request_name: RequestData}}}
+    All data is stored in sorted order for consistent presentation.
+    """
+
+    def __init__(self):
+        self.data: OrderedDict[str, OrderedDict[str, OrderedDict[str, RequestData]]] = OrderedDict()
+
+    def add_request_data(
+        self, simulation: str, run_timestamp: str, request_name: str, request_data: RequestData
+    ) -> None:
+        """Add request data maintaining sorted order."""
+        if simulation not in self.data:
+            self.data[simulation] = OrderedDict()
+
+        if run_timestamp not in self.data[simulation]:
+            self.data[simulation][run_timestamp] = OrderedDict()
+
+        self.data[simulation][run_timestamp][request_name] = request_data
+
+    def finalize_ordering(self) -> None:
+        """Sort all data levels after loading is complete."""
+        # Sort simulations alphabetically
+        sorted_sims = OrderedDict(sorted(self.data.items()))
+
+        # Sort run timestamps chronologically and request names alphabetically
+        for simulation in sorted_sims:
+            sorted_runs = OrderedDict(sorted(sorted_sims[simulation].items()))
+            for run_timestamp in sorted_runs:
+                sorted_requests = OrderedDict(sorted(sorted_runs[run_timestamp].items()))
+                sorted_runs[run_timestamp] = sorted_requests
+            sorted_sims[simulation] = sorted_runs
+
+        self.data = sorted_sims
+
+    def get_simulations(self) -> list[str]:
+        """Get all simulation names in sorted order."""
+        return list(self.data.keys())
+
+    def get_runs(self, simulation: str) -> list[str]:
+        """Get all run timestamps for a simulation in sorted order."""
+        return list(self.data.get(simulation, {}).keys())
+
+    def get_requests(self, simulation: str, run_timestamp: str) -> list[str]:
+        """Get all request names for a simulation run in sorted order."""
+        return list(self.data.get(simulation, {}).get(run_timestamp, {}).keys())
+
+    def get_request_data(
+        self, simulation: str, run_timestamp: str, request_name: str
+    ) -> RequestData | None:
+        """Get request data for specific simulation/run/request."""
+        return self.data.get(simulation, {}).get(run_timestamp, {}).get(request_name)
+
+    def to_simulation_results(self) -> list[SimulationResult]:
+        """Convert to legacy SimulationResult format for CSV output."""
+        results = []
+        for simulation in self.data:
+            for run_timestamp in self.data[simulation]:
+                for request_name in self.data[simulation][run_timestamp]:
+                    request_data = self.data[simulation][run_timestamp][request_name]
+                    results.append(
+                        SimulationResult(
+                            directory=f"{simulation}-{run_timestamp}",
+                            simulation=simulation,
+                            run_timestamp=parse_gatling_directory_timestamp(run_timestamp),
+                            run_timestamp_display=format_timestamp(run_timestamp),
+                            request_name=request_name,
+                            count=request_data.count,
+                            percentiles=request_data.percentiles,
+                        )
+                    )
+        return results
+
+
 def parse_gating_directory_name(dir_name: str) -> tuple[str, str] | None:
     """Parse directory name to extract simulation name and timestamp from Gatlings report directory
     naming convention of <simulation>-<timestamp>
@@ -222,242 +308,80 @@ def is_multiple_reports_directory(directory: Path) -> bool:
     return False
 
 
-def process_report_directory(
-    report_dir: Path, simulation: str = None, run_timestamp: str = None, method: str = "exact"
-) -> list[SimulationResult]:
-    """Process single report directory and return results with optional info."""
-    df = parse_simulation_csv(report_dir / "simulation.csv")
+def load_gatling_data(directory: Path, method: str = "exact") -> GatlingData:
+    """Load all Gatling data from directory, handling both single and multi-directory cases.
 
-    # If no simulation/timestamp provided, try to parse from directory name
-    if simulation is None or run_timestamp is None:
-        parsed = parse_gating_directory_name(report_dir.name)
-        if parsed:
-            simulation, run_timestamp = parsed
-        else:
-            # Fallback for single directory mode
-            simulation = simulation or "unknown"
-            run_timestamp = run_timestamp or "unknown"
+    This is the single entry point for all data loading, replacing the multiple
+    process_* functions. Always returns data in the multi-directory structure.
+    """
+    gatling_data = GatlingData()
 
-    results = []
-    for request_name, group in df.groupby("request_name"):
-        response_times = group["response_time_ms"].tolist()
-        count = len(response_times)
-        percentiles = calculate_percentiles(response_times, method)
-        results.append(
-            SimulationResult(
-                report_dir.name,
-                simulation,
-                parse_gatling_directory_timestamp(run_timestamp),
-                format_timestamp(run_timestamp),
-                request_name,
-                count,
-                percentiles,
-            )
-        )
+    if is_multiple_reports_directory(directory):
+        # Multi-directory case: process each subdirectory
+        for subdir in directory.iterdir():
+            if not subdir.is_dir():
+                continue
 
-    return results
+            try:
+                _load_single_directory(gatling_data, subdir, method)
+            except Exception as e:
+                print(f"Warning: Error processing {subdir}: {e}", file=sys.stderr)
+                continue
+    else:
+        # Single directory case
+        _load_single_directory(gatling_data, directory, method)
 
+    gatling_data.finalize_ordering()
 
-def process_multiple_reports(base_dir: Path, method: str = "exact") -> list[SimulationResult]:
-    """Process directory containing multiple simulation report subdirectories."""
-    all_results = []
-
-    for subdir in sorted(base_dir.iterdir()):
-        if not subdir.is_dir():
-            continue
-
-        parsed = parse_gating_directory_name(subdir.name)
-        if not parsed:
-            continue
-
-        simulation, run_timestamp = parsed
-        simulation_csv = subdir / "simulation.csv"
-
-        if not simulation_csv.exists():
-            print(f"Warning: simulation.csv not found in {subdir}, skipping", file=sys.stderr)
-            continue
-
-        try:
-            results = process_report_directory(subdir, simulation, run_timestamp, method)
-            all_results.extend(results)
-        except Exception as e:
-            print(f"Warning: Error processing {subdir}: {e}", file=sys.stderr)
-            continue
-
-    if not all_results:
-        print(f"No valid simulation reports found in {base_dir}", file=sys.stderr)
+    if not gatling_data.data:
+        print(f"No valid simulation data found in {directory}", file=sys.stderr)
         sys.exit(1)
 
-    return all_results
+    return gatling_data
 
 
-def process_report_directory_for_plotting(
-    report_dir: Path, simulation: str = None, run_timestamp: str = None
-) -> dict[str, dict[str, dict[str, list[float]]]]:
-    """Process report directory and return raw response times for plotting.
+def _load_single_directory(gatling_data: GatlingData, directory: Path, method: str) -> None:
+    """Load data from a single directory containing simulation.csv"""
+    parsed = parse_gating_directory_name(directory.name)
+    if parsed:
+        simulation, run_timestamp = parsed
+    else:
+        simulation = "unknown"
+        run_timestamp = "unknown"
+    simulation_csv = directory / "simulation.csv"
+    if not simulation_csv.exists():
+        raise FileNotFoundError(f"simulation.csv not found in {directory}")
 
-    Returns nested dict: {simulation: {run_timestamp: {request_name: [response_times]}}}
-    """
-    df = parse_simulation_csv(report_dir / "simulation.csv")
-
-    # If no simulation/timestamp provided, try to parse from directory name
-    if simulation is None or run_timestamp is None:
-        parsed = parse_gating_directory_name(report_dir.name)
-        if parsed:
-            simulation, run_timestamp = parsed
-        else:
-            # Fallback for single directory mode
-            simulation = simulation or "unknown"
-            run_timestamp = run_timestamp or "unknown"
-
-    # Group by request_name and return raw response times
-    raw_data = {}
-    for request_name, group in df.groupby("request_name"):
-        raw_data[request_name] = group["response_time_ms"].tolist()
-
-    return {simulation: {run_timestamp: raw_data}}
-
-
-def process_report_directory_for_scatter_plotting(
-    report_dir: Path, simulation: str = None, run_timestamp: str = None
-) -> dict[str, dict[str, dict[str, list[tuple[int, int, float]]]]]:
-    """Process report directory and return response times with timestamps for scatter plotting.
-
-    Returns nested dict: {simulation: {run_timestamp:
-                         {request_name: [(start_timestamp, end_timestamp, response_time)]}}}
-    """
-    simulation_csv = report_dir / "simulation.csv"
     df = parse_simulation_csv(simulation_csv)
-
-    # If no simulation/timestamp provided, try to parse from directory name
-    if simulation is None or run_timestamp is None:
-        parsed = parse_gating_directory_name(report_dir.name)
-        if parsed:
-            simulation, run_timestamp = parsed
-        else:
-            # Fallback for single directory mode
-            simulation = simulation or "unknown"
-            run_timestamp = run_timestamp or "unknown"
-
-    # Group by request_name and return timestamps with response times
-    raw_data = {}
     for request_name, group in df.groupby("request_name"):
-        # Combine start_timestamp, end_timestamp and response_time_ms into tuples
-        timestamp_response_pairs = list(
-            zip(
-                group["start_timestamp"],
-                group["end_timestamp"],
-                group["response_time_ms"],
-                strict=False,
-            )
+        response_times = group["response_time_ms"].tolist()
+        timestamps = list(zip(group["start_timestamp"], group["end_timestamp"], strict=False))
+        count = len(response_times)
+        percentiles = calculate_percentiles(response_times, method)
+
+        request_data = RequestData(
+            response_times=response_times,
+            timestamps=timestamps,
+            percentiles=percentiles,
+            count=count,
         )
-        raw_data[request_name] = timestamp_response_pairs
 
-    return {simulation: {run_timestamp: raw_data}}
-
-
-def process_multiple_reports_for_plotting(
-    base_dir: Path,
-) -> dict[str, dict[str, dict[str, list[float]]]]:
-    """Process directory containing multiple simulation reports for plotting.
-
-    Returns nested dict: {simulation: {run_timestamp: {request_name: [response_times]}}}
-    """
-    all_data = {}
-
-    for subdir in sorted(base_dir.iterdir()):
-        if not subdir.is_dir():
-            continue
-
-        parsed = parse_gating_directory_name(subdir.name)
-        if not parsed:
-            continue
-
-        simulation, run_timestamp = parsed
-        simulation_csv = subdir / "simulation.csv"
-
-        if not simulation_csv.exists():
-            print(f"Warning: simulation.csv not found in {subdir}, skipping", file=sys.stderr)
-            continue
-
-        try:
-            data = process_report_directory_for_plotting(subdir, simulation, run_timestamp)
-            # Merge the nested dictionaries
-            for sim, runs in data.items():
-                if sim not in all_data:
-                    all_data[sim] = {}
-                all_data[sim].update(runs)
-        except Exception as e:
-            print(f"Warning: Error processing {subdir}: {e}", file=sys.stderr)
-            continue
-
-    return all_data
+        gatling_data.add_request_data(simulation, run_timestamp, request_name, request_data)
 
 
-def process_multiple_reports_for_scatter_plotting(
-    base_dir: Path,
-) -> dict[str, dict[str, dict[str, list[tuple[int, int, float]]]]]:
-    """Process directory containing multiple simulation reports for scatter plotting.
-
-    Returns nested dict: {simulation: {run_timestamp:
-                         {request_name: [(start_timestamp, end_timestamp, response_time)]}}}
-    """
-    all_data = {}
-
-    for subdir in sorted(base_dir.iterdir()):
-        if not subdir.is_dir():
-            continue
-
-        parsed = parse_gating_directory_name(subdir.name)
-        if not parsed:
-            continue
-
-        simulation, run_timestamp = parsed
-        simulation_csv = subdir / "simulation.csv"
-
-        if not simulation_csv.exists():
-            print(f"Warning: simulation.csv not found in {subdir}, skipping", file=sys.stderr)
-            continue
-
-        try:
-            data = process_report_directory_for_scatter_plotting(subdir, simulation, run_timestamp)
-            # Merge the nested dictionaries
-            for sim, runs in data.items():
-                if sim not in all_data:
-                    all_data[sim] = {}
-                all_data[sim].update(runs)
-        except Exception as e:
-            print(f"Warning: Error processing {subdir}: {e}", file=sys.stderr)
-            continue
-
-    return all_data
-
-
-def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
+def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
     """Plot stacked bar chart of percentiles across runs."""
 
-    # convert results to DataFrame for easier processing
-    data = []
-    for result in results:
-        row = {
-            "directory": result.directory,
-            "simulation": result.simulation,
-            "run_timestamp": result.run_timestamp,
-            "run_timestamp_formatted": result.run_timestamp_display,
-            "request_name": result.request_name,
-            "count": result.count,
-            **result.percentiles,
-        }
-        data.append(row)
-
-    if not data:
+    if not gatling_data.data:
         return go.Figure()
 
-    df = pd.DataFrame(data)
-
-    # Get unique simulations and requests for dropdowns
-    simulations = sorted(df["simulation"].unique())
-    all_requests = sorted(df["request_name"].unique())
+    # Get unique simulations and requests for dropdowns (already sorted)
+    simulations = gatling_data.get_simulations()
+    all_requests = set()
+    for simulation in simulations:
+        for run_timestamp in gatling_data.get_runs(simulation):
+            all_requests.update(gatling_data.get_requests(simulation, run_timestamp))
+    all_requests = sorted(all_requests)
 
     # Default to first simulation and first request
     default_simulation = simulations[0] if simulations else None
@@ -474,18 +398,55 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
     trace_idx = 0
 
     for simulation in simulations:
-        sim_data = df[df["simulation"] == simulation]
+        for request_name in all_requests:
+            # Check if this simulation has this request
+            runs_with_request = []
+            for run_timestamp in gatling_data.get_runs(simulation):
+                if request_name in gatling_data.get_requests(simulation, run_timestamp):
+                    runs_with_request.append(run_timestamp)
 
-        for request_name in sorted(sim_data["request_name"].unique()):
-            request_data = sim_data[sim_data["request_name"] == request_name].copy()
-            request_data = request_data.sort_values("run_timestamp")
+            if not runs_with_request:
+                continue
+
+            # Prepare data for this simulation-request combination
+            run_timestamps = []
+            run_timestamps_formatted = []
+            percentiles_data = {
+                "min": [],
+                "50th": [],
+                "75th": [],
+                "95th": [],
+                "99th": [],
+                "max": [],
+            }
+
+            for run_timestamp in runs_with_request:
+                request_data = gatling_data.get_request_data(
+                    simulation, run_timestamp, request_name
+                )
+                if request_data:
+                    run_timestamps.append(run_timestamp)
+                    run_timestamps_formatted.append(format_timestamp(run_timestamp))
+                    for key in percentiles_data:
+                        percentiles_data[key].append(request_data.percentiles[key])
+
+            if not run_timestamps:
+                continue
+
+            # Convert to numpy arrays for easier calculation
+            min_vals = np.array(percentiles_data["min"])
+            p50_vals = np.array(percentiles_data["50th"])
+            p75_vals = np.array(percentiles_data["75th"])
+            p95_vals = np.array(percentiles_data["95th"])
+            p99_vals = np.array(percentiles_data["99th"])
+            max_vals = np.array(percentiles_data["max"])
 
             # Calculate stack heights (differences between percentiles)
-            request_data["range_0_50"] = request_data["50th"] - request_data["min"]
-            request_data["range_50_75"] = request_data["75th"] - request_data["50th"]
-            request_data["range_75_95"] = request_data["95th"] - request_data["75th"]
-            request_data["range_95_99"] = request_data["99th"] - request_data["95th"]
-            request_data["range_99_max"] = request_data["max"] - request_data["99th"]
+            range_0_50 = p50_vals - min_vals
+            range_50_75 = p75_vals - p50_vals
+            range_75_95 = p95_vals - p75_vals
+            range_95_99 = p99_vals - p95_vals
+            range_99_max = max_vals - p99_vals
 
             # Determine visibility
             is_default = simulation == default_simulation and request_name == default_request
@@ -494,19 +455,19 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
 
             # Create stacked bars for each percentile range
             ranges = [
-                ("0-50th", "range_0_50", request_data["min"]),
-                ("50th-75th", "range_50_75", request_data["50th"]),
-                ("75th-95th", "range_75_95", request_data["75th"]),
-                ("95th-99th", "range_95_99", request_data["95th"]),
-                ("99th-max", "range_99_max", request_data["99th"]),
+                ("0-50th", range_0_50, min_vals),
+                ("50th-75th", range_50_75, p50_vals),
+                ("75th-95th", range_75_95, p75_vals),
+                ("95th-99th", range_95_99, p95_vals),
+                ("99th-max", range_99_max, p99_vals),
             ]
 
-            for range_name, height_col, base_col in ranges:
+            for range_name, height_vals, base_vals in ranges:
                 fig.add_trace(
                     go.Bar(
-                        x=request_data["run_timestamp_formatted"],
-                        y=request_data[height_col],
-                        base=base_col,
+                        x=run_timestamps_formatted,
+                        y=height_vals,
+                        base=base_vals,
                         name=range_name,
                         marker_color=percentile_range_colors[range_name],
                         visible=is_default,
@@ -517,7 +478,7 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
                             "Range: %{base:.0f}ms - %{customdata:.0f}ms<br>"
                             "<extra></extra>"
                         ),
-                        customdata=base_col + request_data[height_col],
+                        customdata=base_vals + height_vals,
                     )
                 )
                 trace_idx += 1
@@ -528,12 +489,9 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
     # Create dropdown for simulation selection
     simulation_buttons = []
     for simulation in simulations:
-        sim_data = df[df["simulation"] == simulation]
-        sim_requests = sorted(sim_data["request_name"].unique())
-
         # Show first request of this simulation by default
-        if sim_requests:
-            first_request = sim_requests[0]
+        if all_requests:
+            first_request = all_requests[0]
             visibility = [False] * len(fig.data)
 
             if (simulation, first_request) in trace_mapping:
@@ -553,10 +511,7 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
     # Create dropdown for request selection (initially for default simulation)
     request_buttons = []
     if default_simulation:
-        sim_data = df[df["simulation"] == default_simulation]
-        sim_requests = sorted(sim_data["request_name"].unique())
-
-        for request_name in sim_requests:
+        for request_name in all_requests:
             visibility = [False] * len(fig.data)
 
             if (default_simulation, request_name) in trace_mapping:
@@ -601,29 +556,27 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
 
 
 # TODO add mean to show how its not a good measure compared to the median or other percentiles
-def plot_percentiles(
-    results: list[SimulationResult], raw_data: dict[str, dict[str, dict[str, list[float]]]]
-) -> go.Figure:
+def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
     """Plot histogram of response times highlighting percentile ranges."""
     fig = make_subplots(rows=1, cols=1)
 
-    if not raw_data:
+    if not gatling_data.data:
         return fig
 
-    # Get all simulations, runs, and requests
-    simulations = sorted(raw_data.keys())
+    # Get all simulations, runs, and requests (already sorted)
+    simulations = gatling_data.get_simulations()
 
     # Default to first simulation, first run, first request for initial display
     default_simulation = simulations[0] if simulations else None
     default_run = None
     default_request = None
 
-    if default_simulation and raw_data[default_simulation]:
-        runs = sorted(raw_data[default_simulation].keys())
+    if default_simulation:
+        runs = gatling_data.get_runs(default_simulation)
         default_run = runs[0] if runs else None
 
-        if default_run and raw_data[default_simulation][default_run]:
-            requests = sorted(raw_data[default_simulation][default_run].keys())
+        if default_run:
+            requests = gatling_data.get_requests(default_simulation, default_run)
             default_request = requests[0] if requests else None
 
     if not default_simulation or not default_run or not default_request:
@@ -634,23 +587,17 @@ def plot_percentiles(
     trace_idx = 0
 
     for simulation in simulations:
-        for run_timestamp in sorted(raw_data[simulation].keys()):
-            for request_name in sorted(raw_data[simulation][run_timestamp].keys()):
-                response_times = raw_data[simulation][run_timestamp][request_name]
+        for run_timestamp in gatling_data.get_runs(simulation):
+            for request_name in gatling_data.get_requests(simulation, run_timestamp):
+                request_data = gatling_data.get_request_data(
+                    simulation, run_timestamp, request_name
+                )
 
-                # Find corresponding percentiles
-                percentiles = None
-                for result in results:
-                    if (
-                        result.simulation == simulation
-                        and result.run_timestamp == run_timestamp
-                        and result.request_name == request_name
-                    ):
-                        percentiles = result.percentiles
-                        break
-
-                if not percentiles or not response_times:
+                if not request_data or not request_data.response_times:
                     continue
+
+                response_times = request_data.response_times
+                percentiles = request_data.percentiles
 
                 # Determine if this should be initially visible
                 is_default = (
@@ -714,10 +661,10 @@ def plot_percentiles(
     simulation_buttons = []
     for simulation in simulations:
         # Show first run and first request of this simulation by default
-        sim_runs = sorted(raw_data[simulation].keys())
+        sim_runs = gatling_data.get_runs(simulation)
         if sim_runs:
             first_run = sim_runs[0]
-            sim_requests = sorted(raw_data[simulation][first_run].keys())
+            sim_requests = gatling_data.get_requests(simulation, first_run)
             if sim_requests:
                 first_request = sim_requests[0]
                 visibility = [False] * len(fig.data)
@@ -739,7 +686,7 @@ def plot_percentiles(
     # Create dropdown for request selection (initially for default simulation)
     request_buttons = []
     if default_simulation and default_run:
-        sim_requests = sorted(raw_data[default_simulation][default_run].keys())
+        sim_requests = gatling_data.get_requests(default_simulation, default_run)
 
         for request_name in sim_requests:
             visibility = [False] * len(fig.data)
@@ -761,7 +708,7 @@ def plot_percentiles(
     # Create dropdown for run timestamp selection (initially for default simulation)
     run_buttons = []
     if default_simulation:
-        sim_runs = sorted(raw_data[default_simulation].keys())
+        sim_runs = gatling_data.get_runs(default_simulation)
 
         for run_timestamp in sim_runs:
             visibility = [False] * len(fig.data)
@@ -812,30 +759,28 @@ def plot_percentiles(
     return fig
 
 
-def plot_scatter(
-    scatter_data: dict[str, dict[str, dict[str, list[tuple[int, int, float]]]]],
-) -> go.Figure:
+def plot_scatter(gatling_data: GatlingData) -> go.Figure:
     """Plot response times."""
 
     fig = go.Figure()
 
-    if not scatter_data:
+    if not gatling_data.data:
         return fig
 
-    # Get all simulations, runs, and requests
-    simulations = sorted(scatter_data.keys())
+    # Get all simulations, runs, and requests (already sorted)
+    simulations = gatling_data.get_simulations()
 
     # Default to first simulation, first run, first request for initial display
     default_simulation = simulations[0] if simulations else None
     default_run = None
     default_request = None
 
-    if default_simulation and scatter_data[default_simulation]:
-        runs = sorted(scatter_data[default_simulation].keys())
+    if default_simulation:
+        runs = gatling_data.get_runs(default_simulation)
         default_run = runs[0] if runs else None
 
-        if default_run and scatter_data[default_simulation][default_run]:
-            requests = sorted(scatter_data[default_simulation][default_run].keys())
+        if default_run:
+            requests = gatling_data.get_requests(default_simulation, default_run)
             default_request = requests[0] if requests else None
 
     if not default_simulation or not default_run or not default_request:
@@ -846,17 +791,18 @@ def plot_scatter(
     trace_idx = 0
 
     for simulation in simulations:
-        for run_timestamp in sorted(scatter_data[simulation].keys()):
-            for request_name in sorted(scatter_data[simulation][run_timestamp].keys()):
-                timestamp_response_pairs = scatter_data[simulation][run_timestamp][request_name]
+        for run_timestamp in gatling_data.get_runs(simulation):
+            for request_name in gatling_data.get_requests(simulation, run_timestamp):
+                request_data = gatling_data.get_request_data(
+                    simulation, run_timestamp, request_name
+                )
 
-                if not timestamp_response_pairs:
+                if not request_data or not request_data.timestamps:
                     continue
 
                 # Extract start timestamps, end timestamps and response times
-                start_timestamps, end_timestamps, response_times = zip(
-                    *timestamp_response_pairs, strict=False
-                )
+                start_timestamps, end_timestamps = zip(*request_data.timestamps, strict=False)
+                response_times = request_data.response_times
 
                 # Determine if this should be initially visible
                 is_default = (
@@ -894,14 +840,13 @@ def plot_scatter(
     all_combinations = []
 
     for simulation in simulations:
-        for run_timestamp in sorted(scatter_data[simulation].keys()):
-            for request_name in sorted(scatter_data[simulation][run_timestamp].keys()):
+        for run_timestamp in gatling_data.get_runs(simulation):
+            for request_name in gatling_data.get_requests(simulation, run_timestamp):
                 if (simulation, run_timestamp, request_name) in trace_mapping:
                     visibility = [False] * len(fig.data)
                     trace_idx = trace_mapping[(simulation, run_timestamp, request_name)]
                     visibility[trace_idx] = True
 
-                    # TODO create 3 dropdowns so it looks like in other plots?
                     # Create hierarchical label with formatted timestamp
                     formatted_simulation = truncate_string(simulation)
                     formatted_ts = format_timestamp(run_timestamp)
@@ -1026,40 +971,15 @@ Examples:
         print(f"Path is not a directory: {args.report_directory}", file=sys.stderr)
         sys.exit(1)
 
-    is_multiple = is_multiple_reports_directory(args.report_directory)
+    gatling_data = load_gatling_data(args.report_directory, args.method)
 
     if args.plot:
-        # Get percentile results for plotting
-        if is_multiple:
-            results = process_multiple_reports(args.report_directory, args.method)
-        else:
-            results = process_report_directory(args.report_directory, method=args.method)
-
         if args.plot == "stacked":
-            fig = plot_percentiles_stacked(results)
+            fig = plot_percentiles_stacked(gatling_data)
         elif args.plot == "scatter":
-            # For scatter plot, we need timestamp data
-            if is_multiple:
-                scatter_data = process_multiple_reports_for_scatter_plotting(args.report_directory)
-            else:
-                # Convert single report data to nested format for plotting function
-                if results:
-                    sim = results[0].simulation
-                    run = results[0].run_timestamp
-                    scatter_single = process_report_directory_for_scatter_plotting(
-                        args.report_directory, sim, run
-                    )
-                    scatter_data = scatter_single
-                else:
-                    scatter_data = {}
-            fig = plot_scatter(scatter_data)
+            fig = plot_scatter(gatling_data)
         else:
-            # For original distribution plot, we need both percentiles and raw data
-            if is_multiple:
-                raw_data = process_multiple_reports_for_plotting(args.report_directory)
-            else:
-                raw_data = process_report_directory_for_plotting(args.report_directory)
-            fig = plot_percentiles(results, raw_data)
+            fig = plot_percentiles(gatling_data)
 
         if args.output:
             fig.write_html(args.output)
@@ -1067,12 +987,8 @@ Examples:
         else:
             fig.show()
     else:
-        if is_multiple:
-            results = process_multiple_reports(args.report_directory, args.method)
-            format_output(results)
-        else:
-            results = process_report_directory(args.report_directory, method=args.method)
-            format_output(results)
+        results = gatling_data.to_simulation_results()
+        format_output(results)
 
 
 if __name__ == "__main__":
