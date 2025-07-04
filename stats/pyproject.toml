@@ -14,13 +14,13 @@ dependencies = [
 ]
 
 [project.scripts]
-gstat = "gstats:main"
+gstat = "gstat:main"
 
 [tool.uv]
 package = true
 
 [tool.setuptools]
-py-modules = ["gstats"]
+py-modules = ["gstat"]
 
 [dependency-groups]
 dev = [

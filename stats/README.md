@@ -1,13 +1,16 @@
 # gstat - Gatling Statistics Calculator
 
-A Python CLI tool that calculates statistics like percentiles (min, 50th, 75th, 95th, 99th, max)
-from Gatling `simulation.csv` files.
+A Python CLI tool that calculates and plots statistics like percentiles (min, 50th, 75th, 95th,
+99th, max) from Gatling `simulation.csv` files.
 
 ## Features
 
 * **Exact Percentiles**: Default method using NumPy for accurate percentile calculations
-* **T-Digest Algorithm**: Optional method using the same T-Digest algorithm as Gatling for compatibility
-* **Multiple Reports Support**: Process single reports or directories containing multiple simulation runs
+* **T-Digest Algorithm**: Optional method using the same [T-Digest
+algorithm](https://github.com/CamDavidsonPilon/tdigest) as
+[Gatling](https://github.com/tdunning/t-digest) for compatibility
+* **Multiple Reports Support**: Process single reports or directories containing multiple simulation
+runs
 * **Easy Installation**: Install globally like a binary using `uv`
 * **CSV Output**: Outputs percentile data as CSV to console
 * **Interactive Plotting**: Generate interactive HTML plots with simulation and request filtering
@@ -41,9 +44,10 @@ Output percentiles per simulation, run and request name as CSV
 gstat <report_directory>
 ```
 
-* You must point to a report directory created by Gatling. Either a single report directory or a
-directory containing multiple report directories.
 * You must convert the binary `simulation.log` into a `simulation.csv`.
+* You must point to a report directory created by Gatling like
+`target/gatling/<simulation>_<timestamp>`. Either a single report directory or a directory
+containing multiple report directories.
 
 ### CSV Output Format
 
@@ -85,7 +89,7 @@ Generate interactive HTML plots instead of CSV output:
 gstat ../samples/ --plot
 
 # Save plot to file
-gstat ../samples/ --plot --output my_plot.html
+gstat ../samples/ --plot --output plot.html
 
 # Combine with method selection
 gstat ../samples/ --plot --method tdigest
@@ -111,14 +115,14 @@ samples/
 
 ## Prerequisites
 
-* **Python**: Python 3.13 or higher (managed automatically by uv)
 * **uv**: Python package and project manager https://docs.astral.sh/uv
+* **Python**: Python 3.13 or higher (managed automatically by uv)
 
 ## Shell Autocompletion
 
 To enable tab completion for `gstat` commands and options:
 
-### For zsh (recommended)
+### For zsh
 
 ```bash
 # Enable bash completion compatibility and register gstat
