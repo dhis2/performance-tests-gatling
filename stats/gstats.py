@@ -75,25 +75,21 @@ def calculate_percentiles_exact(response_times: list[float]) -> dict[str, float]
 
 
 def calculate_percentiles_tdigest(response_times: list[float]) -> dict[str, float]:
-    """Calculate percentiles using T-Digest algorithm (like Gatling)."""
+    """Calculate percentiles using T-Digest algorithm (like Gatling which uses https://github.com/tdunning/t-digest)."""
     if not response_times:
         return {"min": 0, "50th": 0, "75th": 0, "95th": 0, "99th": 0, "max": 0}
-
-    if len(response_times) == 1:
-        val = response_times[0]
-        return {"min": val, "50th": val, "75th": val, "95th": val, "99th": val, "max": val}
 
     digest = TDigest()
     for time in response_times:
         digest.update(time)
 
     return {
-        "min": min(response_times),
+        "min": digest.percentile(0),
         "50th": digest.percentile(50),
         "75th": digest.percentile(75),
         "95th": digest.percentile(95),
         "99th": digest.percentile(99),
-        "max": max(response_times),
+        "max": digest.percentile(100),
     }
 
 
