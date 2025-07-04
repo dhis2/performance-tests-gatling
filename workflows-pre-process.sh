@@ -38,4 +38,7 @@ for artifact_dir in "$EXPERIMENT_DIR/$ARTIFACT_PREFIX"*; do
     fi
 done
 
+# convert binary simulation.log to simulation.csv
+glog --config src/test/resources/gatling.conf --scan-subdirs experiment-workflows-flat
+
 echo "Pre-processing complete in: $ANALYSIS_DIR"
