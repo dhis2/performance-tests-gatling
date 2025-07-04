@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# PYTHON_ARGCOMPLETE_OK
 """
 Gatling Statistics Calculator
 
@@ -61,22 +60,30 @@ updatemenus_default = {
 
 
 def parse_simulation_csv(csv_path: Path) -> pd.DataFrame:
-    """Parse simulation.csv and return successful requests."""
+    """Parse simulation.csv and return successful requests.
+
+    Example of a simulation.csv
+
+    record_type,scenario_name,group_hierarchy,request_name,status,start_timestamp,end_timestamp,response_time_ms,error_message,event_type,duration_ms,cumulated_response_time_ms,is_incoming
+    request,,,events,OK,1751199294083,1751199294256,173,,,,,false
+    """
     try:
         df = pd.read_csv(csv_path)
     except Exception as e:
         print(f"Error reading CSV file {csv_path}: {e}", file=sys.stderr)
         sys.exit(1)
 
+    # only consider response times of successful requests (ignore group and user entries in csv)
     request_df = df[(df["record_type"] == "request") & (df["status"] == "OK")].copy()
 
     if request_df.empty:
         print(f"No successful request records found in {csv_path}", file=sys.stderr)
         sys.exit(1)
 
-    # Ensure response_time_ms is numeric
-    request_df["response_time_ms"] = pd.to_numeric(request_df["response_time_ms"], errors="coerce")
-    request_df = request_df.dropna(subset=["response_time_ms"])
+    # Ensure data types are as expected
+    request_df["start_timestamp"] = pd.to_datetime(request_df["start_timestamp"], unit="ms")
+    request_df["end_timestamp"] = pd.to_datetime(request_df["end_timestamp"], unit="ms")
+    request_df["response_time_ms"] = pd.to_numeric(request_df["response_time_ms"])
 
     return request_df
 
@@ -490,9 +497,6 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
                             f"<b>{range_name}</b><br>"
                             "Timestamp: %{x}<br>"
                             "Range: %{base:.0f}ms - %{customdata:.0f}ms<br>"
-                            f"Simulation: {truncate_string(simulation)}<br>"
-                            f"Request: {truncate_string(request_name, 40)}<br>"
-                            "<extra></extra>"
                         ),
                         customdata=base_col + request_data[height_col],
                     )
@@ -835,12 +839,6 @@ def plot_scatter(
                     *timestamp_response_pairs, strict=False
                 )
 
-                # Convert end timestamps to datetime objects for better x-axis formatting
-                end_datetime_objects = [datetime.fromtimestamp(ts / 1000) for ts in end_timestamps]
-                start_datetime_objects = [
-                    datetime.fromtimestamp(ts / 1000) for ts in start_timestamps
-                ]
-
                 # Determine if this should be initially visible
                 is_default = (
                     simulation == default_simulation
@@ -851,7 +849,7 @@ def plot_scatter(
                 # Create scatter trace
                 fig.add_trace(
                     go.Scatter(
-                        x=end_datetime_objects,
+                        x=end_timestamps,
                         y=response_times,
                         mode="markers",
                         name=f"{simulation}_{run_timestamp}_{request_name}",
@@ -859,14 +857,12 @@ def plot_scatter(
                         marker=dict(size=6, opacity=0.7, color="lightblue"),
                         hovertemplate=(
                             "<b>%{y:.0f}ms</b><br>"
-                            "Start time: %{customdata}<br>"
                             "End time: %{x}<br>"
                             f"Simulation: {truncate_string(simulation)}<br>"
                             f"Run: {format_timestamp(run_timestamp)}<br>"
                             f"Request: {truncate_string(request_name)}<br>"
                             "<extra></extra>"
                         ),
-                        customdata=[dt.strftime("%H:%M:%S") for dt in start_datetime_objects],
                         showlegend=False,
                     )
                 )
@@ -1002,10 +998,7 @@ Examples:
         default="exact",
         help="Percentile calculation method (default: exact)",
     )
-
-    # Enable autocompletion
     argcomplete.autocomplete(parser)
-
     args = parser.parse_args()
 
     if not args.report_directory.exists():
@@ -1048,16 +1041,7 @@ Examples:
             if is_multiple:
                 raw_data = process_multiple_reports_for_plotting(args.report_directory)
             else:
-                # Convert single report data to nested format for plotting function
-                if results:
-                    sim = results[0].simulation
-                    run = results[0].run_timestamp
-                    raw_single = process_report_directory_for_plotting(
-                        args.report_directory, sim, run
-                    )
-                    raw_data = raw_single
-                else:
-                    raw_data = {}
+                raw_data = process_report_directory_for_plotting(args.report_directory)
             fig = plot_percentiles(results, raw_data)
 
         if args.output:
