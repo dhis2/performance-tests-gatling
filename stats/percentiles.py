@@ -526,7 +526,19 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
                 }
             )
 
-            # TODO move dropdowns to top
+    updatemenus_default = {
+        "direction": "down",
+        "showactive": True,
+        "x": 0.02,
+        "xanchor": "left",
+        "y": 1.08,
+        "yanchor": "top",
+        "bgcolor": "#2d2d2d",
+        "bordercolor": "#555555",
+        "borderwidth": 1,
+        "font": {"size": 11, "color": "#ffffff"},
+        "pad": {"r": 10, "t": 5, "b": 5, "l": 10},
+    }
     fig.update_layout(
         xaxis_title="Run Timestamp",
         yaxis_title="Response Time (ms)",
@@ -535,36 +547,18 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
         font=dict(size=12),
         showlegend=True,
         legend=dict(
-            orientation="v", yanchor="top", y=1, xanchor="left", x=1.02, title="Percentile Ranges"
+            orientation="v", yanchor="top", y=0.8, xanchor="left", x=1.02, title="Percentile Ranges"
         ),
         updatemenus=[
-            {
+            updatemenus_default
+            | {
                 "buttons": simulation_buttons,
-                "direction": "down",
-                "showactive": True,
                 "x": 0.02,
-                "xanchor": "left",
-                "y": 0.98,
-                "yanchor": "top",
-                "bgcolor": "#2d2d2d",
-                "bordercolor": "#555555",
-                "borderwidth": 1,
-                "font": {"size": 11, "color": "#ffffff"},
-                "pad": {"r": 10, "t": 5, "b": 5, "l": 10},
             },
-            {
+            updatemenus_default
+            | {
                 "buttons": request_buttons,
-                "direction": "down",
-                "showactive": True,
-                "x": 0.25,
-                "xanchor": "left",
-                "y": 0.98,
-                "yanchor": "top",
-                "bgcolor": "#2d2d2d",
-                "bordercolor": "#555555",
-                "borderwidth": 1,
-                "font": {"size": 11, "color": "#ffffff"},
-                "pad": {"r": 10, "t": 5, "b": 5, "l": 10},
+                "x": 0.15,
             },
         ],
         margin=dict(t=60, b=60, l=60, r=150),
