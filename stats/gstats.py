@@ -406,14 +406,11 @@ def _get_simulation_visibility(
                 first_request = sim_requests[0]
                 key = (simulation, first_run, first_request)
                 if key in trace_mapping:
-                    if plot_type == "distribution":
+                    if plot_type == "distribution" or plot_type == "scatter":
                         start_idx, end_idx = trace_mapping[key]
                         for j in range(start_idx, end_idx):
                             if j < len(visibility):
                                 visibility[j] = True
-                    else:  # scatter
-                        trace_idx = trace_mapping[key]
-                        visibility[trace_idx] = True
 
     return visibility
 
@@ -440,14 +437,11 @@ def _get_request_visibility(
         # Distribution/scatter
         key = (defaults["simulation"], defaults["run"], request)
         if key in trace_mapping:
-            if plot_type == "distribution":
+            if plot_type == "distribution" or plot_type == "scatter":
                 start_idx, end_idx = trace_mapping[key]
                 for j in range(start_idx, end_idx):
                     if j < len(visibility):
                         visibility[j] = True
-            else:  # scatter
-                trace_idx = trace_mapping[key]
-                visibility[trace_idx] = True
 
     return visibility
 
@@ -465,14 +459,11 @@ def _get_run_visibility(
 
     key = (defaults["simulation"], run, defaults["request"])
     if key in trace_mapping:
-        if plot_type == "distribution":
+        if plot_type == "distribution" or plot_type == "scatter":
             start_idx, end_idx = trace_mapping[key]
             for j in range(start_idx, end_idx):
                 if j < len(visibility):
                     visibility[j] = True
-        else:  # scatter
-            trace_idx = trace_mapping[key]
-            visibility[trace_idx] = True
 
     return visibility
 
@@ -890,6 +881,8 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                     and request_name == default_request
                 )
 
+                start_trace_idx = trace_idx
+
                 fig.add_trace(
                     go.Scatter(
                         x=end_timestamps,
@@ -902,9 +895,52 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                         showlegend=False,
                     )
                 )
-
-                trace_mapping[(simulation, run_timestamp, request_name)] = trace_idx
                 trace_idx += 1
+
+                # Add percentile lines (horizontal)
+                percentiles = request_data.percentiles
+                x_range = [min(end_timestamps), max(end_timestamps)]
+
+                for percentile_name, color in percentile_line_colors.items():
+                    if percentile_name in percentiles:
+                        fig.add_trace(
+                            go.Scatter(
+                                x=x_range,
+                                y=[percentiles[percentile_name], percentiles[percentile_name]],
+                                mode="lines",
+                                line=dict(color=color, width=2, dash="dash"),
+                                name=f"{percentile_name}: {percentiles[percentile_name]:.0f}ms",
+                                visible=is_default,
+                                hovertemplate=f"<b>{percentile_name} Percentile</b><br>"
+                                + f"{percentiles[percentile_name]:.0f}ms<br>"
+                                + "<extra></extra>",
+                                showlegend=False,
+                            )
+                        )
+                        trace_idx += 1
+
+                # Add mean line (horizontal)
+                mean_value = request_data.mean
+                fig.add_trace(
+                    go.Scatter(
+                        x=x_range,
+                        y=[mean_value, mean_value],
+                        mode="lines",
+                        line=dict(color="#2E86AB", width=3, dash="solid"),
+                        name=f"Mean: {mean_value:.0f}ms",
+                        visible=is_default,
+                        hovertemplate="<b>Mean</b><br>"
+                        + f"{mean_value:.0f}ms<br>"
+                        + "<extra></extra>",
+                        showlegend=False,
+                    )
+                )
+                trace_idx += 1
+
+                trace_mapping[(simulation, run_timestamp, request_name)] = (
+                    start_trace_idx,
+                    trace_idx,
+                )
 
     defaults = {
         "simulation": default_simulation,
