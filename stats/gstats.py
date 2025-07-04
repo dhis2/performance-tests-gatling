@@ -983,6 +983,60 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
     return fig
 
 
+def plot_scatter_all(gatling_data: GatlingData) -> go.Figure:
+    """Plot response times for all runs, each run with different color."""
+
+    fig = go.Figure()
+
+    if not gatling_data.data:
+        return fig
+
+    simulations = gatling_data.get_simulations()
+
+    if not simulations:
+        return fig
+
+    for simulation in simulations:
+        for run_timestamp in gatling_data.get_runs(simulation):
+            for request_name in gatling_data.get_requests(simulation, run_timestamp):
+                request_data = gatling_data.get_request_data(
+                    simulation, run_timestamp, request_name
+                )
+
+                if not request_data or not request_data.timestamps:
+                    continue
+
+                # Get response times (x-axis will be auto-generated as ordinal)
+                response_times = request_data.response_times
+
+                fig.add_trace(
+                    go.Scatter(
+                        y=response_times,
+                        mode="markers",
+                        name=f"{simulation}_{run_timestamp}_{request_name}",
+                        marker=dict(size=3, opacity=0.6),
+                        hoverinfo="none",
+                        showlegend=False,
+                    )
+                )
+
+    fig.update_layout(
+        xaxis_title="Request Number",
+        yaxis_title="Response Time (ms)",
+        template="plotly_dark",
+        showlegend=False,
+        font=dict(size=14),
+        xaxis=dict(
+            title=dict(font=dict(size=16)),
+            showgrid=True,
+            gridcolor="rgba(128, 128, 128, 0.3)",
+        ),
+        yaxis=dict(title=dict(font=dict(size=16))),
+    )
+
+    return fig
+
+
 def format_output(gatling_data: GatlingData) -> None:
     """Format and print results as CSV."""
     print("directory,simulation,run_timestamp,request_name,count,min,50th,75th,95th,99th,max")
@@ -1039,7 +1093,7 @@ Examples:
         "--plot",
         nargs="?",
         const="distribution",
-        choices=["distribution", "stacked", "scatter"],
+        choices=["distribution", "stacked", "scatter", "scatter-all"],
         help="Generate interactive plot instead of CSV output (default: distribution)",
     )
     parser.add_argument(
@@ -1069,6 +1123,8 @@ Examples:
             fig = plot_percentiles_stacked(gatling_data)
         elif args.plot == "scatter":
             fig = plot_scatter(gatling_data)
+        elif args.plot == "scatter-all":
+            fig = plot_scatter_all(gatling_data)
         else:
             fig = plot_percentiles(gatling_data)
 
