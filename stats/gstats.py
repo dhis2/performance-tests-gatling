@@ -20,6 +20,20 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from tdigest import TDigest
 
+updatemenus_default = {
+    "direction": "down",
+    "showactive": True,
+    "x": 0.02,
+    "xanchor": "left",
+    "y": 1.08,
+    "yanchor": "top",
+    "bgcolor": "#2d2d2d",
+    "bordercolor": "#555555",
+    "borderwidth": 1,
+    "font": {"size": 11, "color": "#ffffff"},
+    "pad": {"r": 10, "t": 5, "b": 5, "l": 10},
+}
+
 
 def parse_simulation_csv(csv_path: Path) -> pd.DataFrame:
     """Parse simulation.csv and return successful requests."""
@@ -51,8 +65,8 @@ def calculate_percentiles_exact(response_times: list[float]) -> dict[str, float]
         val = response_times[0]
         return {"min": val, "50th": val, "75th": val, "95th": val, "99th": val, "max": val}
 
-    # Calculate exact percentiles
-    percentiles = np.percentile(response_times, [50, 75, 95, 99])
+    # https://numpy.org/doc/stable/reference/generated/numpy.percentile.html#numpy-percentile
+    percentiles = np.percentile(response_times, [50, 75, 95, 99], method="nearest")
 
     return {
         "min": float(np.min(response_times)),
@@ -64,7 +78,7 @@ def calculate_percentiles_exact(response_times: list[float]) -> dict[str, float]
     }
 
 
-def calculate_percentiles_with_tdigest(response_times: list[float]) -> dict[str, float]:
+def calculate_percentiles_tdigest(response_times: list[float]) -> dict[str, float]:
     """Calculate percentiles using T-Digest algorithm (like Gatling)."""
     if not response_times:
         return {"min": 0, "50th": 0, "75th": 0, "95th": 0, "99th": 0, "max": 0}
@@ -73,7 +87,6 @@ def calculate_percentiles_with_tdigest(response_times: list[float]) -> dict[str,
         val = response_times[0]
         return {"min": val, "50th": val, "75th": val, "95th": val, "99th": val, "max": val}
 
-    # Create T-Digest with default parameters (matches Gatling behavior)
     digest = TDigest()
     for time in response_times:
         digest.update(time)
@@ -186,7 +199,7 @@ def process_report_directory(
         response_times = group["response_time_ms"].tolist()
         count = len(response_times)
         if method == "tdigest":
-            percentiles = calculate_percentiles_with_tdigest(response_times)
+            percentiles = calculate_percentiles_tdigest(response_times)
         else:
             percentiles = calculate_percentiles_exact(response_times)
         results.append(
@@ -374,8 +387,8 @@ def process_multiple_reports_for_scatter_plotting(
     return all_data
 
 
-def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure:
-    """Create stacked bar chart showing percentiles across runs."""
+def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
+    """Plot stacked bar chart of percentiles across runs."""
 
     # convert results to DataFrame for easier processing
     data = []
@@ -526,19 +539,6 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
                 }
             )
 
-    updatemenus_default = {
-        "direction": "down",
-        "showactive": True,
-        "x": 0.02,
-        "xanchor": "left",
-        "y": 1.08,
-        "yanchor": "top",
-        "bgcolor": "#2d2d2d",
-        "bordercolor": "#555555",
-        "borderwidth": 1,
-        "font": {"size": 11, "color": "#ffffff"},
-        "pad": {"r": 10, "t": 5, "b": 5, "l": 10},
-    }
     fig.update_layout(
         xaxis_title="Run Timestamp",
         yaxis_title="Response Time (ms)",
@@ -561,16 +561,16 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
                 "x": 0.15,
             },
         ],
-        margin=dict(t=60, b=60, l=60, r=150),
     )
 
     return fig
 
 
-def create_interactive_plot(
+# TODO add mean to show how its not a good measure compared to the median or other percentiles
+def plot_percentiles(
     results: list[SimulationResult], raw_data: dict[str, dict[str, dict[str, list[float]]]]
 ) -> go.Figure:
-    """Create interactive Plotly figure showing response time distribution with percentiles."""
+    """Plot percentiles."""
     fig = make_subplots(rows=1, cols=1)
 
     if not raw_data:
@@ -760,17 +760,15 @@ def create_interactive_plot(
         ]
         if all_combinations
         else [],
-        # Add some top margin for the dropdown
-        margin=dict(t=120, b=60, l=60, r=60),
     )
 
     return fig
 
 
-def create_scatter_plot(
+def plot_scatter(
     scatter_data: dict[str, dict[str, dict[str, list[tuple[int, int, float]]]]],
 ) -> go.Figure:
-    """Create interactive scatter plot showing response times over time."""
+    """Plot response times."""
 
     fig = go.Figure()
 
@@ -841,7 +839,7 @@ def create_scatter_plot(
                             "End time: %{x}<br>"
                             f"Simulation: {truncate_string(simulation)}<br>"
                             f"Run: {format_timestamp(run_timestamp)}<br>"
-                            f"Request: {request_name}<br>"
+                            f"Request: {truncate_string(request_name)}<br>"
                             "<extra></extra>"
                         ),
                         customdata=[dt.strftime("%H:%M:%S") for dt in start_datetime_objects],
@@ -864,9 +862,12 @@ def create_scatter_plot(
                     trace_idx = trace_mapping[(simulation, run_timestamp, request_name)]
                     visibility[trace_idx] = True
 
+                    # TODO create 3 dropdowns so it looks like in other plots?
                     # Create hierarchical label with formatted timestamp
+                    formatted_simulation = truncate_string(simulation)
                     formatted_ts = format_timestamp(run_timestamp)
-                    label = f"{truncate_string(simulation)} | {formatted_ts} | {request_name}"
+                    formated_request = truncate_string(request_name)
+                    label = f"{formatted_simulation} | {formatted_ts} | {formated_request}"
 
                     all_combinations.append(
                         {
@@ -874,33 +875,11 @@ def create_scatter_plot(
                             "method": "update",
                             "args": [
                                 {"visible": visibility},
-                                {
-                                    "title": dict(
-                                        text=(
-                                            "Response Times Over Time "
-                                            "(simulation|timestamp|request)"
-                                        ),
-                                        x=0.5,
-                                        xanchor="center",
-                                        y=0.95,
-                                        yanchor="top",
-                                        font=dict(size=18, color="white"),
-                                    )
-                                },
                             ],
                         }
                     )
 
-    # Update layout with single comprehensive dropdown
     fig.update_layout(
-        title=dict(
-            text="Response Times Over Time (simulation|timestamp|request)",
-            x=0.5,
-            xanchor="center",
-            y=0.95,
-            yanchor="top",
-            font=dict(size=18, color="white"),
-        ),
         xaxis_title="Time",
         yaxis_title="Response Time (ms)",
         template="plotly_dark",
@@ -916,26 +895,13 @@ def create_scatter_plot(
         ),
         yaxis=dict(title=dict(font=dict(size=16))),
         updatemenus=[
-            {
+            updatemenus_default
+            | {
                 "buttons": all_combinations,
-                "direction": "down",
-                "showactive": True,
-                "x": 0.5,
-                "xanchor": "center",
-                "y": 1.05,
-                "yanchor": "top",
-                "bgcolor": "#2d2d2d",
-                "bordercolor": "#555555",
-                "borderwidth": 1,
-                "font": {"size": 11, "color": "#ffffff"},
-                "active": 0,
-                "pad": {"r": 10, "t": 5, "b": 5, "l": 10},
             }
         ]
         if all_combinations
         else [],
-        # Add some top margin for the dropdown
-        margin=dict(t=120, b=80, l=60, r=60),
     )
 
     return fig
@@ -1036,7 +1002,7 @@ Examples:
             results = process_report_directory(args.report_directory, method=args.method)
 
         if args.plot == "stacked":
-            fig = create_stacked_percentile_plot(results)
+            fig = plot_percentiles_stacked(results)
         elif args.plot == "scatter":
             # For scatter plot, we need timestamp data
             if is_multiple:
@@ -1052,7 +1018,7 @@ Examples:
                     scatter_data = scatter_single
                 else:
                     scatter_data = {}
-            fig = create_scatter_plot(scatter_data)
+            fig = plot_scatter(scatter_data)
         else:
             # For original distribution plot, we need both percentiles and raw data
             if is_multiple:
@@ -1068,7 +1034,7 @@ Examples:
                     raw_data = raw_single
                 else:
                     raw_data = {}
-            fig = create_interactive_plot(results, raw_data)
+            fig = plot_percentiles(results, raw_data)
 
         if args.output:
             fig.write_html(args.output)
