@@ -61,20 +61,16 @@ def calculate_percentiles_exact(response_times: list[float]) -> dict[str, float]
     if not response_times:
         return {"min": 0, "50th": 0, "75th": 0, "95th": 0, "99th": 0, "max": 0}
 
-    if len(response_times) == 1:
-        val = response_times[0]
-        return {"min": val, "50th": val, "75th": val, "95th": val, "99th": val, "max": val}
-
     # https://numpy.org/doc/stable/reference/generated/numpy.percentile.html#numpy-percentile
-    percentiles = np.percentile(response_times, [50, 75, 95, 99], method="nearest")
+    percentiles = np.percentile(response_times, [0, 50, 75, 95, 99, 100], method="nearest")
 
     return {
-        "min": float(np.min(response_times)),
-        "50th": float(percentiles[0]),
-        "75th": float(percentiles[1]),
-        "95th": float(percentiles[2]),
-        "99th": float(percentiles[3]),
-        "max": float(np.max(response_times)),
+        "min": percentiles[0],
+        "50th": percentiles[1],
+        "75th": percentiles[2],
+        "95th": percentiles[3],
+        "99th": percentiles[4],
+        "max": percentiles[5],
     }
 
 
