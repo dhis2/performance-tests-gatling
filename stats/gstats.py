@@ -751,7 +751,6 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
     if not gatling_data.data:
         return fig
 
-    # Get all simulations, runs, and requests (already sorted)
     simulations = gatling_data.get_simulations()
 
     # Default to first simulation, first run, first request for initial display
@@ -804,14 +803,7 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                         name=f"{simulation}_{run_timestamp}_{request_name}",
                         visible=is_default,
                         marker=dict(size=6, opacity=0.7, color="lightblue"),
-                        hovertemplate=(
-                            "<b>%{y:.0f}ms</b><br>"
-                            "End time: %{x}<br>"
-                            f"Simulation: {truncate_string(simulation)}<br>"
-                            f"Run: {format_timestamp(run_timestamp)}<br>"
-                            f"Request: {truncate_string(request_name)}<br>"
-                            "<extra></extra>"
-                        ),
+                        hovertemplate=("<b>%{y:.0f}ms</b><br>End time: %{x}<br><extra></extra>"),
                         showlegend=False,
                     )
                 )
