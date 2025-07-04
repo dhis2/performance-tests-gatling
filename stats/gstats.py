@@ -21,7 +21,7 @@ from plotly.subplots import make_subplots
 from tdigest import TDigest
 
 percentile_range_colors = {
-    "0-50th": "#2E86AB",  # Blue
+    "0-50th": "#28a745",  # Green
     "50th-75th": "#A23B72",  # Purple
     "75th-95th": "#F18F01",  # Orange
     "95th-99th": "#C73E1D",  # Red
@@ -29,7 +29,7 @@ percentile_range_colors = {
 }
 
 percentile_line_colors = {
-    "50th": "#2E86AB",  # Blue
+    "50th": "#28a745",  # Green
     "75th": "#A23B72",  # Purple
     "95th": "#F18F01",  # Orange
     "99th": "#C73E1D",  # Red
@@ -543,9 +543,9 @@ def _load_single_directory(gatling_data: GatlingData, directory: Path, method: s
     for request_name, group in df.groupby("request_name"):
         response_times = group["response_time_ms"].tolist()
         timestamps = list(zip(group["start_timestamp"], group["end_timestamp"], strict=False))
-        count = len(response_times)
         percentiles = calculate_percentiles(response_times, method)
         mean = np.mean(response_times)
+        count = len(response_times)
 
         request_data = RequestData(
             response_times=response_times,
@@ -792,6 +792,24 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                             )
                         )
                         trace_idx += 1
+
+                # Add mean line
+                mean_value = request_data.mean
+                fig.add_trace(
+                    go.Scatter(
+                        x=[mean_value, mean_value],
+                        y=[0, max(percentages) if percentages.size > 0 else 100],
+                        mode="lines",
+                        line=dict(color="#2E86AB", width=3, dash="solid"),
+                        name=f"Mean: {mean_value:.0f}ms",
+                        visible=is_default,
+                        hovertemplate="<b>Mean</b><br>"
+                        + f"{mean_value:.0f}ms<br>"
+                        + "<extra></extra>",
+                        showlegend=False,
+                    )
+                )
+                trace_idx += 1
 
                 trace_mapping[(simulation, run_timestamp, request_name)] = (
                     start_trace_idx,
