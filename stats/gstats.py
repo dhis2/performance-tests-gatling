@@ -290,15 +290,10 @@ def is_multiple_reports_directory(directory: Path) -> bool:
 
 
 def load_gatling_data(directory: Path, method: str = "exact") -> GatlingData:
-    """Load all Gatling data from directory, handling both single and multi-directory cases.
-
-    This is the single entry point for all data loading, replacing the multiple
-    process_* functions. Always returns data in the multi-directory structure.
-    """
+    """Load all Gatling data from directory, handling both single and multi-directory cases."""
     gatling_data = GatlingData()
 
     if is_multiple_reports_directory(directory):
-        # Multi-directory case: process each subdirectory
         for subdir in directory.iterdir():
             if not subdir.is_dir():
                 continue
@@ -309,7 +304,6 @@ def load_gatling_data(directory: Path, method: str = "exact") -> GatlingData:
                 print(f"Warning: Error processing {subdir}: {e}", file=sys.stderr)
                 continue
     else:
-        # Single directory case
         _load_single_directory(gatling_data, directory, method)
 
     gatling_data.finalize_ordering()
@@ -322,7 +316,7 @@ def load_gatling_data(directory: Path, method: str = "exact") -> GatlingData:
 
 
 def _load_single_directory(gatling_data: GatlingData, directory: Path, method: str) -> None:
-    """Load data from a single directory containing simulation.csv"""
+    """Load Gatling data from a directory directly containing one simulation.csv"""
     parsed = parse_gating_directory_name(directory.name)
     if parsed:
         simulation, run_timestamp = parsed
