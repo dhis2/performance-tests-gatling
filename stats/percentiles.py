@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # PYTHON_ARGCOMPLETE_OK
 """
-Gatling Percentiles Calculator
+Gatling Statistics Calculator
 
-Calculate percentiles from Gatling simulation.csv files using T-Digest algorithm
-to match Gatling's HTML report percentile calculations exactly.
+Calculate statistics like percentiles from Gatling simulation.csv files.
 """
 
 import argparse
@@ -23,14 +22,13 @@ from tdigest import TDigest
 
 
 def parse_simulation_csv(csv_path: Path) -> pd.DataFrame:
-    """Parse simulation.csv and return filtered request data."""
+    """Parse simulation.csv and return successful requests."""
     try:
         df = pd.read_csv(csv_path)
     except Exception as e:
         print(f"Error reading CSV file {csv_path}: {e}", file=sys.stderr)
         sys.exit(1)
 
-    # Filter for request records with OK status
     request_df = df[(df["record_type"] == "request") & (df["status"] == "OK")].copy()
 
     if request_df.empty:
@@ -137,11 +135,11 @@ def format_timestamp(timestamp_str: str) -> str:
         return timestamp_str
 
 
-def truncate_simulation_name(simulation_name: str, max_length: int = 25) -> str:
-    """Truncate simulation name to max_length characters, adding ... if truncated."""
-    if len(simulation_name) <= max_length:
-        return simulation_name
-    return simulation_name[: max_length - 3] + "..."
+def truncate_string(string: str, max_length: int = 25) -> str:
+    """Truncate string to max_length characters, adding ... if truncated."""
+    if len(string) <= max_length:
+        return string
+    return string[: max_length - 3] + "..."
 
 
 def is_multiple_reports_directory(directory: Path) -> bool:
@@ -149,20 +147,17 @@ def is_multiple_reports_directory(directory: Path) -> bool:
     if not directory.is_dir():
         return False
 
-    # Check if the directory itself contains simulation.csv (single report directory)
+    # if the directory itself contains simulation.csv = single report directory
     if (directory / "simulation.csv").exists():
         return False
 
     # Look for subdirectories with the pattern <simulation>_<timestamp>
-    found_valid_subdirs = 0
     for subdir in directory.iterdir():
         if subdir.is_dir() and parse_directory_name(subdir.name):
-            # Check if it contains simulation.csv
             if (subdir / "simulation.csv").exists():
-                found_valid_subdirs += 1
+                return True
 
-    # Need at least one valid subdirectory to be considered multiple reports directory
-    return found_valid_subdirs > 0
+    return False
 
 
 def process_report_directory(
@@ -170,11 +165,6 @@ def process_report_directory(
 ) -> list[SimulationResult]:
     """Process single report directory and return results with optional info."""
     simulation_csv = report_dir / "simulation.csv"
-
-    if not simulation_csv.exists():
-        print(f"simulation.csv not found in {report_dir}", file=sys.stderr)
-        sys.exit(1)
-
     df = parse_simulation_csv(simulation_csv)
 
     # Get directory name for the directory column
@@ -249,11 +239,6 @@ def process_report_directory_for_plotting(
     Returns nested dict: {simulation: {run_timestamp: {request_name: [response_times]}}}
     """
     simulation_csv = report_dir / "simulation.csv"
-
-    if not simulation_csv.exists():
-        print(f"simulation.csv not found in {report_dir}", file=sys.stderr)
-        sys.exit(1)
-
     df = parse_simulation_csv(simulation_csv)
 
     # If no simulation/timestamp provided, try to parse from directory name
@@ -283,11 +268,6 @@ def process_report_directory_for_scatter_plotting(
                          {request_name: [(start_timestamp, end_timestamp, response_time)]}}}
     """
     simulation_csv = report_dir / "simulation.csv"
-
-    if not simulation_csv.exists():
-        print(f"simulation.csv not found in {report_dir}", file=sys.stderr)
-        sys.exit(1)
-
     df = parse_simulation_csv(simulation_csv)
 
     # If no simulation/timestamp provided, try to parse from directory name
@@ -395,9 +375,9 @@ def process_multiple_reports_for_scatter_plotting(
 
 
 def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure:
-    """Create interactive stacked bar chart showing percentiles across run timestamps."""
+    """Create stacked bar chart showing percentiles across runs."""
 
-    # Convert results to DataFrame for easier processing
+    # convert results to DataFrame for easier processing
     data = []
     for result in results:
         row = {
@@ -486,14 +466,11 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
                             f"<b>{range_name}</b><br>"
                             "Timestamp: %{x}<br>"
                             "Range: %{base:.0f}ms - %{customdata:.0f}ms<br>"
-                            f"Simulation: {truncate_simulation_name(simulation)}<br>"
+                            f"Simulation: {truncate_string(simulation)}<br>"
                             f"Request: {request_name}<br>"
                             "<extra></extra>"
                         ),
                         customdata=base_col + request_data[height_col],
-                        legendgrouptitle_text=(
-                            "Percentile Ranges" if range_name == "0-50th" else None
-                        ),
                     )
                 )
                 trace_idx += 1
@@ -520,7 +497,7 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
 
             simulation_buttons.append(
                 {
-                    "label": truncate_simulation_name(simulation),
+                    "label": truncate_string(simulation),
                     "method": "update",
                     "args": [{"visible": visibility}, {"title": "Response Time Percentiles"}],
                 }
@@ -543,18 +520,17 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
 
             request_buttons.append(
                 {
-                    "label": request_name,
+                    "label": truncate_string(request_name, 100),
                     "method": "update",
                     "args": [{"visible": visibility}, {"title": "Response Time Percentiles"}],
                 }
             )
 
-    # Update layout
+            # TODO move dropdowns to top
     fig.update_layout(
-        title="Response Time Percentiles",
         xaxis_title="Run Timestamp",
         yaxis_title="Response Time (ms)",
-        barmode="relative",  # This creates the stacking effect
+        barmode="relative",  # this creates the stacking effect
         template="plotly_dark",
         font=dict(size=12),
         showlegend=True,
@@ -601,8 +577,6 @@ def create_interactive_plot(
     results: list[SimulationResult], raw_data: dict[str, dict[str, dict[str, list[float]]]]
 ) -> go.Figure:
     """Create interactive Plotly figure showing response time distribution with percentiles."""
-
-    # Create subplots
     fig = make_subplots(rows=1, cols=1)
 
     if not raw_data:
@@ -731,9 +705,7 @@ def create_interactive_plot(
 
                     # Create hierarchical label with formatted timestamp
                     formatted_ts = format_timestamp(run_timestamp)
-                    label = (
-                        f"{truncate_simulation_name(simulation)} | {formatted_ts} | {request_name}"
-                    )
+                    label = f"{truncate_string(simulation)} | {formatted_ts} | {request_name}"
 
                     all_combinations.append(
                         {
@@ -873,7 +845,7 @@ def create_scatter_plot(
                             "<b>%{y:.0f}ms</b><br>"
                             "Start time: %{customdata}<br>"
                             "End time: %{x}<br>"
-                            f"Simulation: {truncate_simulation_name(simulation)}<br>"
+                            f"Simulation: {truncate_string(simulation)}<br>"
                             f"Run: {format_timestamp(run_timestamp)}<br>"
                             f"Request: {request_name}<br>"
                             "<extra></extra>"
@@ -900,9 +872,7 @@ def create_scatter_plot(
 
                     # Create hierarchical label with formatted timestamp
                     formatted_ts = format_timestamp(run_timestamp)
-                    label = (
-                        f"{truncate_simulation_name(simulation)} | {formatted_ts} | {request_name}"
-                    )
+                    label = f"{truncate_string(simulation)} | {formatted_ts} | {request_name}"
 
                     all_combinations.append(
                         {
@@ -977,7 +947,7 @@ def create_scatter_plot(
     return fig
 
 
-def format_output(results: list[SimulationResult], is_multiple: bool = False) -> None:
+def format_output(results: list[SimulationResult]) -> None:
     """Format and print results as CSV."""
     # Always use the full format with directory, simulation and run_timestamp columns
     print("directory,simulation,run_timestamp,request_name,count,min,50th,75th,95th,99th,max")
@@ -1062,7 +1032,6 @@ Examples:
         print(f"Path is not a directory: {args.report_directory}", file=sys.stderr)
         sys.exit(1)
 
-    # Determine if this is a single report directory or multiple reports directory
     is_multiple = is_multiple_reports_directory(args.report_directory)
 
     if args.plot:

@@ -1,7 +1,7 @@
 [project]
 name = "gatling-statistics"
 version = "0.1.0"
-description = "Calculate and plot percentiles from Gatling simulation.csv"
+description = "Calculate and plot statistics from Gatling simulation.csv"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
