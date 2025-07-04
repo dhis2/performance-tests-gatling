@@ -20,6 +20,22 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from tdigest import TDigest
 
+percentile_range_colors = {
+    "0-50th": "#2E86AB",  # Blue
+    "50th-75th": "#A23B72",  # Purple
+    "75th-95th": "#F18F01",  # Orange
+    "95th-99th": "#C73E1D",  # Red
+    "99th-max": "#8B0000",  # Dark red
+}
+
+percentile_line_colors = {
+    "50th": "#2E86AB",  # Blue
+    "75th": "#A23B72",  # Purple
+    "95th": "#F18F01",  # Orange
+    "99th": "#C73E1D",  # Red
+    "max": "#8B0000",  # Dark red
+}
+
 updatemenus_default = {
     "direction": "down",
     "showactive": True,
@@ -418,15 +434,6 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
     # Create traces for all combinations
     fig = go.Figure()
 
-    # Colors for different percentile ranges (stack layers)
-    colors = {
-        "0-50th": "#2E86AB",  # Blue
-        "50th-75th": "#A23B72",  # Purple
-        "75th-95th": "#F18F01",  # Orange
-        "95th-99th": "#C73E1D",  # Red
-        "99th-max": "#8B0000",  # Dark red
-    }
-
     # Create traces for each simulation-request combination
     trace_mapping = {}
     trace_idx = 0
@@ -466,7 +473,7 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
                         y=request_data[height_col],
                         base=base_col,
                         name=range_name,
-                        marker_color=colors[range_name],
+                        marker_color=percentile_range_colors[range_name],
                         visible=is_default,
                         showlegend=is_default,
                         legendgroup=range_name,
@@ -565,7 +572,7 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
 def plot_percentiles(
     results: list[SimulationResult], raw_data: dict[str, dict[str, dict[str, list[float]]]]
 ) -> go.Figure:
-    """Plot percentiles."""
+    """Plot histogram of response times highlighting percentile ranges."""
     fig = make_subplots(rows=1, cols=1)
 
     if not raw_data:
@@ -647,15 +654,16 @@ def plot_percentiles(
                 start_trace_idx = trace_idx
                 trace_idx += 1
 
+                # TODO align colors with legend of stacked
                 # Add percentile lines
-                percentile_colors = {
-                    "50th": "green",
-                    "75th": "orange",
-                    "95th": "red",
-                    "99th": "darkred",
-                }
+                # percentile_colors = {
+                #     "50th": "green",
+                #     "75th": "orange",
+                #     "95th": "red",
+                #     "99th": "darkred",
+                # }
 
-                for percentile_name, color in percentile_colors.items():
+                for percentile_name, color in percentile_line_colors.items():
                     if percentile_name in percentiles:
                         fig.add_trace(
                             go.Scatter(
