@@ -142,15 +142,25 @@ class RequestData(NamedTuple):
     count: int
 
 
+class RunData:
+    """Data for a complete simulation run."""
+
+    def __init__(self, raw_timestamp: str):
+        self.raw_timestamp = raw_timestamp
+        self.formatted_timestamp = format_timestamp(raw_timestamp)
+        self.datetime_timestamp = parse_gatling_directory_timestamp(raw_timestamp)
+        self.requests: OrderedDict[str, RequestData] = OrderedDict()
+
+
 class GatlingData:
     """Unified data structure for all Gatling performance data.
 
-    Structure: {simulation: {run_timestamp: {request_name: RequestData}}}
+    Structure: {simulation: {run_timestamp: RunData}}
     All data is stored in sorted order for consistent presentation.
     """
 
     def __init__(self):
-        self.data: OrderedDict[str, OrderedDict[str, OrderedDict[str, RequestData]]] = OrderedDict()
+        self.data: OrderedDict[str, OrderedDict[str, RunData]] = OrderedDict()
 
     def add_request_data(
         self, simulation: str, run_timestamp: str, request_name: str, request_data: RequestData
@@ -160,21 +170,18 @@ class GatlingData:
             self.data[simulation] = OrderedDict()
 
         if run_timestamp not in self.data[simulation]:
-            self.data[simulation][run_timestamp] = OrderedDict()
+            self.data[simulation][run_timestamp] = RunData(run_timestamp)
 
-        self.data[simulation][run_timestamp][request_name] = request_data
+        self.data[simulation][run_timestamp].requests[request_name] = request_data
 
     def finalize_ordering(self) -> None:
         """Sort all data levels after loading is complete."""
         # Sort simulations alphabetically
         sorted_sims = OrderedDict(sorted(self.data.items()))
 
-        # Sort run timestamps chronologically and request names alphabetically
+        # Sort run timestamps chronologically (requests are already sorted when added)
         for simulation in sorted_sims:
             sorted_runs = OrderedDict(sorted(sorted_sims[simulation].items()))
-            for run_timestamp in sorted_runs:
-                sorted_requests = OrderedDict(sorted(sorted_runs[run_timestamp].items()))
-                sorted_runs[run_timestamp] = sorted_requests
             sorted_sims[simulation] = sorted_runs
 
         self.data = sorted_sims
@@ -189,13 +196,19 @@ class GatlingData:
 
     def get_requests(self, simulation: str, run_timestamp: str) -> list[str]:
         """Get all request names for a simulation run in sorted order."""
-        return list(self.data.get(simulation, {}).get(run_timestamp, {}).keys())
+        run_data = self.data.get(simulation, {}).get(run_timestamp)
+        return list(run_data.requests.keys()) if run_data else []
 
     def get_request_data(
         self, simulation: str, run_timestamp: str, request_name: str
     ) -> RequestData | None:
         """Get request data for specific simulation/run/request."""
-        return self.data.get(simulation, {}).get(run_timestamp, {}).get(request_name)
+        run_data = self.data.get(simulation, {}).get(run_timestamp)
+        return run_data.requests.get(request_name) if run_data else None
+
+    def get_run_data(self, simulation: str, run_timestamp: str) -> RunData | None:
+        """Get run data for specific simulation/run."""
+        return self.data.get(simulation, {}).get(run_timestamp)
 
 
 def parse_gating_directory_name(dir_name: str) -> tuple[str, str] | None:
@@ -689,9 +702,12 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                     if j < len(visibility):
                         visibility[j] = True
 
+            run_data = gatling_data.get_run_data(default_simulation, run_timestamp)
+            label = run_data.formatted_timestamp if run_data else run_timestamp
+
             run_buttons.append(
                 {
-                    "label": run_timestamp,
+                    "label": label,
                     "method": "update",
                     "args": [{"visible": visibility}, {"title": "Response Time Distribution"}],
                 }
@@ -866,16 +882,13 @@ def format_output(gatling_data: GatlingData) -> None:
     # Data is already sorted by GatlingData.finalize_ordering()
     for simulation in gatling_data.get_simulations():
         for run_timestamp in gatling_data.get_runs(simulation):
-            for request_name in gatling_data.get_requests(simulation, run_timestamp):
-                request_data = gatling_data.get_request_data(
-                    simulation, run_timestamp, request_name
-                )
-                if request_data:
+            run_data = gatling_data.get_run_data(simulation, run_timestamp)
+            if run_data:
+                for request_name, request_data in run_data.requests.items():
                     directory = f"{simulation}-{run_timestamp}"
-                    formatted_timestamp = format_timestamp(run_timestamp)
 
                     print(
-                        f"{directory},{simulation},{formatted_timestamp},{request_name},{request_data.count},"
+                        f"{directory},{simulation},{run_data.formatted_timestamp},{request_name},{request_data.count},"
                         f"{request_data.percentiles['min']:.0f},"
                         f"{request_data.percentiles['50th']:.0f},"
                         f"{request_data.percentiles['75th']:.0f},"
