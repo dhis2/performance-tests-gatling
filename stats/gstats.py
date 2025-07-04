@@ -36,13 +36,13 @@ percentile_line_colors = {
     "max": "#8B0000",  # Dark red
 }
 
-dropdown_position_x = {
-    "simulation": 0.02,
-    "request": 0.15,
-    "timestamp": 0.75,
+dropdown_position_y = {
+    "simulation": 1.3,
+    "request": 1.22,
+    "timestamp": 1.14,
 }
 
-# Dropdown configurations for each plot type
+# dropdown configurations for each plot type
 dropdown_configs = {
     "stacked": ["simulation", "request"],
     "distribution": ["simulation", "request", "timestamp"],
@@ -350,7 +350,7 @@ def create_plot_dropdowns(
 
         menu = updatemenus_default | {
             "buttons": buttons,
-            "x": dropdown_position_x[dropdown_type],
+            "y": dropdown_position_y[dropdown_type],
         }
         updatemenus.append(menu)
 
