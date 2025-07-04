@@ -56,6 +56,13 @@ def parse_simulation_csv(csv_path: Path) -> pd.DataFrame:
     return request_df
 
 
+def calculate_percentiles(response_times: list[float], method: str = "exact") -> dict[str, float]:
+    if method == "tdigest":
+        return calculate_percentiles_tdigest(response_times)
+    else:
+        return calculate_percentiles_exact(response_times)
+
+
 def calculate_percentiles_exact(response_times: list[float]) -> dict[str, float]:
     """Calculate exact percentiles using numpy."""
     if not response_times:
@@ -185,15 +192,11 @@ def process_report_directory(
             simulation = simulation or "unknown"
             run_timestamp = run_timestamp or "unknown"
 
-    # Group by request_name
     results = []
     for request_name, group in df.groupby("request_name"):
         response_times = group["response_time_ms"].tolist()
         count = len(response_times)
-        if method == "tdigest":
-            percentiles = calculate_percentiles_tdigest(response_times)
-        else:
-            percentiles = calculate_percentiles_exact(response_times)
+        percentiles = calculate_percentiles(response_times, method)
         results.append(
             SimulationResult(
                 directory_name, simulation, run_timestamp, request_name, count, percentiles
