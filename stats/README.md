@@ -1,8 +1,7 @@
 # gstat - Gatling Statistics Calculator
 
-A Python CLI tool that calculates percentiles (min, 50th, 75th, 95th, 99th, max) from Gatling
-`simulation.csv` files. Supports both exact percentile calculation (default) and T-Digest algorithm
-approximation (matches Gatling's HTML report calculations).
+A Python CLI tool that calculates statistics like percentiles (min, 50th, 75th, 95th, 99th, max)
+from Gatling `simulation.csv` files.
 
 ## Features
 

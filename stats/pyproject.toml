@@ -14,13 +14,13 @@ dependencies = [
 ]
 
 [project.scripts]
-gstat = "percentiles:main"
+gstat = "stats:main"
 
 [tool.uv]
 package = true
 
 [tool.setuptools]
-py-modules = ["percentiles"]
+py-modules = ["stats"]
 
 [dependency-groups]
 dev = [
