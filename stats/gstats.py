@@ -43,6 +43,8 @@ dropdown_position_x = {
     "timestamp": 0.75,
 }
 
+# dark mode makes the active selection illegible
+# https://github.com/plotly/plotly.js/issues/1428
 updatemenus_default = {
     "direction": "down",
     "showactive": True,
@@ -50,10 +52,10 @@ updatemenus_default = {
     "xanchor": "left",
     "y": 1.08,
     "yanchor": "top",
-    "bgcolor": "#2d2d2d",
+    "bgcolor": "#d0d0d0",  # Light gray background for better hover contrast
     "bordercolor": "#555555",
     "borderwidth": 1,
-    "font": {"size": 11, "color": "#ffffff"},
+    "font": {"size": 11, "color": "#000000"},
     "pad": {"r": 10, "t": 5, "b": 5, "l": 10},
 }
 
