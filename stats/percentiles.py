@@ -467,7 +467,7 @@ def create_stacked_percentile_plot(results: list[SimulationResult]) -> go.Figure
                             "Timestamp: %{x}<br>"
                             "Range: %{base:.0f}ms - %{customdata:.0f}ms<br>"
                             f"Simulation: {truncate_string(simulation)}<br>"
-                            f"Request: {request_name}<br>"
+                            f"Request: {truncate_string(request_name, 40)}<br>"
                             "<extra></extra>"
                         ),
                         customdata=base_col + request_data[height_col],
