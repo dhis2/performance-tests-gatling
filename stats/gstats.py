@@ -810,32 +810,72 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                 trace_mapping[(simulation, run_timestamp, request_name)] = trace_idx
                 trace_idx += 1
 
-    # Create comprehensive dropdown with all combinations
-    all_combinations = []
-
+    # Create dropdown for simulation selection
+    simulation_buttons = []
     for simulation in simulations:
-        for run_timestamp in gatling_data.get_runs(simulation):
-            for request_name in gatling_data.get_requests(simulation, run_timestamp):
-                if (simulation, run_timestamp, request_name) in trace_mapping:
-                    visibility = [False] * len(fig.data)
-                    trace_idx = trace_mapping[(simulation, run_timestamp, request_name)]
+        # Show first run and first request of this simulation by default
+        sim_runs = gatling_data.get_runs(simulation)
+        if sim_runs:
+            first_run = sim_runs[0]
+            sim_requests = gatling_data.get_requests(simulation, first_run)
+            if sim_requests:
+                first_request = sim_requests[0]
+                visibility = [False] * len(fig.data)
+
+                if (simulation, first_run, first_request) in trace_mapping:
+                    trace_idx = trace_mapping[(simulation, first_run, first_request)]
                     visibility[trace_idx] = True
 
-                    # Create hierarchical label with formatted timestamp
-                    formatted_simulation = truncate_string(simulation)
-                    formatted_ts = format_timestamp(run_timestamp)
-                    formated_request = truncate_string(request_name)
-                    label = f"{formatted_simulation} | {formatted_ts} | {formated_request}"
+                simulation_buttons.append(
+                    {
+                        "label": truncate_string(simulation),
+                        "method": "update",
+                        "args": [{"visible": visibility}, {"title": "Response Times"}],
+                    }
+                )
 
-                    all_combinations.append(
-                        {
-                            "label": label,
-                            "method": "update",
-                            "args": [
-                                {"visible": visibility},
-                            ],
-                        }
-                    )
+    # Create dropdown for request selection (initially for default simulation)
+    request_buttons = []
+    if default_simulation and default_run:
+        sim_requests = gatling_data.get_requests(default_simulation, default_run)
+
+        for request_name in sim_requests:
+            visibility = [False] * len(fig.data)
+
+            if (default_simulation, default_run, request_name) in trace_mapping:
+                trace_idx = trace_mapping[(default_simulation, default_run, request_name)]
+                visibility[trace_idx] = True
+
+            request_buttons.append(
+                {
+                    "label": truncate_string(request_name, 100),
+                    "method": "update",
+                    "args": [{"visible": visibility}, {"title": "Response Times"}],
+                }
+            )
+
+    # Create dropdown for run timestamp selection (initially for default simulation)
+    run_buttons = []
+    if default_simulation:
+        sim_runs = gatling_data.get_runs(default_simulation)
+
+        for run_timestamp in sim_runs:
+            visibility = [False] * len(fig.data)
+
+            if (default_simulation, run_timestamp, default_request) in trace_mapping:
+                trace_idx = trace_mapping[(default_simulation, run_timestamp, default_request)]
+                visibility[trace_idx] = True
+
+            run_data = gatling_data.get_run_data(default_simulation, run_timestamp)
+            label = run_data.formatted_timestamp if run_data else run_timestamp
+
+            run_buttons.append(
+                {
+                    "label": label,
+                    "method": "update",
+                    "args": [{"visible": visibility}, {"title": "Response Times"}],
+                }
+            )
 
     fig.update_layout(
         xaxis_title="Time",
@@ -855,11 +895,20 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
         updatemenus=[
             updatemenus_default
             | {
-                "buttons": all_combinations,
-            }
-        ]
-        if all_combinations
-        else [],
+                "buttons": simulation_buttons,
+                "x": dropdown_position_x["simulation"],
+            },
+            updatemenus_default
+            | {
+                "buttons": request_buttons,
+                "x": dropdown_position_x["request"],
+            },
+            updatemenus_default
+            | {
+                "buttons": run_buttons,
+                "x": dropdown_position_x["timestamp"],
+            },
+        ],
     )
 
     return fig
