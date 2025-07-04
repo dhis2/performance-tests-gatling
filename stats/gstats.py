@@ -36,6 +36,13 @@ percentile_line_colors = {
     "max": "#8B0000",  # Dark red
 }
 
+# TODO use a dynamic approach later on
+dropdown_position_x = {
+    "simulation": 0.02,
+    "request": 0.15,
+    "timestamp": 0.75,
+}
+
 updatemenus_default = {
     "direction": "down",
     "showactive": True,
@@ -555,12 +562,12 @@ def plot_percentiles_stacked(results: list[SimulationResult]) -> go.Figure:
             updatemenus_default
             | {
                 "buttons": simulation_buttons,
-                "x": 0.02,
+                "x": dropdown_position_x["simulation"],
             },
             updatemenus_default
             | {
                 "buttons": request_buttons,
-                "x": 0.15,
+                "x": dropdown_position_x["request"],
             },
         ],
     )
@@ -678,34 +685,77 @@ def plot_percentiles(
                     trace_idx,
                 )
 
-    # Create comprehensive dropdown with all combinations
-    all_combinations = []
-
+    # Create dropdown for simulation selection
+    simulation_buttons = []
     for simulation in simulations:
-        for run_timestamp in sorted(raw_data[simulation].keys()):
-            for request_name in sorted(raw_data[simulation][run_timestamp].keys()):
-                if (simulation, run_timestamp, request_name) in trace_mapping:
-                    visibility = [False] * len(fig.data)
-                    start_idx, end_idx = trace_mapping[(simulation, run_timestamp, request_name)]
+        # Show first run and first request of this simulation by default
+        sim_runs = sorted(raw_data[simulation].keys())
+        if sim_runs:
+            first_run = sim_runs[0]
+            sim_requests = sorted(raw_data[simulation][first_run].keys())
+            if sim_requests:
+                first_request = sim_requests[0]
+                visibility = [False] * len(fig.data)
+
+                if (simulation, first_run, first_request) in trace_mapping:
+                    start_idx, end_idx = trace_mapping[(simulation, first_run, first_request)]
                     for j in range(start_idx, end_idx):
                         if j < len(visibility):
                             visibility[j] = True
 
-                    # TODO extract the dropdown logic at some point
-                    formatted_simulation = truncate_string(simulation)
-                    formatted_ts = format_timestamp(run_timestamp)
-                    formated_request = truncate_string(request_name)
-                    label = f"{formatted_simulation} | {formatted_ts} | {formated_request}"
+                simulation_buttons.append(
+                    {
+                        "label": truncate_string(simulation),
+                        "method": "update",
+                        "args": [{"visible": visibility}, {"title": "Response Time Distribution"}],
+                    }
+                )
 
-                    all_combinations.append(
-                        {
-                            "label": label,
-                            "method": "update",
-                            "args": [
-                                {"visible": visibility},
-                            ],
-                        }
-                    )
+    # Create dropdown for request selection (initially for default simulation)
+    request_buttons = []
+    if default_simulation and default_run:
+        sim_requests = sorted(raw_data[default_simulation][default_run].keys())
+
+        for request_name in sim_requests:
+            visibility = [False] * len(fig.data)
+
+            if (default_simulation, default_run, request_name) in trace_mapping:
+                start_idx, end_idx = trace_mapping[(default_simulation, default_run, request_name)]
+                for j in range(start_idx, end_idx):
+                    if j < len(visibility):
+                        visibility[j] = True
+
+            request_buttons.append(
+                {
+                    "label": truncate_string(request_name, 100),
+                    "method": "update",
+                    "args": [{"visible": visibility}, {"title": "Response Time Distribution"}],
+                }
+            )
+
+    # Create dropdown for run timestamp selection (initially for default simulation)
+    run_buttons = []
+    if default_simulation:
+        sim_runs = sorted(raw_data[default_simulation].keys())
+
+        for run_timestamp in sim_runs:
+            visibility = [False] * len(fig.data)
+
+            if (default_simulation, run_timestamp, default_request) in trace_mapping:
+                start_idx, end_idx = trace_mapping[
+                    (default_simulation, run_timestamp, default_request)
+                ]
+                for j in range(start_idx, end_idx):
+                    if j < len(visibility):
+                        visibility[j] = True
+
+            run_buttons.append(
+                {
+                    "label": format_timestamp(run_timestamp),
+                    "method": "update",
+                    "args": [{"visible": visibility}, {"title": "Response Time Distribution"}],
+                }
+            )
 
     fig.update_layout(
         xaxis_title="Response Time (ms)",
@@ -718,11 +768,20 @@ def plot_percentiles(
         updatemenus=[
             updatemenus_default
             | {
-                "buttons": all_combinations,
-            }
-        ]
-        if all_combinations
-        else [],
+                "buttons": simulation_buttons,
+                "x": dropdown_position_x["simulation"],
+            },
+            updatemenus_default
+            | {
+                "buttons": request_buttons,
+                "x": dropdown_position_x["request"],
+            },
+            updatemenus_default
+            | {
+                "buttons": run_buttons,
+                "x": dropdown_position_x["timestamp"],
+            },
+        ],
     )
 
     return fig
