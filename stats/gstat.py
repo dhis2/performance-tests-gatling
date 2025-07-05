@@ -619,9 +619,7 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
                     run_data = gatling_data.get_run_data(simulation, run_timestamp)
                     hover_label = run_data.formatted_timestamp if run_data else run_timestamp
                     run_hover_labels.append(hover_label)
-                    run_directories.append(
-                        str(run_data.directory.absolute()) if run_data.directory else ""
-                    )
+                    run_directories.append(str(run_data.directory.absolute()))
                     run_numbers.append(run_number)
                     for key in percentiles_data:
                         percentiles_data[key].append(request_data.percentiles[key])
@@ -814,9 +812,7 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
 
                 # Get run directory for click-to-copy functionality
                 run_data = gatling_data.get_run_data(simulation, run_timestamp)
-                run_directory = (
-                    str(run_data.directory.absolute()) if run_data and run_data.directory else ""
-                )
+                run_directory = str(run_data.directory.absolute())
 
                 # Create bar trace
                 fig.add_trace(
@@ -965,6 +961,10 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                 start_timestamps, end_timestamps = zip(*request_data.timestamps, strict=False)
                 response_times = request_data.response_times
 
+                # Get run directory for click-to-copy functionality
+                run_data = gatling_data.get_run_data(simulation, run_timestamp)
+                run_directory = str(run_data.directory.absolute())
+
                 # Determine if this should be initially visible
                 is_default = (
                     simulation == default_simulation
@@ -982,7 +982,13 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                         name=f"{simulation}_{run_timestamp}_{request_name}",
                         visible=is_default,
                         marker=dict(size=6, opacity=0.7, color="lightblue"),
-                        hovertemplate=("<b>%{y:.0f}ms</b><br>End time: %{x}<br><extra></extra>"),
+                        hovertemplate=(
+                            "<b>%{y:.0f}ms</b><br>"
+                            "End time: %{x}<br>"
+                            "Click to copy run directory path<br>"
+                            "<extra></extra>"
+                        ),
+                        customdata=[[run_directory]] * len(response_times),
                         showlegend=False,
                     )
                 )
@@ -1042,8 +1048,13 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
         "scatter", gatling_data, trace_mapping, len(fig.data), defaults
     )
 
+    # Create x-axis title with directory path
+    xaxis_title = "Time"
+    if gatling_data.report_directory:
+        xaxis_title = f"Time of {gatling_data.report_directory.name}"
+
     fig.update_layout(
-        xaxis_title="Time",
+        xaxis_title=xaxis_title,
         yaxis_title="Response Time (ms)",
         template="plotly_dark",
         showlegend=False,
@@ -1089,19 +1100,33 @@ def plot_scatter_all(gatling_data: GatlingData) -> go.Figure:
                 # Get response times (x-axis will be auto-generated as ordinal)
                 response_times = request_data.response_times
 
+                # Get run directory for click-to-copy functionality
+                run_data = gatling_data.get_run_data(simulation, run_timestamp)
+                run_directory = str(run_data.directory.absolute())
+
                 fig.add_trace(
                     go.Scatter(
                         y=response_times,
                         mode="markers",
                         name=f"{simulation}_{run_timestamp}_{request_name}",
                         marker=dict(size=3, opacity=0.6),
-                        hoverinfo="none",
+                        hovertemplate=(
+                            "<b>%{y:.0f}ms</b><br>"
+                            "Click to copy run directory path<br>"
+                            "<extra></extra>"
+                        ),
+                        customdata=[[run_directory]] * len(response_times),
                         showlegend=False,
                     )
                 )
 
+    # Create x-axis title with directory path
+    xaxis_title = "Request Number"
+    if gatling_data.report_directory:
+        xaxis_title = f"Request Number of {gatling_data.report_directory.name}"
+
     fig.update_layout(
-        xaxis_title="Request Number",
+        xaxis_title=xaxis_title,
         yaxis_title="Response Time (ms)",
         template="plotly_dark",
         showlegend=False,
@@ -1146,25 +1171,16 @@ def show_plot_with_clipboard(
     """Show plot with clipboard functionality for both interactive and HTML output modes."""
     click_js = ""
     if report_directory:
-        click_js = f"""
-        document.addEventListener('DOMContentLoaded', function() {{
+        click_js = """
+        document.addEventListener('DOMContentLoaded', function() {
             var plotlyDiv = document.getElementsByClassName('plotly-graph-div')[0];
-            if (plotlyDiv) {{
-                plotlyDiv.on('plotly_click', function(data) {{
-                    if (data.points.length > 0) {{
+            if (plotlyDiv) {
+                plotlyDiv.on('plotly_click', function(data) {
+                    if (data.points.length > 0) {
                         var point = data.points[0];
-                        var dirPath = '';
-                        if (point.customdata && point.customdata.length > 3) {{
-                            // Stacked plot format: directory in index 3
-                            dirPath = point.customdata[3];
-                        }} else if (point.customdata && point.customdata.length > 1) {{
-                            // Distribution plot format: directory in index 1
-                            dirPath = point.customdata[1];
-                        }} else {{
-                            // Fallback to overall report directory
-                            dirPath = '{report_directory.absolute()}';
-                        }}
-                        navigator.clipboard.writeText(dirPath).then(function() {{
+                        var dirPath = point.customdata[3] || point.customdata[1] ||
+                            point.customdata[0];
+                        navigator.clipboard.writeText(dirPath).then(function() {
                             console.log('Run directory path copied: ' + dirPath);
                             // Show temporary notification
                             var notification = document.createElement('div');
@@ -1175,18 +1191,18 @@ def show_plot_with_clipboard(
                                 'border-radius: 5px; z-index: 1000; ' +
                                 'font-family: Arial; font-size: 14px;';
                             document.body.appendChild(notification);
-                            setTimeout(function() {{
-                                if (document.body.contains(notification)) {{
+                            setTimeout(function() {
+                                if (document.body.contains(notification)) {
                                     document.body.removeChild(notification);
-                                }}
-                            }}, 2000);
-                        }}).catch(function(err) {{
+                                }
+                            }, 2000);
+                        }).catch(function(err) {
                             console.error('Failed to copy directory path: ', err);
-                        }});
-                    }}
-                }});
-            }}
-        }});
+                        });
+                    }
+                });
+            }
+        });
         """
 
     if output_file:
