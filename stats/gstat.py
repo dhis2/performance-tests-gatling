@@ -812,6 +812,12 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                 bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
                 percentages = (counts / len(response_times)) * 100
 
+                # Get run directory for click-to-copy functionality
+                run_data = gatling_data.get_run_data(simulation, run_timestamp)
+                run_directory = (
+                    str(run_data.directory.absolute()) if run_data and run_data.directory else ""
+                )
+
                 # Create bar trace
                 fig.add_trace(
                     go.Bar(
@@ -823,10 +829,11 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                         opacity=0.7,
                         marker_color="lightblue",
                         hovertemplate="<b>%{x:.0f}ms</b><br>"
-                        + "OK: %{customdata}<br>"
+                        + "OK: %{customdata[0]}<br>"
                         + f"Total: {len(response_times)}<br>"
+                        + "Click to copy run directory path<br>"
                         + "<extra></extra>",
-                        customdata=counts,
+                        customdata=list(zip(counts, [run_directory] * len(counts), strict=False)),
                         showlegend=False,
                     )
                 )
@@ -884,8 +891,13 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
         "distribution", gatling_data, trace_mapping, len(fig.data), defaults
     )
 
+    # Create x-axis title with directory path
+    xaxis_title = "Response Time (ms)"
+    if gatling_data.report_directory:
+        xaxis_title = f"Response Time (ms) of {gatling_data.report_directory.name}"
+
     fig.update_layout(
-        xaxis_title="Response Time (ms)",
+        xaxis_title=xaxis_title,
         yaxis_title="Number of requests",
         template="plotly_dark",
         showlegend=False,
@@ -1141,8 +1153,17 @@ def show_plot_with_clipboard(
                 plotlyDiv.on('plotly_click', function(data) {{
                     if (data.points.length > 0) {{
                         var point = data.points[0];
-                        var dirPath = point.customdata && point.customdata.length > 3 ?
-                            point.customdata[3] : '{report_directory.absolute()}';
+                        var dirPath = '';
+                        if (point.customdata && point.customdata.length > 3) {{
+                            // Stacked plot format: directory in index 3
+                            dirPath = point.customdata[3];
+                        }} else if (point.customdata && point.customdata.length > 1) {{
+                            // Distribution plot format: directory in index 1
+                            dirPath = point.customdata[1];
+                        }} else {{
+                            // Fallback to overall report directory
+                            dirPath = '{report_directory.absolute()}';
+                        }}
                         navigator.clipboard.writeText(dirPath).then(function() {{
                             console.log('Run directory path copied: ' + dirPath);
                             // Show temporary notification
