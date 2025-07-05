@@ -168,8 +168,9 @@ class GatlingData:
     All data is stored in sorted order for consistent presentation.
     """
 
-    def __init__(self):
+    def __init__(self, report_directory: Path = None):
         self.data: OrderedDict[str, OrderedDict[str, RunData]] = OrderedDict()
+        self.report_directory = report_directory
 
     def add_request_data(
         self, simulation: str, run_timestamp: str, request_name: str, request_data: RequestData
@@ -496,7 +497,7 @@ def is_multiple_reports_directory(directory: Path) -> bool:
 
 def load_gatling_data(directory: Path, method: str = "exact") -> GatlingData:
     """Load all Gatling data from directory, handling both single and multi-directory cases."""
-    gatling_data = GatlingData()
+    gatling_data = GatlingData(directory)
 
     if is_multiple_reports_directory(directory):
         for subdir in directory.iterdir():
@@ -571,8 +572,13 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
     if not default_simulation or not default_request:
         return go.Figure()
 
-    # Create traces for each simulation-request combination
-    fig = go.Figure()
+    # Try to use FigureWidget for interactivity, fall back to Figure
+    try:
+        fig = go.FigureWidget()
+        use_widget = True
+    except ImportError:
+        fig = go.Figure()
+        use_widget = False
 
     trace_mapping = {}
     trace_idx = 0
@@ -658,10 +664,17 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
                             f"<b>{range_name}</b><br>"
                             "Run timestamp: %{customdata[0]}<br>"
                             "Range: %{base:.0f}ms - %{customdata[1]:.0f}ms<br>"
+                            "Click to copy data directory path<br>"
                             "<extra></extra>"
                         ),
                         customdata=list(
-                            zip(run_hover_labels, base_vals + height_vals, strict=False)
+                            zip(
+                                run_hover_labels,
+                                base_vals + height_vals,
+                                [str(gatling_data.report_directory.absolute())]
+                                * len(run_hover_labels),
+                                strict=False,
+                            )
                         ),
                     )
                 )
@@ -725,6 +738,27 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
         ),
         updatemenus=updatemenus,
     )
+
+    # Add click event handler for interactive mode (FigureWidget only)
+    if use_widget:
+
+        def handle_click(trace, points, selector):
+            if points.point_inds and gatling_data.report_directory:
+                dir_path = gatling_data.report_directory.absolute()
+                print(f"Directory path: {dir_path}")
+                # Try to copy to clipboard if available
+                try:
+                    import pyperclip
+
+                    pyperclip.copy(str(dir_path))
+                    print("✓ Path copied to clipboard")
+                except ImportError:
+                    print("Note: Install 'pyperclip' for automatic clipboard copying")
+
+        # Attach click handler to all bar traces
+        for trace in fig.data:
+            if isinstance(trace, go.Bar):
+                trace.on_click(handle_click)
 
     return fig
 
@@ -1170,7 +1204,42 @@ Examples:
             fig = plot_percentiles(gatling_data)
 
         if args.output:
-            fig.write_html(args.output)
+            # Add JavaScript for click events in HTML output
+            if gatling_data.report_directory:
+                click_js = f"""
+                document.addEventListener('DOMContentLoaded', function() {{
+                    var plotlyDiv = document.getElementsByClassName('plotly-graph-div')[0];
+                    if (plotlyDiv) {{
+                        plotlyDiv.on('plotly_click', function(data) {{
+                            if (data.points.length > 0) {{
+                                var dirPath = '{gatling_data.report_directory.absolute()}';
+                                navigator.clipboard.writeText(dirPath).then(function() {{
+                                    console.log('Directory path copied: ' + dirPath);
+                                    // Show temporary notification
+                                    var notification = document.createElement('div');
+                                    notification.innerHTML = 'Directory path copied to clipboard!';
+                                    notification.style.cssText =
+                                        'position: fixed; top: 20px; right: 20px; ' +
+                                        'background: #4CAF50; color: white; padding: 10px; ' +
+                                        'border-radius: 5px; z-index: 1000; ' +
+                                        'font-family: Arial; font-size: 14px;';
+                                    document.body.appendChild(notification);
+                                    setTimeout(function() {{
+                                        if (document.body.contains(notification)) {{
+                                            document.body.removeChild(notification);
+                                        }}
+                                    }}, 2000);
+                                }}).catch(function(err) {{
+                                    console.error('Failed to copy directory path: ', err);
+                                }});
+                            }}
+                        }});
+                    }}
+                }});
+                """
+                fig.write_html(args.output, post_script=click_js)
+            else:
+                fig.write_html(args.output)
             print(f"Plot saved to {args.output}")
         else:
             fig.show()
