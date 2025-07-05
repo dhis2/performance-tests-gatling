@@ -995,14 +995,16 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                         marker=dict(size=6, opacity=0.7, color="lightblue"),
                         hovertemplate=(
                             "<b>%{y:.0f}ms</b><br>"
-                            "Request number: %{customdata[1]}<br>"
+                            "Request number: %{customdata[0]}<br>"
                             "Request end time: %{x}<br>"
                             "Click to copy run directory path<br>"
                             "<extra></extra>"
                         ),
                         customdata=list(
                             zip(
-                                [run_directory] * len(response_times), request_numbers, strict=False
+                                request_numbers,
+                                [run_directory] * len(response_times),
+                                strict=False,
                             )
                         ),
                         showlegend=False,
@@ -1104,7 +1106,7 @@ def plot_scatter_all(gatling_data: GatlingData) -> go.Figure:
         return fig
 
     for simulation in simulations:
-        for run_timestamp in gatling_data.get_runs(simulation):
+        for run_number, run_timestamp in enumerate(gatling_data.get_runs(simulation), 1):
             for request_name in gatling_data.get_requests(simulation, run_timestamp):
                 request_data = gatling_data.get_request_data(
                     simulation, run_timestamp, request_name
@@ -1116,9 +1118,13 @@ def plot_scatter_all(gatling_data: GatlingData) -> go.Figure:
                 # Get response times (x-axis will be auto-generated as ordinal)
                 response_times = request_data.response_times
 
-                # Get run directory for click-to-copy functionality
+                # Get run directory and formatted timestamp for click-to-copy functionality
                 run_data = gatling_data.get_run_data(simulation, run_timestamp)
                 run_directory = str(run_data.directory.absolute())
+                run_hover_label = run_data.formatted_timestamp if run_data else run_timestamp
+
+                # Create request numbers (1-indexed)
+                request_numbers = list(range(1, len(response_times) + 1))
 
                 fig.add_trace(
                     go.Scatter(
@@ -1128,10 +1134,21 @@ def plot_scatter_all(gatling_data: GatlingData) -> go.Figure:
                         marker=dict(size=3, opacity=0.6),
                         hovertemplate=(
                             "<b>%{y:.0f}ms</b><br>"
+                            "Request number: %{customdata[0]}<br>"
+                            "Run number: %{customdata[2]}<br>"
+                            "Run timestamp: %{customdata[3]}<br>"
                             "Click to copy run directory path<br>"
                             "<extra></extra>"
                         ),
-                        customdata=[[run_directory]] * len(response_times),
+                        customdata=list(
+                            zip(
+                                request_numbers,
+                                [run_directory] * len(response_times),
+                                [run_number] * len(response_times),
+                                [run_hover_label] * len(response_times),
+                                strict=False,
+                            )
+                        ),
                         showlegend=False,
                     )
                 )
