@@ -154,10 +154,11 @@ class RequestData(NamedTuple):
 class RunData:
     """Data for a complete simulation run."""
 
-    def __init__(self, raw_timestamp: str):
+    def __init__(self, raw_timestamp: str, directory: Path = None):
         self.raw_timestamp = raw_timestamp
         self.formatted_timestamp = format_timestamp(raw_timestamp)
         self.datetime_timestamp = parse_gatling_directory_timestamp(raw_timestamp)
+        self.directory = directory
         self.requests: OrderedDict[str, RequestData] = OrderedDict()
 
 
@@ -173,14 +174,19 @@ class GatlingData:
         self.report_directory = report_directory
 
     def add_request_data(
-        self, simulation: str, run_timestamp: str, request_name: str, request_data: RequestData
+        self,
+        simulation: str,
+        run_timestamp: str,
+        request_name: str,
+        request_data: RequestData,
+        directory: Path = None,
     ) -> None:
         """Add request data maintaining sorted order."""
         if simulation not in self.data:
             self.data[simulation] = OrderedDict()
 
         if run_timestamp not in self.data[simulation]:
-            self.data[simulation][run_timestamp] = RunData(run_timestamp)
+            self.data[simulation][run_timestamp] = RunData(run_timestamp, directory)
 
         self.data[simulation][run_timestamp].requests[request_name] = request_data
 
@@ -549,7 +555,9 @@ def _load_single_directory(gatling_data: GatlingData, directory: Path, method: s
             count=count,
         )
 
-        gatling_data.add_request_data(simulation, run_timestamp, request_name, request_data)
+        gatling_data.add_request_data(
+            simulation, run_timestamp, request_name, request_data, directory
+        )
 
 
 def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
@@ -572,13 +580,7 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
     if not default_simulation or not default_request:
         return go.Figure()
 
-    # Try to use FigureWidget for interactivity, fall back to Figure
-    try:
-        fig = go.FigureWidget()
-        use_widget = True
-    except ImportError:
-        fig = go.Figure()
-        use_widget = False
+    fig = go.Figure()
 
     trace_mapping = {}
     trace_idx = 0
@@ -597,6 +599,8 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
             # Prepare data for this simulation-request combination
             run_timestamps = []
             run_hover_labels = []
+            run_directories = []
+            run_numbers = []
             percentiles_data = {
                 "min": [],
                 "50th": [],
@@ -606,7 +610,7 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
                 "max": [],
             }
 
-            for run_timestamp in runs_with_request:
+            for run_number, run_timestamp in enumerate(runs_with_request, 1):
                 request_data = gatling_data.get_request_data(
                     simulation, run_timestamp, request_name
                 )
@@ -615,6 +619,10 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
                     run_data = gatling_data.get_run_data(simulation, run_timestamp)
                     hover_label = run_data.formatted_timestamp if run_data else run_timestamp
                     run_hover_labels.append(hover_label)
+                    run_directories.append(
+                        str(run_data.directory.absolute()) if run_data.directory else ""
+                    )
+                    run_numbers.append(run_number)
                     for key in percentiles_data:
                         percentiles_data[key].append(request_data.percentiles[key])
 
@@ -662,17 +670,18 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
                         showlegend=is_default,
                         hovertemplate=(
                             f"<b>{range_name}</b><br>"
-                            "Run timestamp: %{customdata[0]}<br>"
-                            "Range: %{base:.0f}ms - %{customdata[1]:.0f}ms<br>"
-                            "Click to copy data directory path<br>"
+                            "Run number: %{customdata[0]}<br>"
+                            "Run timestamp: %{customdata[1]}<br>"
+                            "Range: %{base:.0f}ms - %{customdata[2]:.0f}ms<br>"
+                            "Click to copy run directory path<br>"
                             "<extra></extra>"
                         ),
                         customdata=list(
                             zip(
+                                run_numbers,
                                 run_hover_labels,
                                 base_vals + height_vals,
-                                [str(gatling_data.report_directory.absolute())]
-                                * len(run_hover_labels),
+                                run_directories,
                                 strict=False,
                             )
                         ),
@@ -726,8 +735,13 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
         "stacked", gatling_data, trace_mapping, len(fig.data), defaults
     )
 
+    # Create x-axis title with directory path
+    xaxis_title = "Runs"
+    if gatling_data.report_directory:
+        xaxis_title = f"Runs of {gatling_data.report_directory.name}"
+
     fig.update_layout(
-        xaxis_title="Runs",
+        xaxis_title=xaxis_title,
         yaxis_title="Response Time (ms)",
         barmode="relative",  # this creates the stacking effect
         template="plotly_dark",
@@ -738,27 +752,6 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
         ),
         updatemenus=updatemenus,
     )
-
-    # Add click event handler for interactive mode (FigureWidget only)
-    if use_widget:
-
-        def handle_click(trace, points, selector):
-            if points.point_inds and gatling_data.report_directory:
-                dir_path = gatling_data.report_directory.absolute()
-                print(f"Directory path: {dir_path}")
-                # Try to copy to clipboard if available
-                try:
-                    import pyperclip
-
-                    pyperclip.copy(str(dir_path))
-                    print("✓ Path copied to clipboard")
-                except ImportError:
-                    print("Note: Install 'pyperclip' for automatic clipboard copying")
-
-        # Attach click handler to all bar traces
-        for trace in fig.data:
-            if isinstance(trace, go.Bar):
-                trace.on_click(handle_click)
 
     return fig
 
@@ -1135,6 +1128,63 @@ def format_output(gatling_data: GatlingData) -> None:
                     )
 
 
+def show_plot_with_clipboard(
+    fig: go.Figure, report_directory: Path = None, output_file: str = None
+):
+    """Show plot with clipboard functionality for both interactive and HTML output modes."""
+    click_js = ""
+    if report_directory:
+        click_js = f"""
+        document.addEventListener('DOMContentLoaded', function() {{
+            var plotlyDiv = document.getElementsByClassName('plotly-graph-div')[0];
+            if (plotlyDiv) {{
+                plotlyDiv.on('plotly_click', function(data) {{
+                    if (data.points.length > 0) {{
+                        var point = data.points[0];
+                        var dirPath = point.customdata && point.customdata.length > 3 ?
+                            point.customdata[3] : '{report_directory.absolute()}';
+                        navigator.clipboard.writeText(dirPath).then(function() {{
+                            console.log('Run directory path copied: ' + dirPath);
+                            // Show temporary notification
+                            var notification = document.createElement('div');
+                            notification.innerHTML = 'Directory path copied to clipboard!';
+                            notification.style.cssText =
+                                'position: fixed; top: 20px; right: 20px; ' +
+                                'background: #4CAF50; color: white; padding: 10px; ' +
+                                'border-radius: 5px; z-index: 1000; ' +
+                                'font-family: Arial; font-size: 14px;';
+                            document.body.appendChild(notification);
+                            setTimeout(function() {{
+                                if (document.body.contains(notification)) {{
+                                    document.body.removeChild(notification);
+                                }}
+                            }}, 2000);
+                        }}).catch(function(err) {{
+                            console.error('Failed to copy directory path: ', err);
+                        }});
+                    }}
+                }});
+            }}
+        }});
+        """
+
+    if output_file:
+        fig.write_html(output_file, post_script=click_js if click_js else None)
+        print(f"Plot saved to {output_file}")
+    else:
+        # For interactive mode, create a temporary HTML file with JavaScript
+        if click_js:
+            import tempfile
+            import webbrowser
+
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".html", delete=False) as tmp:
+                fig.write_html(tmp.name, post_script=click_js)
+                webbrowser.open(f"file://{tmp.name}")
+                print(f"Interactive plot opened in browser: {tmp.name}")
+        else:
+            fig.show()
+
+
 def main():
     """CLI entry point - can be called as 'percentiles' command."""
     parser = argparse.ArgumentParser(
@@ -1203,59 +1253,7 @@ Examples:
         else:
             fig = plot_percentiles(gatling_data)
 
-        # Add JavaScript for click events that works in both modes
-        click_js = ""
-        if gatling_data.report_directory:
-            click_js = f"""
-            document.addEventListener('DOMContentLoaded', function() {{
-                var plotlyDiv = document.getElementsByClassName('plotly-graph-div')[0];
-                if (plotlyDiv) {{
-                    plotlyDiv.on('plotly_click', function(data) {{
-                        if (data.points.length > 0) {{
-                            var dirPath = '{gatling_data.report_directory.absolute()}';
-                            navigator.clipboard.writeText(dirPath).then(function() {{
-                                console.log('Directory path copied: ' + dirPath);
-                                // Show temporary notification
-                                var notification = document.createElement('div');
-                                notification.innerHTML = 'Directory path copied to clipboard!';
-                                notification.style.cssText =
-                                    'position: fixed; top: 20px; right: 20px; ' +
-                                    'background: #4CAF50; color: white; padding: 10px; ' +
-                                    'border-radius: 5px; z-index: 1000; ' +
-                                    'font-family: Arial; font-size: 14px;';
-                                document.body.appendChild(notification);
-                                setTimeout(function() {{
-                                    if (document.body.contains(notification)) {{
-                                        document.body.removeChild(notification);
-                                    }}
-                                }}, 2000);
-                            }}).catch(function(err) {{
-                                console.error('Failed to copy directory path: ', err);
-                            }});
-                        }}
-                    }});
-                }}
-            }});
-            """
-
-        if args.output:
-            if click_js:
-                fig.write_html(args.output, post_script=click_js)
-            else:
-                fig.write_html(args.output)
-            print(f"Plot saved to {args.output}")
-        else:
-            # For interactive mode, create a temporary HTML file with JavaScript
-            if click_js:
-                import tempfile
-                import webbrowser
-
-                with tempfile.NamedTemporaryFile(mode="w", suffix=".html", delete=False) as tmp:
-                    fig.write_html(tmp.name, post_script=click_js)
-                    webbrowser.open(f"file://{tmp.name}")
-                    print(f"Interactive plot opened in browser: {tmp.name}")
-            else:
-                fig.show()
+        show_plot_with_clipboard(fig, gatling_data.report_directory, args.output)
     else:
         format_output(gatling_data)
 
