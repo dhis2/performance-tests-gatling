@@ -1,7 +1,9 @@
 #!/bin/bash
 # get latest runs and convert binary simulation.log to simulation.csv
 
-rsync -chazP --stats \
+# only get new files which allows us to run `mvn clean` on the host after each batch of tests
+# without deleting any test reports we already synced
+rsync --checksum --human-readable --recursive --times --compress --stats \
   ivo@test.performance.dhis2.org:/home/ivo/performance-tests-gatling/target/gatling/ \
   experiment-raw-speed-tests
 
