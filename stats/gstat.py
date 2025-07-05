@@ -754,7 +754,6 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
     return fig
 
 
-# TODO add mean to show how its not a good measure compared to the median or other percentiles
 def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
     """Plot histogram of response times highlighting percentile ranges."""
     fig = make_subplots(rows=1, cols=1)
@@ -814,6 +813,9 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                 run_data = gatling_data.get_run_data(simulation, run_timestamp)
                 run_directory = str(run_data.directory.absolute())
 
+                # Calculate percentage for each bucket
+                bucket_percentages = [(count / len(response_times)) * 100 for count in counts]
+
                 # Create bar trace
                 fig.add_trace(
                     go.Bar(
@@ -825,11 +827,18 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                         opacity=0.7,
                         marker_color="lightblue",
                         hovertemplate="<b>%{x:.0f}ms</b><br>"
-                        + "OK: %{customdata[0]}<br>"
-                        + f"Total: {len(response_times)}<br>"
+                        + f"Requests in bucket: %{{customdata[0]}}/{len(response_times)} "
+                        + "(%{customdata[2]:.0f}%)<br>"
                         + "Click to copy run directory path<br>"
                         + "<extra></extra>",
-                        customdata=list(zip(counts, [run_directory] * len(counts), strict=False)),
+                        customdata=list(
+                            zip(
+                                counts,
+                                [run_directory] * len(counts),
+                                bucket_percentages,
+                                strict=False,
+                            )
+                        ),
                         showlegend=False,
                     )
                 )
