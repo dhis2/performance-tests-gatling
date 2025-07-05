@@ -1203,46 +1203,59 @@ Examples:
         else:
             fig = plot_percentiles(gatling_data)
 
+        # Add JavaScript for click events that works in both modes
+        click_js = ""
+        if gatling_data.report_directory:
+            click_js = f"""
+            document.addEventListener('DOMContentLoaded', function() {{
+                var plotlyDiv = document.getElementsByClassName('plotly-graph-div')[0];
+                if (plotlyDiv) {{
+                    plotlyDiv.on('plotly_click', function(data) {{
+                        if (data.points.length > 0) {{
+                            var dirPath = '{gatling_data.report_directory.absolute()}';
+                            navigator.clipboard.writeText(dirPath).then(function() {{
+                                console.log('Directory path copied: ' + dirPath);
+                                // Show temporary notification
+                                var notification = document.createElement('div');
+                                notification.innerHTML = 'Directory path copied to clipboard!';
+                                notification.style.cssText =
+                                    'position: fixed; top: 20px; right: 20px; ' +
+                                    'background: #4CAF50; color: white; padding: 10px; ' +
+                                    'border-radius: 5px; z-index: 1000; ' +
+                                    'font-family: Arial; font-size: 14px;';
+                                document.body.appendChild(notification);
+                                setTimeout(function() {{
+                                    if (document.body.contains(notification)) {{
+                                        document.body.removeChild(notification);
+                                    }}
+                                }}, 2000);
+                            }}).catch(function(err) {{
+                                console.error('Failed to copy directory path: ', err);
+                            }});
+                        }}
+                    }});
+                }}
+            }});
+            """
+
         if args.output:
-            # Add JavaScript for click events in HTML output
-            if gatling_data.report_directory:
-                click_js = f"""
-                document.addEventListener('DOMContentLoaded', function() {{
-                    var plotlyDiv = document.getElementsByClassName('plotly-graph-div')[0];
-                    if (plotlyDiv) {{
-                        plotlyDiv.on('plotly_click', function(data) {{
-                            if (data.points.length > 0) {{
-                                var dirPath = '{gatling_data.report_directory.absolute()}';
-                                navigator.clipboard.writeText(dirPath).then(function() {{
-                                    console.log('Directory path copied: ' + dirPath);
-                                    // Show temporary notification
-                                    var notification = document.createElement('div');
-                                    notification.innerHTML = 'Directory path copied to clipboard!';
-                                    notification.style.cssText =
-                                        'position: fixed; top: 20px; right: 20px; ' +
-                                        'background: #4CAF50; color: white; padding: 10px; ' +
-                                        'border-radius: 5px; z-index: 1000; ' +
-                                        'font-family: Arial; font-size: 14px;';
-                                    document.body.appendChild(notification);
-                                    setTimeout(function() {{
-                                        if (document.body.contains(notification)) {{
-                                            document.body.removeChild(notification);
-                                        }}
-                                    }}, 2000);
-                                }}).catch(function(err) {{
-                                    console.error('Failed to copy directory path: ', err);
-                                }});
-                            }}
-                        }});
-                    }}
-                }});
-                """
+            if click_js:
                 fig.write_html(args.output, post_script=click_js)
             else:
                 fig.write_html(args.output)
             print(f"Plot saved to {args.output}")
         else:
-            fig.show()
+            # For interactive mode, create a temporary HTML file with JavaScript
+            if click_js:
+                import tempfile
+                import webbrowser
+
+                with tempfile.NamedTemporaryFile(mode="w", suffix=".html", delete=False) as tmp:
+                    fig.write_html(tmp.name, post_script=click_js)
+                    webbrowser.open(f"file://{tmp.name}")
+                    print(f"Interactive plot opened in browser: {tmp.name}")
+            else:
+                fig.show()
     else:
         format_output(gatling_data)
 
