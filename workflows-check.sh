@@ -117,6 +117,7 @@ for workflow_type in "${!WORKFLOW_TYPES[@]}"; do
                 missing=""
                 [ ! -f "$run_dir/index.html" ] && missing="$missing index.html"
                 [ ! -f "$run_dir/simulation.log" ] && missing="$missing simulation.log"
+                [ ! -f "$run_dir/simulation.csv" ] && missing="$missing simulation.csv"
                 [ ! -f "$run_dir/req_events--1291329255.html" ] && missing="$missing req_events--1291329255.html"
 
                 if [ -n "$missing" ]; then

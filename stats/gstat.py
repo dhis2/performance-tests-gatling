@@ -36,6 +36,8 @@ percentile_line_colors = {
     "max": "#8B0000",  # Dark red
 }
 
+mean_color = "#2E86AB"  # Blue
+
 dropdown_position_y = {
     "simulation": 1.3,
     "request": 1.22,
@@ -667,6 +669,45 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
 
             trace_mapping[(simulation, request_name)] = (start_trace_idx, trace_idx)
 
+    # Add mean lines after all bars (so they appear on top)
+    for simulation in simulations:
+        for request_name in all_requests:
+            # Check if this simulation has this request
+            runs_with_request = []
+            for run_timestamp in gatling_data.get_runs(simulation):
+                if request_name in gatling_data.get_requests(simulation, run_timestamp):
+                    runs_with_request.append(run_timestamp)
+
+            if not runs_with_request:
+                continue
+
+            # Determine visibility
+            is_default = simulation == default_simulation and request_name == default_request
+
+            # Add mean line for each run
+            mean_values = [
+                gatling_data.get_request_data(simulation, run_timestamp, request_name).mean
+                for run_timestamp in runs_with_request
+            ]
+
+            fig.add_trace(
+                go.Scatter(
+                    x=list(range(1, len(runs_with_request) + 1)),
+                    y=mean_values,
+                    mode="lines+markers",
+                    line=dict(color=mean_color, width=3),
+                    marker=dict(size=8, color=mean_color),
+                    name="Mean",
+                    visible=is_default,
+                    showlegend=is_default,
+                    hovertemplate="<b>Mean</b><br>" + "%{y:.0f}ms<br>" + "<extra></extra>",
+                )
+            )
+
+            # Update trace mapping to include mean line
+            start_idx, end_idx = trace_mapping[(simulation, request_name)]
+            trace_mapping[(simulation, request_name)] = (start_idx, end_idx + 1)
+
     defaults = {"simulation": default_simulation, "request": default_request}
     updatemenus = create_plot_dropdowns(
         "stacked", gatling_data, trace_mapping, len(fig.data), defaults
@@ -937,7 +978,7 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
                         x=x_range,
                         y=[mean_value, mean_value],
                         mode="lines",
-                        line=dict(color="#2E86AB", width=3, dash="solid"),
+                        line=dict(color=mean_color, width=3, dash="solid"),
                         name=f"Mean: {mean_value:.0f}ms",
                         visible=is_default,
                         hovertemplate="<b>Mean</b><br>"
