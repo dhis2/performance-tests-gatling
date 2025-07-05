@@ -1136,16 +1136,16 @@ def plot_scatter_all(gatling_data: GatlingData) -> go.Figure:
                             "<b>%{y:.0f}ms</b><br>"
                             "Request number: %{customdata[0]}<br>"
                             "Run number: %{customdata[2]}<br>"
-                            "Run timestamp: %{customdata[3]}<br>"
+                            "Run timestamp: %{customdata[1]}<br>"
                             "Click to copy run directory path<br>"
                             "<extra></extra>"
                         ),
                         customdata=list(
                             zip(
                                 request_numbers,
-                                [run_directory] * len(response_times),
-                                [run_number] * len(response_times),
                                 [run_hover_label] * len(response_times),
+                                [run_number] * len(response_times),
+                                [run_directory] * len(response_times),
                                 strict=False,
                             )
                         ),
