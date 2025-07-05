@@ -3,7 +3,7 @@
 # results against previous claims and look at variability.
 # Run without name resolution like:
 #
-# ./experiment-raw-speed-tests-run.sh -Dinstance=http://127.0.0.1:8103/42.0_hmis -Dversion=42.0.0 -Dbaseline=41.0.0
+# ./experiment-raw-speed-tests-run.sh -Dinstance=http://127.0.0.1:8103/42.0_hmis -Dversion=42.0.0 -Dbaseline=41.0.0 -Dgatling.resultsFolder=target/gatling/42.0_hmis
 #
 # To find the tomcat port for the DHIS2 instance you are looking for you can do (there might be better
 # ways):

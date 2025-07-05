@@ -4,7 +4,7 @@
 # Check if DEST_DIR parameter is provided
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <DEST_DIR>"
-    echo "DEST_DIR parameter is required (e.g., experiment-raw-speed-tests/42.0_hmis)"
+    echo "DEST_DIR parameter is required (e.g., experiment-raw-speed-tests)"
     exit 1
 fi
 
@@ -16,7 +16,15 @@ rsync --checksum --human-readable --recursive --times --compress --stats \
   ivo@test.performance.dhis2.org:/home/ivo/performance-tests-gatling/target/gatling/ \
   "$DEST_DIR"
 
-glog --config src/test/resources/gatling.conf --scan-subdirs "$DEST_DIR"
+# Run glog on dest_dir and its first level directories
+glog --config src/test/resources/gatling.conf "$DEST_DIR"
+
+# Run glog on each first-level subdirectory
+for dir in "$DEST_DIR"/*/; do
+    if [ -d "$dir" ]; then
+        glog --config src/test/resources/gatling.conf "$dir"
+    fi
+done
 
 # Test: verify that the number of simulation.log files equals the number of simulation.csv files
 log_count=$(find "$DEST_DIR" -name simulation.log | wc -l)
