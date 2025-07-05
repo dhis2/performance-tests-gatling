@@ -39,9 +39,9 @@ percentile_line_colors = {
 mean_color = "#2E86AB"  # Blue
 
 dropdown_position_y = {
-    "simulation": 1.3,
-    "request": 1.22,
-    "timestamp": 1.14,
+    "simulation": 1.25,
+    "request": 1.2,
+    "timestamp": 1.15,
 }
 
 # dropdown configurations for each plot type
@@ -668,9 +668,9 @@ def plot_percentiles_stacked(gatling_data: GatlingData) -> go.Figure:
                         showlegend=is_default,
                         hovertemplate=(
                             f"<b>{range_name}</b><br>"
+                            "Range: %{base:.0f}ms - %{customdata[2]:.0f}ms<br>"
                             "Run number: %{customdata[0]}<br>"
                             "Run timestamp: %{customdata[1]}<br>"
-                            "Range: %{base:.0f}ms - %{customdata[2]:.0f}ms<br>"
                             "Click to copy run directory path<br>"
                             "<extra></extra>"
                         ),
