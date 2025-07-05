@@ -807,7 +807,6 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                 # Calculate histogram
                 counts, bin_edges = np.histogram(response_times, bins=50)
                 bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-                percentages = (counts / len(response_times)) * 100
 
                 # Get run directory for click-to-copy functionality
                 run_data = gatling_data.get_run_data(simulation, run_timestamp)
@@ -820,7 +819,7 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                 fig.add_trace(
                     go.Bar(
                         x=bin_centers,
-                        y=percentages,
+                        y=counts,
                         width=np.diff(bin_edges),
                         name=f"{simulation}_{run_timestamp}_{request_name}_histogram",
                         visible=is_default,
@@ -851,7 +850,7 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                         fig.add_trace(
                             go.Scatter(
                                 x=[percentiles[percentile_name], percentiles[percentile_name]],
-                                y=[0, max(percentages) if percentages.size > 0 else 100],
+                                y=[0, max(counts) if counts.size > 0 else 100],
                                 mode="lines",
                                 line=dict(color=color, width=2, dash="dash"),
                                 name=f"{percentile_name}: {percentiles[percentile_name]:.0f}ms",
@@ -869,7 +868,7 @@ def plot_percentiles(gatling_data: GatlingData) -> go.Figure:
                 fig.add_trace(
                     go.Scatter(
                         x=[mean_value, mean_value],
-                        y=[0, max(percentages) if percentages.size > 0 else 100],
+                        y=[0, max(counts) if counts.size > 0 else 100],
                         mode="lines",
                         line=dict(color="#2E86AB", width=3, dash="solid"),
                         name=f"Mean: {mean_value:.0f}ms",
