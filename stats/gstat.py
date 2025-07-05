@@ -1067,7 +1067,7 @@ def plot_scatter(gatling_data: GatlingData) -> go.Figure:
     # Create x-axis title with directory path
     xaxis_title = "Time"
     if gatling_data.report_directory:
-        xaxis_title = f"Time of {gatling_data.report_directory.name}"
+        xaxis_title = f"End time of requests of {gatling_data.report_directory.name}"
 
     fig.update_layout(
         xaxis_title=xaxis_title,
