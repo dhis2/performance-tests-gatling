@@ -17,14 +17,14 @@ RUNS=24
 
 mvn clean
 for ((i=1; i<=RUNS; i++)); do
-    echo "Running test iteration $i/$RUNS"
+  echo "Running test iteration $i/$((RUNS+1))"
     mvn gatling:test \
      -Dgatling.simulationClass=org.hisp.dhis.test.GetRawSpeedTest \
      -Dscenario=test-scenarios/hmis/analytics-en-query-4-speed-get-test.json \
      "$@"
 
     if [ "$i" -lt "$RUNS" ]; then
-        echo "Waiting 5 minutes before next test..."
+      echo "Waiting 5 minutes before next run $((i+1))/$((RUNS+1))"
         sleep 5m
     fi
 done
