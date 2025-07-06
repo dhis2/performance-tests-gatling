@@ -17,12 +17,12 @@ rsync --checksum --human-readable --recursive --times --compress --stats \
   "$DEST_DIR"
 
 # Run glog on dest_dir and its first level directories
-glog --config src/test/resources/gatling.conf "$DEST_DIR"
+glog --config src/test/resources/gatling.conf --scan-subdirs "$DEST_DIR"
 
 # Run glog on each first-level subdirectory
 for dir in "$DEST_DIR"/*/; do
     if [ -d "$dir" ]; then
-        glog --config src/test/resources/gatling.conf "$dir"
+        glog --config src/test/resources/gatling.conf --scan-subdirs "$dir"
     fi
 done
 
