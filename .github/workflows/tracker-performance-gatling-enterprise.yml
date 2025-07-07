@@ -18,5 +18,7 @@ jobs:
           simulation_id: 98ae2938-eb8a-4da0-83dd-11ee8b21bcab
           extra_system_properties: >
             {
-              "instance": "https://play.im.dhis2.org/stable-2-42-0"
+              "instance": "https://play.im.dhis2.org/stable-2-42-0",
+              "gatling.enterprise.simulationName": "Tracker Exporter Tests",
+              "gatling.enterprise.runTitle": "${{ github.sha }}"
             }
