@@ -41,8 +41,8 @@ services:
       interval: 1s
       timeout: 3s
       retries: 5
-    ports:
-      - "127.0.0.1:5432:5432"
+    # ports:
+    #   - "127.0.0.1:5432:5432"
     depends_on:
       db-dump:
         condition: service_completed_successfully # make sure the DB dump has been downloaded
@@ -56,14 +56,14 @@ services:
     volumes:
       - db-dump:/opt/dump
 
-  tcpdump:
-    image: nicolaka/netshoot
-    command: tcpdump -i eth0 -w /data/dhis2.pcap
-    network_mode: service:web
-    depends_on:
-      - web
-    volumes:
-      - $PWD/data:/data
+  # tcpdump:
+  #   image: nicolaka/netshoot
+  #   command: tcpdump -i eth0 -w /data/dhis2.pcap
+  #   network_mode: service:web
+  #   depends_on:
+  #     - web
+  #   volumes:
+  #     - $PWD/data:/data
 
 volumes:
   db-dump: {}
