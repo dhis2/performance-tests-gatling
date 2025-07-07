@@ -1,8 +1,7 @@
 name: Run Gatling Enterprise Simulation
 
 on:
-  push:
-  # workflow_dispatch:
+  workflow_dispatch:
   #   inputs:
   #     simulation_id:
   #       type: string
