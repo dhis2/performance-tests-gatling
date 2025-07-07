@@ -3,7 +3,7 @@
 # variability when running them inside of Docker.
 # Run like:
 #
-# ./experiment-tracker-exporter-tests-run-docker.sh -Dgatling.resultsFolder=target/gatling/42.0_sl_no_docker
+# ./experiment-tracker-exporter-tests-run-docker.sh -Dgatling.resultsFolder=target/gatling/42.0_sl_docker
 
 cleanup() {
    echo ""
@@ -32,11 +32,8 @@ for ((i=1; i<=RUNS; i++)); do
     timeout 300 bash -c 'until docker compose ps web | grep -q "healthy"; do sleep 10; echo "Still waiting..."; done'
     echo "DHIS2 is ready!"
 
-    # TODO not sure if I can open that port 8080 or if its already taken by tomcats running on the
-    # server
     mvn gatling:test \
      -Dgatling.simulationClass=org.hisp.dhis.test.TrackerExporterTests \
-     -Dinstance=http://localhost:8080
      "$@"
 
     # always start a new DHIS2 container
