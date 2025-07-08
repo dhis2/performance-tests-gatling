@@ -16,5 +16,5 @@ jobs:
           simulation_id: 162bed23-d64a-44d0-94f3-559da4bfb592
           extra_system_properties: >
             {
-              "instance": "https://play.im.dhis2.org/stable-2-42-0",
+              "instance": "https://play.im.dhis2.org/stable-2-42-0"
             }
