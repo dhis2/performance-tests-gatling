@@ -2,9 +2,8 @@
 name: Run Gatling Enterprise Simulation Using Maven Plugin
 
 on:
-  push:
   workflow_dispatch:
-  #
+
 # Here we use concurrency to cancel previous executions if they are still
 # ongoing. Useful to avoid running the same simulation several times
 # simultaneously if we push several code changes in a short time.
