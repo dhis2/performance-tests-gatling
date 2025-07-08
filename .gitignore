@@ -40,3 +40,4 @@ experiment-analysis/.ruff_cache/
 experiment-workflows-gh/
 experiment-workflows-flat/
 experiment-raw-speed-tests/
+experiment-tracker-exporter-tests/
