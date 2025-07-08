@@ -6,12 +6,15 @@
 # ./experiment-tracker-exporter-tests-run-docker.sh -Dgatling.resultsFolder=target/gatling/42.0_sl_docker
 
 cleanup() {
-   echo ""
-   echo "CTRL+C pressed, clean up things before exiting..."
-   exit 1 # this is only ok as I don't care for other scripts calling this script
+  echo ""
+  echo "CTRL+C pressed, clean up things before exiting..."
+  docker compose stop
+  docker compose rm --stop --force web
+  trap - INT # remove trap to avoid recursion by kill
+  kill -INT "$$" # terminate process
 }
 
-trap cleanup SIGINT
+trap cleanup INT
 
 RUNS=24
 
@@ -27,9 +30,18 @@ docker compose up --detach --remove-orphans db
 for ((i=1; i<=RUNS; i++)); do
   echo "Running test iteration $i/$((RUNS+1))"
     DHIS2_IMAGE=dhis2/core:42.0 \
+    DHIS2_DB_DUMP_URL=https://databases.dhis2.org/sierra-leone/2.42.0/dhis2-db-sierra-leone.sql.gz \
     docker compose up --force-recreate --detach web
     echo "Waiting for DHIS2 to start..."
-    timeout 300 bash -c 'until docker compose ps web | grep -q "healthy"; do sleep 10; echo "Still waiting..."; done'
+    start_time=$(date +%s)
+    while ! docker compose ps web | grep -q "healthy"; do
+        sleep 10
+        echo "Still waiting..."
+        if [ $(($(date +%s) - start_time)) -gt 300 ]; then
+            echo "Timeout waiting for DHIS2 to start"
+            exit 1
+        fi
+    done
     echo "DHIS2 is ready!"
 
     mvn gatling:test \
