@@ -1,0 +1,47 @@
+# https://docs.gatling.io/integrations/build-tools/maven-plugin/#running-your-simulations
+name: Run Gatling Enterprise Simulation Using Maven Plugin
+
+on:
+  push:
+  workflow_dispatch:
+  #
+# Here we use concurrency to cancel previous executions if they are still
+# ongoing. Useful to avoid running the same simulation several times
+# simultaneously if we push several code changes in a short time.
+# See https://docs.github.com/actions/using-jobs/using-concurrency.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SIMULATION_ID: '162bed23-d64a-44d0-94f3-559da4bfb592'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build and deploy Gatling simulation
+        run: mvn gatling:enterpriseDeploy -Dgatling.enterprise.validateSimulationId=${{ env.SIMULATION_ID }}
+
+      - name: Start Gatling simulation
+        run: |
+          mvn clean gatling:enterpriseStart -Dgatling.simulationClass=org.hisp.dhis.test.TrackerExporterTests \
+            -Dgatling.enterprise.waitForRunEnd=true \
+            -Dgatling.enterprise.simulationName="org.hisp.dhis.test.TrackerExporterTests" \
+            -Dgatling.enterprise.runTitle="run ${{ github.run_id }} commit ${{ github.sha }}" -Dgatling.enterprise.runDescription="GitHub workflow run ${{ github.run_id }} commit ${{ github.sha }}"

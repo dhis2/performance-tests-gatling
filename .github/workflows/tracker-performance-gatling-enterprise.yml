@@ -1,11 +1,8 @@
-name: Run Gatling Enterprise Simulation
+# https://docs.gatling.io/integrations/ci-cd/github-actions
+name: Run Gatling Enterprise Simulation Using GHA
 
 on:
   workflow_dispatch:
-  #   inputs:
-  #     simulation_id:
-  #       type: string
-  #       required: true
 
 jobs:
   run:
@@ -15,10 +12,9 @@ jobs:
         uses: gatling/enterprise-action@v1
         with:
           api_token: ${{ secrets.GATLING_ENTERPRISE_API_TOKEN }}
-          simulation_id: 98ae2938-eb8a-4da0-83dd-11ee8b21bcab
+          # ../../.gatling/package.conf
+          simulation_id: 162bed23-d64a-44d0-94f3-559da4bfb592
           extra_system_properties: >
             {
               "instance": "https://play.im.dhis2.org/stable-2-42-0",
-              "gatling.enterprise.simulationName": "Tracker Exporter Tests",
-              "gatling.enterprise.runTitle": "${{ github.sha }}"
             }
