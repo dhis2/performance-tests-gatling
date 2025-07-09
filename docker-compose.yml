@@ -1,11 +1,16 @@
 services:
+  # TODO put constraints on CPU usage
+  # TODO should we change connection pool settings? or should DHIS2 defaults be used?
+  # https://docs.dhis2.org/en/manage/reference/dhisconf.html
   web:
     image: "${DHIS2_IMAGE:-dhis2/core-dev:local}"
+    mem_limit: 16gb
+    # TODO does DHIS2/tomcat use shared memory?
     environment:
       JAVA_OPTS:
         "-Dlog4j2.configurationFile=/opt/dhis2/log4j2.xml"
     healthcheck:
-      test: [ "CMD","curl", "--fail","http://localhost:8080/dhis-web-login" ]
+      test: [ "CMD","curl", "--fail","http://localhost:8080/api/ping" ]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -19,11 +24,37 @@ services:
       db:
         condition: service_healthy
 
+  # https://docs.dhis2.org/en/manage/reference/postgresql.html
+  # https://www.postgresql.org/docs/16/runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY
+  # https://www.cybertec-postgresql.com/en/effective_cache_size-a-practical-example/
+  # https://github.com/mastodon/mastodon/blob/fb6c22f5c275685aa644d84c003e1d6922e15d40/docker-compose.yml#L8
+  # https://wiki.postgresql.org/wiki/Tuning_Your_PostgreSQL_Server
   db:
-    image: ghcr.io/baosystems/postgis:12-3.3
-    # uncomment to enable query logging
-    # command:
-    #   ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
+    # TODO any difference to 16-3.5-alpine ?
+    image: postgis/postgis:16-3.5
+    mem_limit: 16gb
+    shm_size: 256mb
+    command:
+      - postgres
+      - -c
+      - jit=off
+      - -c
+      - max_connections=200
+      - -c
+      - effective_cache_size=11GB # ~70% of RAM
+      - -c
+      - shared_buffers=5.6GB # ~35% of RAM
+      # TODO go through each config
+      - -c
+      - maintenance_work_mem=1GB
+      - -c
+      - work_mem=24MB
+      # - -c
+      # - checkpoint_completion_target = 0.8
+      # - -c
+      # - wal_writer_delay = 10s
+      # temp_buffers = 16MB # TODO can I see the need/effect of this?
+      # TODO try https://www.postgresql.org/docs/9.3/runtime-config-logging.html#GUC-LOG-TEMP-FILES
     volumes:
       - db-dump:/docker-entrypoint-initdb.d/
     environment:
@@ -41,8 +72,8 @@ services:
       interval: 1s
       timeout: 3s
       retries: 5
-    # ports:
-    #   - "127.0.0.1:5432:5432"
+    ports:
+      - "127.0.0.1:5432:5432"
     depends_on:
       db-dump:
         condition: service_completed_successfully # make sure the DB dump has been downloaded
@@ -56,14 +87,16 @@ services:
     volumes:
       - db-dump:/opt/dump
 
-  # tcpdump:
-  #   image: nicolaka/netshoot
-  #   command: tcpdump -i eth0 -w /data/dhis2.pcap
-  #   network_mode: service:web
-  #   depends_on:
-  #     - web
-  #   volumes:
-  #     - $PWD/data:/data
+  tcpdump:
+    profiles:
+      - debug
+    image: nicolaka/netshoot
+    command: tcpdump -i eth0 -w /data/dhis2.pcap
+    network_mode: service:web
+    depends_on:
+      - web
+    volumes:
+      - $PWD/data:/data
 
 volumes:
   db-dump: {}
