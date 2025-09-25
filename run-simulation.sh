@@ -27,6 +27,7 @@ fi
 
 MVN_ARGS=${MVN_ARGS:-""}
 DHIS2_DB_DUMP_URL=${DHIS2_DB_DUMP_URL:-"https://databases.dhis2.org/sierra-leone/dev/dhis2-db-sierra-leone.sql.gz"}
+DHIS2_DB_IMAGE_SUFFIX=${DHIS2_DB_IMAGE_SUFFIX:-"sierra-leone-dev"}
 HEALTHCHECK_TIMEOUT=${HEALTHCHECK_TIMEOUT:-300} # default of 5min
 HEALTHCHECK_INTERVAL=${HEALTHCHECK_INTERVAL:-10} # default of 10s
 
@@ -80,6 +81,7 @@ simulation_run_file="$gatling_run_dir/simulation-run.txt"
   echo "SCRIPT_ARGS=$*"
   echo "DHIS2_IMAGE=$DHIS2_IMAGE"
   echo "DHIS2_DB_DUMP_URL=$DHIS2_DB_DUMP_URL"
+  echo "DHIS2_DB_IMAGE_SUFFIX=$DHIS2_DB_IMAGE_SUFFIX"
   echo "SIMULATION_CLASS=$SIMULATION_CLASS"
   echo "MVN_ARGS=$MVN_ARGS"
   echo "HEALTHCHECK_TIMEOUT=$HEALTHCHECK_TIMEOUT"
