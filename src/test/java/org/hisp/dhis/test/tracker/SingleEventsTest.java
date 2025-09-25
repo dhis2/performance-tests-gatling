@@ -82,7 +82,7 @@ public class SingleEventsTest extends Simulation {
     // get a 100 requests per run irrespective of the response times so comparisons are likely
     // to be more accurate
     String query =
-        "/api/tracker/events?fields=dataValues,occurredAt,event,status,orgUnit,program,programType,updatedAt,createdAt,assignedUser,&program=lxAQ7Zs9VYR&orgUnit=DiszpKrYNg8&orgUnitMode=SELECTED&order=occurredAt:desc";
+        "/api/tracker/events?fields=dataValues,occurredAt,event,status,orgUnit,program,programType,updatedAt,createdAt,assignedUser,&program=eBAyeGv0exc&orgUnit=DiszpKrYNg8&orgUnitMode=SELECTED&order=occurredAt:desc";
     if (pageSize != null) {
       query = query + "&pageSize=" + pageSize;
     }
