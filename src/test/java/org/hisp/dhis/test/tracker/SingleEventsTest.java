@@ -28,79 +28,98 @@
 package org.hisp.dhis.test.tracker;
 
 import io.gatling.javaapi.core.OpenInjectionStep;
+import io.gatling.javaapi.core.PopulationBuilder;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static io.gatling.javaapi.core.CoreDsl.bodyString;
 import static io.gatling.javaapi.core.CoreDsl.details;
+import static io.gatling.javaapi.core.CoreDsl.exec;
+import static io.gatling.javaapi.core.CoreDsl.forAll;
+import static io.gatling.javaapi.core.CoreDsl.jsonPath;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
+import static org.hisp.dhis.TestDefinitions.constantSingleUser;
 
 public class SingleEventsTest extends Simulation {
 
   public SingleEventsTest() {
-    String baseUrl = System.getProperty("instance", "http://localhost:8080");
-    String repeat = System.getProperty("repeat", "100");
-    String pageSize = System.getProperty("pageSize");
-    String page = System.getProperty("page");
-    // TODO maybe try this to see the effect on the response times
-    // https://docs.gatling.io/concepts/scenario/#pace
-    // String pause = System.getProperty("pause", "0");
+      String baseUrl = System.getProperty("instance", "http://localhost:8080");
+      String repeat = System.getProperty("repeat", "100");
+      String pageSize = System.getProperty("pageSize");
+      String program = System.getProperty("program", "VBqh0ynB2wv");
+      // TODO maybe try this to see the effect on the response times
+      // https://docs.gatling.io/concepts/scenario/#pace
+      // String pause = System.getProperty("pause", "0");
 
-    HttpProtocolBuilder httpProtocolBuilder =
-        http.baseUrl(baseUrl)
-            .acceptHeader("application/json")
-            .maxConnectionsPerHost(100)
-            .basicAuth("admin", "district")
-            .header("Content-Type", "application/json")
-            .userAgentHeader("Gatling/Performance Test")
-            .warmUp(
-                    baseUrl
-                            + "/api/ping") // https://docs.gatling.io/reference/script/http/protocol/#warmup
-            .disableCaching(); // to repeat the same request without HTTP cache influence (304)
+      HttpProtocolBuilder httpProtocolBuilder =
+              http.baseUrl(baseUrl)
+                      .acceptHeader("application/json")
+                      .maxConnectionsPerHost(100)
+                      .basicAuth("admin", "district")
+                      .header("Content-Type", "application/json")
+                      .userAgentHeader("Gatling/Performance Test")
+                      .warmUp(
+                              baseUrl
+                                      + "/api/ping") // https://docs.gatling.io/reference/script/http/protocol/#warmup
+                      .disableCaching(); // to repeat the same request without HTTP cache influence (304)
 
-    // https://docs.gatling.io/reference/script/http/protocol/#shareconnections
-    // This only has an influence on tests with multiple virtual users (VU).
-    //
-    // https://stackoverflow.com/questions/34987476/gatling-repeat-with-connection-re-use
-    // > By default, Gatling has one connection pool per virtual user, so each of them do re-use
-    // > connections between sequential requests, and can have more than one concurrent connection
-    // when
-    // > dealing with resource fetching, which you do as you enabled inferHtmlResources. This way,
-    // virtual
-    // > users behave as independent browsers.
-    //
-    // https://groups.google.com/g/gatling/c/wesGpk4-_eQ/m/FG1V3KDaUtMJ
-    // > shareConnections means that you have one single global HTTP connection pool, not one per
-    // virtual
-    // > user.
-    if (System.getProperty("shareConnections") != null) {
-      httpProtocolBuilder.shareConnections();
-    }
-
-    // get a 100 requests per run irrespective of the response times so comparisons are likely
-    // to be more accurate
-    String query =
-        "/api/tracker/events?fields=dataValues,occurredAt,event,status,orgUnit,program,programType,updatedAt,createdAt,assignedUser,&program=eBAyeGv0exc&orgUnit=DiszpKrYNg8&orgUnitMode=SELECTED&order=occurredAt:desc";
-    if (pageSize != null) {
-      query = query + "&pageSize=" + pageSize;
-    }
-      if (page != null) {
-          query = query + "&page=" + page;
+      // https://docs.gatling.io/reference/script/http/protocol/#shareconnections
+      // This only has an influence on tests with multiple virtual users (VU).
+      //
+      // https://stackoverflow.com/questions/34987476/gatling-repeat-with-connection-re-use
+      // > By default, Gatling has one connection pool per virtual user, so each of them do re-use
+      // > connections between sequential requests, and can have more than one concurrent connection
+      // when
+      // > dealing with resource fetching, which you do as you enabled inferHtmlResources. This way,
+      // virtual
+      // > users behave as independent browsers.
+      //
+      // https://groups.google.com/g/gatling/c/wesGpk4-_eQ/m/FG1V3KDaUtMJ
+      // > shareConnections means that you have one single global HTTP connection pool, not one per
+      // virtual
+      // > user.
+      if (System.getProperty("shareConnections") != null) {
+          httpProtocolBuilder.shareConnections();
       }
 
-    ScenarioBuilder scenario =
-        scenario(query)
-            .repeat(Integer.parseInt(repeat))
-            .on(http(query).get(query).check(status().is(200)));
+      String singleEventQuery = "/api/tracker/events/#{eventUid}";
+      String relationshipQuery = "/api/tracker/relationships?event=#{eventUid}&fields=from,to,relationshipType,relationship,createdAt";
 
-    // only one user at a time
-    setUp(scenario.injectOpen(OpenInjectionStep.atOnceUsers(1)))
-        // setUp(scenario.injectClosed(constantSingleUser(15)))
-        .protocols(httpProtocolBuilder)
-        .assertions(
-            details(query).successfulRequests().percent().gte(100d),
-            details(query).responseTime().percentile(90).lte(5000));
+      // get a 100 requests per run irrespective of the response times so comparisons are likely
+      // to be more accurate
+      String query = "/api/tracker/events?program=" + program + "&fields=dataValues,occurredAt,event,status,orgUnit,program,programType,updatedAt,createdAt,assignedUser,&orgUnit=DiszpKrYNg8&orgUnitMode=SELECTED&order=occurredAt:desc";
+      if (pageSize != null) {
+          query = query + "&pageSize=" + pageSize;
+      }
+
+      ScenarioBuilder scenario = scenario("SingleEvents");
+
+         scenario = scenario.repeat(Integer.parseInt(repeat))
+                 .on(
+                    exec(http("Go to first page of program "+ program).get(query).check(status().is(200)))
+                    .exec(http("Go to second page of program "+ program).get(query+"&page=2").check(status().is(200)))
+                    .exec(http("Go back to first page of program " + program ).get(query).check(status().is(200)).check(jsonPath("$.events[0].event").saveAs("eventUid")))
+                    .exec(http("Get event #{eventUid}").get(singleEventQuery).check(status().is(200)))
+                    .exec(http("Get relationships for event #{eventUid}").get(relationshipQuery).check(status().is(200)))
+                 );
+
+          // only one user at a time
+          setUp(scenario.injectClosed(constantSingleUser(1)))
+                   // setUp(scenario.injectClosed(constantSingleUser(15)))
+                  .protocols(httpProtocolBuilder)
+                  .assertions(
+                          forAll().successfulRequests().percent().gte(100d),
+                          forAll().responseTime().percentile(90).lte(5000));
   }
 }
