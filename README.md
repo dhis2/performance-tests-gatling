@@ -1,5 +1,9 @@
 # Performance tests
 
+> [!WARNING]
+> Performance tests have moved to
+> https://github.com/dhis2/dhis2-core/tree/master/dhis-2/dhis-test-performance.
+
 The performance tests are becoming extremely important as DHIS2 gets more visibility.
 Each year users enter and store a large amount of data, while DHIS2 is gaining new and more complex
 features.
